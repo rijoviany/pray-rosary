@@ -1,0 +1,212 @@
+{
+  "mysterySets": [
+    {
+      "id": "joyful",
+      "name": "The Joyful Mysteries",
+      "recommendedDays": ["Monday", "Saturday"],
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "The Annunciation",
+          "scriptureReference": "Luke 1:28",
+          "scriptureText": "Hail, full of grace, the Lord is with you.",
+          "meditation": "The Angel Gabriel announces to Mary that she will become the Mother of God.",
+          "fruitOfMystery": "Humility",
+          "imageAsset": "mystery_joyful_1"
+        },
+        {
+          "number": 2,
+          "title": "The Visitation",
+          "scriptureReference": "Luke 1:41-42",
+          "scriptureText": "Blessed are you among women, and blessed is the fruit of your womb.",
+          "meditation": "Mary visits her cousin Elizabeth who is with child in her old age.",
+          "fruitOfMystery": "Love of Neighbor",
+          "imageAsset": "mystery_joyful_2"
+        },
+        {
+          "number": 3,
+          "title": "The Nativity",
+          "scriptureReference": "Luke 2:7",
+          "scriptureText": "She gave birth to her firstborn son and wrapped him in swaddling clothes.",
+          "meditation": "Jesus Christ is born in Bethlehem in a lowly stable.",
+          "fruitOfMystery": "Poverty of Spirit",
+          "imageAsset": "mystery_joyful_3"
+        },
+        {
+          "number": 4,
+          "title": "The Presentation",
+          "scriptureReference": "Luke 2:29-30",
+          "scriptureText": "My eyes have seen your salvation which you have prepared in the sight of all people.",
+          "meditation": "Mary and Joseph present the child Jesus in the Temple of Jerusalem.",
+          "fruitOfMystery": "Obedience and Purity",
+          "imageAsset": "mystery_joyful_4"
+        },
+        {
+          "number": 5,
+          "title": "Finding in the Temple",
+          "scriptureReference": "Luke 2:49",
+          "scriptureText": "Did you not know that I must be in my Father's house?",
+          "meditation": "After three days of searching, Mary and Joseph find the boy Jesus in the Temple.",
+          "fruitOfMystery": "Joy in Finding Christ",
+          "imageAsset": "mystery_joyful_5"
+        }
+      ]
+    },
+    {
+      "id": "luminous",
+      "name": "The Luminous Mysteries",
+      "recommendedDays": ["Thursday"],
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "The Baptism in the Jordan",
+          "scriptureReference": "Matthew 3:17",
+          "scriptureText": "This is my beloved Son, with whom I am well pleased.",
+          "meditation": "John baptizes Jesus in the River Jordan as the heavens open.",
+          "fruitOfMystery": "Openness to the Holy Spirit",
+          "imageAsset": "mystery_luminous_1"
+        },
+        {
+          "number": 2,
+          "title": "The Wedding at Cana",
+          "scriptureReference": "John 2:5",
+          "scriptureText": "Do whatever he tells you.",
+          "meditation": "At Mary's request, Jesus performs his first miracle turning water into wine.",
+          "fruitOfMystery": "To Jesus through Mary",
+          "imageAsset": "mystery_luminous_2"
+        },
+        {
+          "number": 3,
+          "title": "Proclamation of the Kingdom",
+          "scriptureReference": "Mark 1:15",
+          "scriptureText": "Repent, and believe in the gospel.",
+          "meditation": "Jesus preaches the Good News, calling all people to conversion.",
+          "fruitOfMystery": "Repentance and Trust",
+          "imageAsset": "mystery_luminous_3"
+        },
+        {
+          "number": 4,
+          "title": "The Transfiguration",
+          "scriptureReference": "Matthew 17:2",
+          "scriptureText": "His face shone like the sun, and his clothes became white as light.",
+          "meditation": "Jesus reveals His divine glory on Mount Tabor before Peter, James, and John.",
+          "fruitOfMystery": "Desire for Holiness",
+          "imageAsset": "mystery_luminous_4"
+        },
+        {
+          "number": 5,
+          "title": "Institution of the Eucharist",
+          "scriptureReference": "Matthew 26:26",
+          "scriptureText": "Take, eat; this is my body.",
+          "meditation": "At the Last Supper, Jesus gives us His Body and Blood in the Holy Eucharist.",
+          "fruitOfMystery": "Eucharistic Adoration",
+          "imageAsset": "mystery_luminous_5"
+        }
+      ]
+    },
+    {
+      "id": "sorrowful",
+      "name": "The Sorrowful Mysteries",
+      "recommendedDays": ["Tuesday", "Friday"],
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "The Agony in the Garden",
+          "scriptureReference": "Luke 22:42",
+          "scriptureText": "Father, if you are willing, remove this chalice; yet not my will, but yours be done.",
+          "meditation": "Jesus prays under the olive trees of Gethsemane, sweating drops of blood.",
+          "fruitOfMystery": "Sorrow for Sin",
+          "imageAsset": "mystery_sorrowful_1"
+        },
+        {
+          "number": 2,
+          "title": "The Scourging at the Pillar",
+          "scriptureReference": "John 19:1",
+          "scriptureText": "Pilate took Jesus and had him scourged.",
+          "meditation": "Jesus is bound to a pillar and brutally whipped for our offenses.",
+          "fruitOfMystery": "Mortification of the Senses",
+          "imageAsset": "mystery_sorrowful_2"
+        },
+        {
+          "number": 3,
+          "title": "The Crowning with Thorns",
+          "scriptureReference": "Matthew 27:29",
+          "scriptureText": "Platting a crown of thorns, they put it upon his head.",
+          "meditation": "Soldiers mock the King of Kings with a thorny crown and purple cloak.",
+          "fruitOfMystery": "Moral Courage",
+          "imageAsset": "mystery_sorrowful_3"
+        },
+        {
+          "number": 4,
+          "title": "The Carrying of the Cross",
+          "scriptureReference": "John 19:17",
+          "scriptureText": "Bearing his own cross, he went forth to the place of the Skull.",
+          "meditation": "Jesus carries the heavy wooden cross along the Via Dolorosa to Calvary.",
+          "fruitOfMystery": "Patience in Adversity",
+          "imageAsset": "mystery_sorrowful_4"
+        },
+        {
+          "number": 5,
+          "title": "The Crucifixion",
+          "scriptureReference": "Luke 23:46",
+          "scriptureText": "Father, into your hands I commend my spirit.",
+          "meditation": "Jesus dies on the Cross after three hours of agony to redeem humanity.",
+          "fruitOfMystery": "Pardoning of Injuries",
+          "imageAsset": "mystery_sorrowful_5"
+        }
+      ]
+    },
+    {
+      "id": "glorious",
+      "name": "The Glorious Mysteries",
+      "recommendedDays": ["Wednesday", "Sunday"],
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "The Resurrection",
+          "scriptureReference": "Mark 16:6",
+          "scriptureText": "He has risen; he is not here.",
+          "meditation": "Christ gloriously triumphs over death and rises on the third day.",
+          "fruitOfMystery": "Faith",
+          "imageAsset": "mystery_glorious_1"
+        },
+        {
+          "number": 2,
+          "title": "The Ascension",
+          "scriptureReference": "Acts 1:9",
+          "scriptureText": "As they were looking on, he was lifted up, and a cloud took him out of their sight.",
+          "meditation": "Forty days after Easter, Jesus ascends body and soul into Heaven.",
+          "fruitOfMystery": "Hope",
+          "imageAsset": "mystery_glorious_2"
+        },
+        {
+          "number": 3,
+          "title": "Descent of the Holy Spirit",
+          "scriptureReference": "Acts 2:4",
+          "scriptureText": "And they were all filled with the Holy Spirit.",
+          "meditation": "The Holy Spirit descends as tongues of fire upon the Apostles and Mary.",
+          "fruitOfMystery": "Love of God",
+          "imageAsset": "mystery_glorious_3"
+        },
+        {
+          "number": 4,
+          "title": "The Assumption",
+          "scriptureReference": "Song of Songs 2:10",
+          "scriptureText": "Arise, my love, my fair one, and come away.",
+          "meditation": "The Blessed Virgin Mary is taken body and soul into heavenly glory.",
+          "fruitOfMystery": "Grace of a Happy Death",
+          "imageAsset": "mystery_glorious_4"
+        },
+        {
+          "number": 5,
+          "title": "Coronation of Mary",
+          "scriptureReference": "Revelation 12:1",
+          "scriptureText": "A woman clothed with the sun, with the moon under her feet, and on her head a crown of twelve stars.",
+          "meditation": "Mary is crowned by the Holy Trinity as Queen of Heaven and Earth.",
+          "fruitOfMystery": "Trust in Mary's Intercession",
+          "imageAsset": "mystery_glorious_5"
+        }
+      ]
+    }
+  ]
+}

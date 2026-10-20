@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="parchment">#E8D9B5</color>
+    <color name="ink_brown">#3B2A1A</color>
+    <color name="ultramarine">#1F3FA6</color>
+    <color name="gold">#C9A227</color>
+    <color name="oxblood">#6B1E1E</color>
+    <color name="dark_bg">#120E0A</color>
+</resources>

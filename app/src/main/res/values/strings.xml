@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Rosarium</string>
+    <string name="app_subtitle">The Holy Rosary</string>
+    <string name="pull_to_pray">Pull down to pray</string>
+    <string name="tap_to_pray">Tap to pray</string>
+    <string name="menu">Menu</string>
+    <string name="progress">Progress</string>
+    <string name="mysteries">Mysteries</string>
+    <string name="settings">Settings</string>
+</resources>
