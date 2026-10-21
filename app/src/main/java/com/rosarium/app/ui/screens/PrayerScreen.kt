@@ -74,9 +74,10 @@ fun PrayerScreen(
                 contentDescription = "Rosarium Prayer Screen. ${state.currentMysterySet.name}, decade ${state.decadeIndex + 1} of 5."
             }
     ) {
-        // 1. Crossfading Mystery Artwork with soft vignette
+        // 1. Crossfading Mystery Artwork with prayer-specific atmosphere
         MysteryBackground(
             currentMystery = state.currentMystery,
+            currentStep = state.currentStep,
             isHoldPraying = state.isPrayingActive
         )
 
@@ -95,6 +96,7 @@ fun PrayerScreen(
             isTapToPrayEnabled = settings.tapToPrayEnabled,
             prayerProgress = state.prayerProgress,
             isSnappingUp = state.isSpringSnapping,
+            currentStep = state.currentStep,
             onHoldStart = { viewModel.startPrayer() },
             onHoldReleaseEarly = { viewModel.cancelPrayerEarly() },
             onPrayerFinished = { viewModel.onSnapUpAnimationFinished() },
@@ -127,6 +129,7 @@ fun PrayerScreen(
                 currentPhraseIndex = state.currentPhraseIndex,
                 prayerProgress = state.prayerProgress,
                 visible = state.isPrayingActive,
+                currentStep = state.currentStep,
                 fontScale = settings.fontScale
             )
         }

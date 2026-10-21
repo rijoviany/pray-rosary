@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rosarium.app.data.model.DecadeStep
 import com.rosarium.app.data.model.Prayer
 import com.rosarium.app.ui.theme.InkBrown
 import com.rosarium.app.ui.theme.InkBrownDark
@@ -48,10 +49,11 @@ import com.rosarium.app.ui.theme.ParchmentBase
 import com.rosarium.app.ui.theme.ParchmentBorder
 import com.rosarium.app.ui.theme.ParchmentDark
 import com.rosarium.app.ui.theme.ParchmentLight
+import com.rosarium.app.ui.theme.PrayerThemes
 
 /**
  * Renders the illuminated parchment scroll banner displaying the active prayer text
- * with phrase-by-phrase karaoke illumination.
+ * with phrase-by-phrase karaoke illumination and prayer-specific theme trim.
  */
 @Composable
 fun PrayerBanner(
@@ -59,9 +61,11 @@ fun PrayerBanner(
     currentPhraseIndex: Int,
     prayerProgress: Float,
     visible: Boolean,
+    currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     fontScale: Float = 1.0f,
     modifier: Modifier = Modifier
 ) {
+    val theme = PrayerThemes.forStep(currentStep)
     AnimatedVisibility(
         visible = visible && prayer != null,
         enter = fadeIn() + scaleIn(initialScale = 0.94f),

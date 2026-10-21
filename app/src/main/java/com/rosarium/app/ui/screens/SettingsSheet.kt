@@ -74,65 +74,66 @@ fun SettingsSheet(
                 modifier = Modifier.padding(bottom = 20.dp)
             )
 
-            // 1. Language Toggle (English vs Malayalam)
+            // 1. Language Selector
             Text(
-                text = "Language / ഭാഷ",
+                text = "Language / மொழி / भाषा",
                 color = MedievalGoldBright,
                 fontSize = 14.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                val isEn = settings.language == "en"
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(
-                            1.dp,
-                            if (isEn) MedievalGoldBright else ParchmentDark.copy(alpha = 0.3f),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .background(if (isEn) UltramarineLapis else Color(0xFF1E1711))
-                        .clickable { onUpdateSettings(settings.copy(language = "en")) }
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "English",
-                        color = ParchmentLight,
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = if (isEn) FontWeight.Bold else FontWeight.Normal
-                    )
-                }
+            Spacer(modifier = Modifier.height(10.dp))
 
-                val isMl = settings.language == "ml"
-                Box(
+            val languages = listOf(
+                "en" to "English",
+                "ml" to "മലയാളം",
+                "ta" to "தமிழ்",
+                "hi" to "हिन्दी",
+                "kok" to "कोंकणी",
+                "mr" to "मराठी",
+                "te" to "తెలుగు",
+                "kn" to "ಕನ್ನಡ",
+                "gu" to "ગુજરાતી"
+            )
+
+            // 3 items per row grid
+            languages.chunked(3).forEach { rowLanguages ->
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(
-                            1.dp,
-                            if (isMl) MedievalGoldBright else ParchmentDark.copy(alpha = 0.3f),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .background(if (isMl) UltramarineLapis else Color(0xFF1E1711))
-                        .clickable { onUpdateSettings(settings.copy(language = "ml")) }
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = "മലയാളം",
-                        color = ParchmentLight,
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = if (isMl) FontWeight.Bold else FontWeight.Normal
-                    )
+                    rowLanguages.forEach { (code, label) ->
+                        val isSelected = settings.language == code
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = if (isSelected) MedievalGoldBright else ParchmentDark.copy(alpha = 0.3f),
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .background(if (isSelected) UltramarineLapis else Color(0xFF1E1711))
+                                .clickable { onUpdateSettings(settings.copy(language = code)) }
+                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                color = if (isSelected) ParchmentLight else ParchmentBase,
+                                fontSize = 13.5.sp,
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    }
+                    // Fill remaining slots in last row if not divisible by 3
+                    repeat(3 - rowLanguages.size) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                 }
             }
 

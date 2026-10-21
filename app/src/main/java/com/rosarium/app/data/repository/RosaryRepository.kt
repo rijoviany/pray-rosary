@@ -16,38 +16,35 @@ class RosaryRepository(private val context: Context) {
         isLenient = true
     }
 
-    private var englishMysteries: MysteryCatalog? = null
-    private var malayalamMysteries: MysteryCatalog? = null
-
-    private var englishPrayers: Map<String, Prayer>? = null
-    private var malayalamPrayers: Map<String, Prayer>? = null
+    private val mysteryCache = mutableMapOf<String, MysteryCatalog>()
+    private val prayerCache = mutableMapOf<String, Map<String, Prayer>>()
 
     fun getMysteryCatalog(language: String): MysteryCatalog {
-        return if (language == "ml") {
-            if (malayalamMysteries == null) {
-                malayalamMysteries = loadMysteryCatalog(R.raw.mysteries_ml)
-            }
-            malayalamMysteries ?: loadMysteryCatalog(R.raw.mysteries_en)
-        } else {
-            if (englishMysteries == null) {
-                englishMysteries = loadMysteryCatalog(R.raw.mysteries_en)
-            }
-            englishMysteries!!
+        mysteryCache[language]?.let { return it }
+
+        val resName = "mysteries_$language"
+        var resId = context.resources.getIdentifier(resName, "raw", context.packageName)
+        if (resId == 0) {
+            resId = R.raw.mysteries_en
         }
+
+        val catalog = loadMysteryCatalog(resId)
+        mysteryCache[language] = catalog
+        return catalog
     }
 
     fun getPrayers(language: String): Map<String, Prayer> {
-        return if (language == "ml") {
-            if (malayalamPrayers == null) {
-                malayalamPrayers = loadPrayers(R.raw.prayers_ml)
-            }
-            malayalamPrayers ?: loadPrayers(R.raw.prayers_en)
-        } else {
-            if (englishPrayers == null) {
-                englishPrayers = loadPrayers(R.raw.prayers_en)
-            }
-            englishPrayers!!
+        prayerCache[language]?.let { return it }
+
+        val resName = "prayers_$language"
+        var resId = context.resources.getIdentifier(resName, "raw", context.packageName)
+        if (resId == 0) {
+            resId = R.raw.prayers_en
         }
+
+        val prayers = loadPrayers(resId)
+        prayerCache[language] = prayers
+        return prayers
     }
 
     /**

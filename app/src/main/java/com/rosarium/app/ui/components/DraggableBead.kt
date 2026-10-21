@@ -39,12 +39,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rosarium.app.data.model.DecadeStep
 import com.rosarium.app.physics.PhysicsConstants
 import com.rosarium.app.ui.theme.GoldGlow
 import com.rosarium.app.ui.theme.MedievalGold
 import com.rosarium.app.ui.theme.MedievalGoldBright
 import com.rosarium.app.ui.theme.MedievalGoldDark
 import com.rosarium.app.ui.theme.ParchmentLight
+import com.rosarium.app.ui.theme.PrayerThemes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,6 +65,7 @@ fun DraggableBead(
     isTapToPrayEnabled: Boolean,
     prayerProgress: Float,
     isSnappingUp: Boolean,
+    currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     onHoldStart: () -> Unit,
     onHoldReleaseEarly: () -> Unit,
     onPrayerFinished: () -> Unit,
@@ -252,18 +255,19 @@ fun DraggableBead(
                 },
             contentAlignment = Alignment.Center
         ) {
-            // Bead Visual (Blue Hail Mary or White Our Father)
+            // Bead Visual with prayer-specific liturgical color and aura
             Canvas(modifier = Modifier.size(72.dp)) {
                 val cx = size.width / 2f
                 val cy = size.height / 2f
                 val radius = 24.dp.toPx()
+                val prayerTheme = PrayerThemes.forStep(currentStep)
 
                 // Pulsing glow if active
                 if (isPrayingActive) {
                     val glowBrush = Brush.radialGradient(
                         colors = listOf(
-                            GoldGlow.copy(alpha = 0.85f),
-                            MedievalGoldBright.copy(alpha = 0.45f),
+                            prayerTheme.auraGlow.copy(alpha = 0.85f),
+                            prayerTheme.secondaryAccent.copy(alpha = 0.45f),
                             Color.Transparent
                         ),
                         center = Offset(cx, cy),
@@ -272,32 +276,24 @@ fun DraggableBead(
                     drawCircle(brush = glowBrush, radius = radius * 2.2f, center = Offset(cx, cy))
                 }
 
-                if (isWhiteBead) {
-                    drawMotherOfPearlBead(
-                        cx = cx,
-                        cy = cy,
-                        radius = radius * 1.15f,
-                        isCompleted = isPrayingActive,
-                        pulse = 1f
-                    )
-                } else {
-                    drawLapisLazuliBead(
-                        cx = cx,
-                        cy = cy,
-                        radius = radius,
-                        isCompleted = isPrayingActive,
-                        pulse = 1f
-                    )
-                }
+                // Draw prayer-specific 3D bead
+                drawPrayerBead(
+                    step = currentStep,
+                    cx = cx,
+                    cy = cy,
+                    radius = radius,
+                    isCompleted = isPrayingActive,
+                    pulse = 1f
+                )
 
-                // Ornate bottom filigree cap
+                // Ornate bottom filigree cap in theme accent
                 val filigreePath = Path().apply {
                     moveTo(cx - 10.dp.toPx(), cy + radius * 0.85f)
                     quadraticBezierTo(cx, cy + radius * 1.35f, cx + 10.dp.toPx(), cy + radius * 0.85f)
                 }
                 drawPath(
                     path = filigreePath,
-                    color = MedievalGoldBright,
+                    color = prayerTheme.secondaryAccent,
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.5.dp.toPx())
                 )
             }

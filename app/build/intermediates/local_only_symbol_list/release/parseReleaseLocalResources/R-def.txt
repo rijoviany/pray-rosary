@@ -1,0 +1,37 @@
+R_DEF: Internal format may change without notice
+local
+color dark_bg
+color gold
+color ink_brown
+color oxblood
+color parchment
+color ultramarine
+drawable ic_launcher_foreground
+drawable mystery_joyful_1
+mipmap ic_launcher
+mipmap ic_launcher_round
+raw bead_clack
+raw mysteries_en
+raw mysteries_hi
+raw mysteries_ml
+raw mysteries_ta
+raw prayer_bell
+raw prayers_en
+raw prayers_gu
+raw prayers_hi
+raw prayers_kn
+raw prayers_kok
+raw prayers_ml
+raw prayers_mr
+raw prayers_ta
+raw prayers_te
+raw string_tension
+string app_name
+string app_subtitle
+string menu
+string mysteries
+string progress
+string pull_to_pray
+string settings
+string tap_to_pray
+style Theme.Rosarium

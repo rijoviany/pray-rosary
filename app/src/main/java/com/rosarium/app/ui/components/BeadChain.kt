@@ -553,6 +553,179 @@ fun DrawScope.drawMotherOfPearlBead(
 }
 
 /**
+ * Draws the Radiant Amber-Gold Trinity bead for the Glory Be.
+ */
+fun DrawScope.drawAmberGoldBead(
+    cx: Float,
+    cy: Float,
+    radius: Float,
+    isCompleted: Boolean,
+    pulse: Float = 1f
+) {
+    drawCircle(
+        color = Color.Black.copy(alpha = 0.55f),
+        radius = radius * 1.05f,
+        center = Offset(cx + 2.dp.toPx(), cy + 3.dp.toPx())
+    )
+
+    if (isCompleted) {
+        val glowRadius = radius * 1.9f * pulse
+        val haloBrush = Brush.radialGradient(
+            colors = listOf(
+                Color(0xFFFFD54F).copy(alpha = 0.85f),
+                Color(0xFFFF8F00).copy(alpha = 0.45f),
+                Color.Transparent
+            ),
+            center = Offset(cx, cy),
+            radius = glowRadius
+        )
+        drawCircle(brush = haloBrush, radius = glowRadius, center = Offset(cx, cy))
+    }
+
+    val amberBrush = Brush.radialGradient(
+        colors = listOf(
+            Color(0xFFFFF9C4),
+            Color(0xFFFFB300),
+            Color(0xFFE65100)
+        ),
+        center = Offset(cx - radius * 0.35f, cy - radius * 0.35f),
+        radius = radius * 1.25f
+    )
+    drawCircle(brush = amberBrush, radius = radius, center = Offset(cx, cy))
+
+    drawCircle(
+        color = Color.White.copy(alpha = 0.9f),
+        radius = radius * 0.30f,
+        center = Offset(cx - radius * 0.38f, cy - radius * 0.38f)
+    )
+
+    drawCircle(color = MedievalGoldBright, radius = radius * 0.22f, center = Offset(cx, cy - radius * 0.88f))
+    drawCircle(color = MedievalGoldBright, radius = radius * 0.22f, center = Offset(cx, cy + radius * 0.88f))
+}
+
+/**
+ * Draws the Sacred Heart Ruby-Crimson bead for the Fatima Prayer.
+ */
+fun DrawScope.drawRubyCrimsonBead(
+    cx: Float,
+    cy: Float,
+    radius: Float,
+    isCompleted: Boolean,
+    pulse: Float = 1f
+) {
+    drawCircle(
+        color = Color.Black.copy(alpha = 0.55f),
+        radius = radius * 1.05f,
+        center = Offset(cx + 2.dp.toPx(), cy + 3.dp.toPx())
+    )
+
+    if (isCompleted) {
+        val glowRadius = radius * 1.9f * pulse
+        val haloBrush = Brush.radialGradient(
+            colors = listOf(
+                Color(0xFFFF8A80).copy(alpha = 0.85f),
+                OxbloodRed.copy(alpha = 0.45f),
+                Color.Transparent
+            ),
+            center = Offset(cx, cy),
+            radius = glowRadius
+        )
+        drawCircle(brush = haloBrush, radius = glowRadius, center = Offset(cx, cy))
+    }
+
+    val rubyBrush = Brush.radialGradient(
+        colors = listOf(
+            Color(0xFFFFCDD2),
+            Color(0xFFC62828),
+            Color(0xFF4A0000)
+        ),
+        center = Offset(cx - radius * 0.35f, cy - radius * 0.35f),
+        radius = radius * 1.25f
+    )
+    drawCircle(brush = rubyBrush, radius = radius, center = Offset(cx, cy))
+
+    drawCircle(
+        color = Color.White.copy(alpha = 0.85f),
+        radius = radius * 0.28f,
+        center = Offset(cx - radius * 0.38f, cy - radius * 0.38f)
+    )
+
+    drawCircle(color = MedievalGoldBright, radius = radius * 0.22f, center = Offset(cx, cy - radius * 0.88f))
+    drawCircle(color = MedievalGoldBright, radius = radius * 0.22f, center = Offset(cx, cy + radius * 0.88f))
+}
+
+/**
+ * Draws the Queen of Heaven Imperial Amethyst bead for the Hail Holy Queen.
+ */
+fun DrawScope.drawAmethystBead(
+    cx: Float,
+    cy: Float,
+    radius: Float,
+    isCompleted: Boolean,
+    pulse: Float = 1f
+) {
+    drawCircle(
+        color = Color.Black.copy(alpha = 0.55f),
+        radius = radius * 1.05f,
+        center = Offset(cx + 2.dp.toPx(), cy + 3.dp.toPx())
+    )
+
+    if (isCompleted) {
+        val glowRadius = radius * 1.9f * pulse
+        val haloBrush = Brush.radialGradient(
+            colors = listOf(
+                Color(0xFFE1BEE7).copy(alpha = 0.85f),
+                Color(0xFF7B1FA2).copy(alpha = 0.45f),
+                Color.Transparent
+            ),
+            center = Offset(cx, cy),
+            radius = glowRadius
+        )
+        drawCircle(brush = haloBrush, radius = glowRadius, center = Offset(cx, cy))
+    }
+
+    val amethystBrush = Brush.radialGradient(
+        colors = listOf(
+            Color(0xFFF3E5F5),
+            Color(0xFF6A1B9A),
+            Color(0xFF1A0033)
+        ),
+        center = Offset(cx - radius * 0.35f, cy - radius * 0.35f),
+        radius = radius * 1.25f
+    )
+    drawCircle(brush = amethystBrush, radius = radius, center = Offset(cx, cy))
+
+    drawCircle(
+        color = Color.White.copy(alpha = 0.85f),
+        radius = radius * 0.28f,
+        center = Offset(cx - radius * 0.38f, cy - radius * 0.38f)
+    )
+
+    drawCircle(color = MedievalGoldBright, radius = radius * 0.22f, center = Offset(cx, cy - radius * 0.88f))
+    drawCircle(color = MedievalGoldBright, radius = radius * 0.22f, center = Offset(cx, cy + radius * 0.88f))
+}
+
+/**
+ * Draws the appropriate bead according to the active liturgical prayer step.
+ */
+fun DrawScope.drawPrayerBead(
+    step: com.rosarium.app.data.model.DecadeStep,
+    cx: Float,
+    cy: Float,
+    radius: Float,
+    isCompleted: Boolean,
+    pulse: Float = 1f
+) {
+    when (step) {
+        com.rosarium.app.data.model.DecadeStep.OUR_FATHER -> drawMotherOfPearlBead(cx, cy, radius * 1.15f, isCompleted, pulse)
+        com.rosarium.app.data.model.DecadeStep.HAIL_MARY -> drawLapisLazuliBead(cx, cy, radius, isCompleted, pulse)
+        com.rosarium.app.data.model.DecadeStep.GLORY_BE -> drawAmberGoldBead(cx, cy, radius, isCompleted, pulse)
+        com.rosarium.app.data.model.DecadeStep.FATIMA -> drawRubyCrimsonBead(cx, cy, radius, isCompleted, pulse)
+        com.rosarium.app.data.model.DecadeStep.DECADE_FINISHED -> drawAmethystBead(cx, cy, radius * 1.1f, isCompleted, pulse)
+    }
+}
+
+/**
  * Draws the ornate Gothic trefoil Latin crucifix pendant centerpiece.
  */
 fun DrawScope.drawCrucifixPendant(cx: Float, cy: Float) {
