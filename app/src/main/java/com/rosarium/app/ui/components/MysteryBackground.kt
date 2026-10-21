@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.rosarium.app.data.model.Mystery
 import com.rosarium.app.ui.theme.BackgroundVignette
 import com.rosarium.app.ui.theme.MedievalGold

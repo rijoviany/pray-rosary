@@ -83,10 +83,6 @@ class RosaryRepository(private val context: Context) {
     private fun loadPrayers(resId: Int): Map<String, Prayer> {
         val inputStream = context.resources.openRawResource(resId)
         val text = InputStreamReader(inputStream).use { it.readText() }
-        val mapSerializer = kotlinx.serialization.builtins.MapSerializer(
-            kotlinx.serialization.builtins.serializer(String::class),
-            Prayer.serializer()
-        )
-        return jsonParser.decodeFromString(mapSerializer, text)
+        return jsonParser.decodeFromString<Map<String, Prayer>>(text)
     }
 }

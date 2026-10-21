@@ -38,6 +38,7 @@ import com.rosarium.app.data.model.MysterySet
 import com.rosarium.app.ui.theme.BackgroundSurface
 import com.rosarium.app.ui.theme.MedievalGold
 import com.rosarium.app.ui.theme.MedievalGoldBright
+import com.rosarium.app.ui.theme.MedievalGoldDark
 import com.rosarium.app.ui.theme.OxbloodRed
 import com.rosarium.app.ui.theme.ParchmentBase
 import com.rosarium.app.ui.theme.ParchmentDark
