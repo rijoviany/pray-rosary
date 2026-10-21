@@ -9,6 +9,7 @@ A complete, production-ready Play Store listing kit for **Rosarium: The Holy Ros
 | Field | Value | Character Limit |
 |---|---|---|
 | **App Name** | `Rosarium: The Holy Rosary` | 30 chars max (26 used) |
+| **Package Name (Application ID)** | `com.trivium.rosarium` | Unique Play Store ID |
 | **Short Description** | `Pray the Holy Rosary with illuminated medieval art and tactile hold-to-pray.` | 80 chars max (79 used) |
 
 ---
