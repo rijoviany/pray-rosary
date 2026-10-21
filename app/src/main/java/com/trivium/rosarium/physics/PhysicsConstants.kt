@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.physics
+package com.trivium.rosarium.physics
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
@@ -22,8 +22,14 @@ object PhysicsConstants {
     const val RUBBER_BAND_COEFFICIENT = 0.28f
 
     // --- Hold-to-Pray Karaoke Timing ---
+    /** Minimum and default duration for Hail Mary (5 seconds) */
+    const val MIN_HAIL_MARY_DURATION_MS = 5_000L
+
+    /** Minimum and default duration for Our Father (10 seconds) */
+    const val MIN_OUR_FATHER_DURATION_MS = 10_000L
+
     /** Default duration to recite a full prayer while holding the bead */
-    const val DEFAULT_PRAYER_DURATION_MS = 16_000L
+    const val DEFAULT_PRAYER_DURATION_MS = 5_000L
 
     /** Interval for updating progress and evaluating karaoke phrases */
     const val PROGRESS_TICK_INTERVAL_MS = 32L // ~30 fps updates for smooth text highlighting

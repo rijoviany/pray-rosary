@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.screens
+package com.trivium.rosarium.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -185,13 +185,13 @@ fun SettingsSheet(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Prayer Duration",
+                        text = "Prayer Duration (Hail Mary / Our Father)",
                         color = ParchmentLight,
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Serif
                     )
                     Text(
-                        text = "${settings.prayerDurationSeconds}s",
+                        text = "${settings.prayerDurationSeconds}s / ${maxOf(10, settings.prayerDurationSeconds * 2)}s",
                         color = MedievalGoldBright,
                         fontSize = 14.sp,
                         fontFamily = FontFamily.Serif,
@@ -201,8 +201,8 @@ fun SettingsSheet(
                 Slider(
                     value = settings.prayerDurationSeconds.toFloat(),
                     onValueChange = { onUpdateSettings(settings.copy(prayerDurationSeconds = it.toInt())) },
-                    valueRange = 10f..30f,
-                    steps = 19,
+                    valueRange = 5f..30f,
+                    steps = 24,
                     colors = SliderDefaults.colors(
                         thumbColor = MedievalGoldBright,
                         activeTrackColor = MedievalGold,

@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.data.repository
+package com.trivium.rosarium.data.repository
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -51,7 +51,7 @@ class PreferencesRepository(private val context: Context) {
             ambientChantEnabled = prefs[PreferencesKeys.KEY_AMBIENT_CHANT] ?: false,
             hapticFeedbackEnabled = prefs[PreferencesKeys.KEY_HAPTICS] ?: true,
             includeFatimaPrayer = prefs[PreferencesKeys.KEY_FATIMA] ?: true,
-            prayerDurationSeconds = prefs[PreferencesKeys.KEY_PRAYER_DURATION] ?: 16,
+            prayerDurationSeconds = prefs[PreferencesKeys.KEY_PRAYER_DURATION] ?: 5,
             fontScale = prefs[PreferencesKeys.KEY_FONT_SCALE] ?: 1.0f
         )
     }

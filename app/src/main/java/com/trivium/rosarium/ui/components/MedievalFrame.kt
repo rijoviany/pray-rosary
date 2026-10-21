@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.components
+package com.trivium.rosarium.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -45,134 +46,90 @@ import com.trivium.rosarium.ui.theme.ParchmentBase
 import com.trivium.rosarium.ui.theme.ParchmentLight
 
 /**
- * Renders the illuminated Gothic arch border and ornate corner flourishes
- * matching the authentic medieval manuscript aesthetic.
+ * Medieval Frame Overlay:
+ * Cleaned up to never overlap or cover the status bar icons or system navigation.
  */
 @Composable
 fun MedievalFrameOverlay(
     modifier: Modifier = Modifier
 ) {
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val w = size.width
-        val h = size.height
-        val margin = 14.dp.toPx()
-        val cornerSize = 40.dp.toPx()
-
-        // Outer delicate gold perimeter border
-        val goldBorderBrush = Brush.linearGradient(
-            colors = listOf(MedievalGoldDark, MedievalGoldBright, MedievalGold, MedievalGoldDark),
-            start = Offset(0f, 0f),
-            end = Offset(w, h)
-        )
-
-        drawRect(
-            brush = goldBorderBrush,
-            topLeft = Offset(margin, margin),
-            size = Size(w - 2 * margin, h - 2 * margin),
-            style = Stroke(width = 1.5.dp.toPx())
-        )
-
-        // Inner micro-line
-        drawRect(
-            brush = goldBorderBrush,
-            topLeft = Offset(margin + 5.dp.toPx(), margin + 5.dp.toPx()),
-            size = Size(w - 2 * (margin + 5.dp.toPx()), h - 2 * (margin + 5.dp.toPx())),
-            style = Stroke(width = 0.75.dp.toPx())
-        )
-
-        // Ornate Corner Flourishes (Gothic trefoils / corner accents)
-        fun drawCornerFlourish(ox: Float, oy: Float, flipX: Float, flipY: Float) {
-            val path = Path().apply {
-                moveTo(ox, oy + (flipY * cornerSize))
-                lineTo(ox, oy)
-                lineTo(ox + (flipX * cornerSize), oy)
-                // Diagonal leaf curve
-                quadraticBezierTo(
-                    ox + (flipX * cornerSize * 0.4f),
-                    oy + (flipY * cornerSize * 0.4f),
-                    ox + (flipX * 12.dp.toPx()),
-                    oy + (flipY * 12.dp.toPx())
-                )
-            }
-            drawPath(
-                path = path,
-                brush = goldBorderBrush,
-                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-            )
-        }
-
-        // 4 corners
-        drawCornerFlourish(margin, margin, 1f, 1f) // Top-Left
-        drawCornerFlourish(w - margin, margin, -1f, 1f) // Top-Right
-        drawCornerFlourish(margin, h - margin, 1f, -1f) // Bottom-Left
-        drawCornerFlourish(w - margin, h - margin, -1f, -1f) // Bottom-Right
-    }
+    // Deliberately no full-screen canvas borders that cover status bar icons
 }
 
 /**
  * Top bar displaying current mystery title and selector dropdown,
- * scripture reference toggle, and ornamental heraldic crest.
+ * Menu button on the left, and Read / Scripture button on the right.
  */
 @Composable
 fun TopMedievalBar(
     mysterySetName: String,
     currentMysteryTitle: String,
+    onMenuClick: () -> Unit,
     onTitleClick: () -> Unit,
-    onScriptureClick: () -> Unit,
+    onReadClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 12.dp),
+            .padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left Heraldic Crest / Fleur-de-lis
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .border(1.dp, MedievalGold.copy(alpha = 0.5f), CircleShape)
-                .background(Color(0xFF16120E).copy(alpha = 0.7f)),
-            contentAlignment = Alignment.Center
+        // Left: Menu circular button
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(role = Role.Button, onClick = onMenuClick)
         ) {
-            Canvas(modifier = Modifier.size(20.dp)) {
-                // Heraldic fleur-de-lis symbol
-                val path = Path().apply {
-                    moveTo(size.width * 0.5f, 2f)
-                    quadraticBezierTo(size.width * 0.75f, size.height * 0.4f, size.width * 0.5f, size.height * 0.85f)
-                    quadraticBezierTo(size.width * 0.25f, size.height * 0.4f, size.width * 0.5f, 2f)
-                }
-                drawPath(path, MedievalGoldBright)
-                drawCircle(MedievalGoldBright, radius = 2.5.dp.toPx(), center = Offset(size.width * 0.25f, size.height * 0.55f))
-                drawCircle(MedievalGoldBright, radius = 2.5.dp.toPx(), center = Offset(size.width * 0.75f, size.height * 0.55f))
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
+                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = MedievalGoldBright,
+                    modifier = Modifier.size(20.dp)
+                )
             }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Menu",
+                color = ParchmentLight.copy(alpha = 0.9f),
+                fontSize = 11.5.sp,
+                fontFamily = FontFamily.Serif
+            )
         }
 
-        // Center Mystery Titles (clickable dropdown selector)
+        // Center: Mystery Titles (clickable dropdown selector)
         Column(
             modifier = Modifier
                 .weight(1f)
                 .clickable(role = Role.Button, onClick = onTitleClick)
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = mysterySetName,
                     color = ParchmentLight,
-                    fontSize = 17.sp,
+                    fontSize = 17.5.sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 0.4.sp,
+                    textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "▾",
                     color = MedievalGoldBright,
-                    fontSize = 14.sp
+                    fontSize = 13.sp
                 )
             }
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = currentMysteryTitle,
                 color = ParchmentBase.copy(alpha = 0.85f),
@@ -182,68 +139,93 @@ fun TopMedievalBar(
             )
         }
 
-        // Right Scripture Book Icon Button
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .border(1.dp, MedievalGold.copy(alpha = 0.5f), CircleShape)
-                .background(Color(0xFF16120E).copy(alpha = 0.7f))
-                .clickable(role = Role.Button, onClick = onScriptureClick),
-            contentAlignment = Alignment.Center
+        // Right: Read / Scripture book button
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(role = Role.Button, onClick = onReadClick)
         ) {
-            Icon(
-                imageVector = Icons.Default.AutoStories,
-                contentDescription = "Scripture and Meditation",
-                tint = MedievalGoldBright,
-                modifier = Modifier.size(20.dp)
+            Box(
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
+                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AutoStories,
+                    contentDescription = "Read Scripture and Intentions",
+                    tint = MedievalGoldBright,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Read",
+                color = ParchmentLight.copy(alpha = 0.9f),
+                fontSize = 11.5.sp,
+                fontFamily = FontFamily.Serif
             )
         }
     }
 }
 
 /**
- * Bottom navigation controls: Menu and Progress circular medieval buttons.
+ * Bottom navigation controls: Intentions and Progress circular medieval buttons.
  */
 @Composable
 fun BottomMedievalControls(
-    onMenuClick: () -> Unit,
+    onIntentionsClick: () -> Unit,
     onProgressClick: () -> Unit,
+    currentBeadCount: Int = 4,
+    totalBeadCount: Int = 53,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 32.dp, vertical = 20.dp),
+            .padding(horizontal = 28.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Menu Button
+        // Intentions Button with Candle icon
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clickable(onClick = onMenuClick)
+            modifier = Modifier.clickable(onClick = onIntentionsClick)
         ) {
             Box(
                 modifier = Modifier
                     .size(46.dp)
                     .clip(CircleShape)
-                    .border(1.dp, MedievalGold.copy(alpha = 0.7f), CircleShape)
-                    .background(Color(0xFF1E1711).copy(alpha = 0.85f)),
+                    .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
+                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
-                    tint = MedievalGoldBright,
-                    modifier = Modifier.size(22.dp)
-                )
+                Canvas(modifier = Modifier.size(22.dp)) {
+                    val w = size.width
+                    val h = size.height
+                    // Candle flame
+                    val flamePath = Path().apply {
+                        moveTo(w * 0.5f, h * 0.12f)
+                        quadraticTo(w * 0.72f, h * 0.38f, w * 0.5f, h * 0.48f)
+                        quadraticTo(w * 0.28f, h * 0.38f, w * 0.5f, h * 0.12f)
+                    }
+                    drawPath(flamePath, MedievalGoldBright)
+                    // Candle wax body
+                    drawRoundRect(
+                        color = MedievalGold.copy(alpha = 0.9f),
+                        topLeft = Offset(w * 0.36f, h * 0.48f),
+                        size = Size(w * 0.28f, h * 0.42f),
+                        cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Menu",
+                text = "Intentions",
                 color = ParchmentLight.copy(alpha = 0.9f),
-                fontSize = 12.sp,
+                fontSize = 11.5.sp,
                 fontFamily = FontFamily.Serif,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.4.sp
             )
         }
 
@@ -258,8 +240,8 @@ fun BottomMedievalControls(
                 modifier = Modifier
                     .size(46.dp)
                     .clip(CircleShape)
-                    .border(1.dp, MedievalGold.copy(alpha = 0.7f), CircleShape)
-                    .background(Color(0xFF1E1711).copy(alpha = 0.85f)),
+                    .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
+                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -273,9 +255,16 @@ fun BottomMedievalControls(
             Text(
                 text = "Progress",
                 color = ParchmentLight.copy(alpha = 0.9f),
-                fontSize = 12.sp,
+                fontSize = 11.5.sp,
                 fontFamily = FontFamily.Serif,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.4.sp
+            )
+            Text(
+                text = "$currentBeadCount / $totalBeadCount",
+                color = MedievalGoldBright.copy(alpha = 0.9f),
+                fontSize = 10.5.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }

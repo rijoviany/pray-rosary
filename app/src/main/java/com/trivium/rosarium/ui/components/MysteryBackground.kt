@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.components
+package com.trivium.rosarium.ui.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
@@ -8,13 +8,20 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -22,19 +29,122 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.trivium.rosarium.data.model.DecadeStep
 import com.trivium.rosarium.data.model.Mystery
-import com.trivium.rosarium.ui.theme.BackgroundVignette
 import com.trivium.rosarium.ui.theme.MedievalGold
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
 import com.trivium.rosarium.ui.theme.MedievalGoldDark
 import com.trivium.rosarium.ui.theme.PrayerThemes
 
 /**
- * Dynamic Sacred Atmosphere:
- * Crossfades backgrounds, vignette tones, and sacred illumination
- * individually for each prayer (Our Father, Hail Mary, Glory Be, Fatima, Hail Holy Queen).
+ * Atmospheric Cathedral Sanctuary Background:
+ * Deep monastic darkness, soaring gothic stone arches, and glowing altar candles.
  */
 @Composable
 fun MysteryBackground(
+    currentMystery: Mystery?,
+    currentStep: DecadeStep = DecadeStep.HAIL_MARY,
+    isHoldPraying: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val currentTheme = PrayerThemes.forStep(currentStep)
+
+    val animatedVignette by animateColorAsState(
+        targetValue = currentTheme.vignetteBase,
+        animationSpec = tween(750),
+        label = "vignetteColor"
+    )
+
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val w = size.width
+        val h = size.height
+
+        // 1. Deep Sanctuary stone background
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFF090705),
+                    Color(0xFF140F0A),
+                    Color(0xFF0A0705)
+                )
+            )
+        )
+
+        // 2. Gothic Cathedral Arch outlines in background
+        val archColor = MedievalGoldDark.copy(alpha = 0.12f)
+        fun drawGothicArch(cx: Float, baseY: Float, width: Float, height: Float) {
+            val path = Path().apply {
+                moveTo(cx - width / 2f, baseY)
+                lineTo(cx - width / 2f, baseY - height * 0.65f)
+                cubicTo(
+                    cx - width / 2f, baseY - height * 0.95f,
+                    cx, baseY - height,
+                    cx, baseY - height
+                )
+                cubicTo(
+                    cx, baseY - height,
+                    cx + width / 2f, baseY - height * 0.95f,
+                    cx + width / 2f, baseY - height * 0.65f
+                )
+                lineTo(cx + width / 2f, baseY)
+            }
+            drawPath(path, archColor, style = Stroke(width = 2.dp.toPx()))
+        }
+
+        // Center Nave Arch
+        drawGothicArch(w / 2f, h * 0.85f, w * 0.78f, h * 0.72f)
+        // Left Column Arch
+        drawGothicArch(w * 0.10f, h * 0.95f, w * 0.40f, h * 0.60f)
+        // Right Column Arch
+        drawGothicArch(w * 0.90f, h * 0.95f, w * 0.40f, h * 0.60f)
+
+        // 3. Warm candle glows on left and right columns
+        fun drawCandleLight(x: Float, y: Float, radius: Float) {
+            val candleBrush = Brush.radialGradient(
+                colors = listOf(
+                    Color(0xFFFFD54F).copy(alpha = 0.40f),
+                    Color(0xFFFF8F00).copy(alpha = 0.18f),
+                    Color.Transparent
+                ),
+                center = Offset(x, y),
+                radius = radius
+            )
+            drawCircle(brush = candleBrush, radius = radius, center = Offset(x, y))
+
+            // Tiny candle flame center
+            drawCircle(
+                color = Color(0xFFFFF9C4),
+                radius = 2.dp.toPx(),
+                center = Offset(x, y)
+            )
+        }
+
+        // Side altar candles
+        drawCandleLight(w * 0.12f, h * 0.76f, 36.dp.toPx())
+        drawCandleLight(w * 0.18f, h * 0.78f, 30.dp.toPx())
+        drawCandleLight(w * 0.82f, h * 0.78f, 30.dp.toPx())
+        drawCandleLight(w * 0.88f, h * 0.76f, 36.dp.toPx())
+
+        // 4. Soft cinematic vignette
+        drawRect(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    Color.Transparent,
+                    animatedVignette.copy(alpha = 0.35f),
+                    Color.Black.copy(alpha = 0.75f)
+                ),
+                center = Offset(w / 2f, h * 0.45f),
+                radius = w * 0.95f
+            )
+        )
+    }
+}
+
+/**
+ * Centerpiece Mystery Medallion:
+ * Displays the sacred mystery artwork framed by an ornate, multi-layered
+ * baroque / gothic carved gold leaf bezel with specular highlights and a bottom trefoil cross.
+ */
+@Composable
+fun MysteryMedallion(
     currentMystery: Mystery?,
     currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     isHoldPraying: Boolean,
@@ -44,199 +154,204 @@ fun MysteryBackground(
     val imageName = currentMystery?.imageAsset ?: "mystery_joyful_1"
     val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
 
-    val currentTheme = PrayerThemes.forStep(currentStep)
-
-    val animatedVignette by animateColorAsState(
-        targetValue = currentTheme.vignetteBase,
-        animationSpec = tween(750),
-        label = "vignetteColor"
-    )
-
-    val animatedAura by animateColorAsState(
-        targetValue = currentTheme.auraGlow,
-        animationSpec = tween(750),
-        label = "auraColor"
-    )
-
-    val animatedFrescoTone by animateColorAsState(
-        targetValue = currentTheme.frescoTone,
-        animationSpec = tween(750),
-        label = "frescoTone"
-    )
-
-    Box(modifier = modifier.fillMaxSize()) {
-        Crossfade(
-            targetState = Triple(currentMystery?.imageAsset, resId, currentStep),
-            animationSpec = tween(durationMillis = 650),
-            label = "MysteryBackgroundCrossfade"
-        ) { target ->
-            val (_, resolvedResId, step) = target
-            if (resolvedResId != 0 && step == DecadeStep.HAIL_MARY) {
-                Image(
-                    painter = painterResource(id = resolvedResId),
-                    contentDescription = currentMystery?.title,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                // Procedural Sacred Fresco calibrated to current prayer
-                ProceduralSacredFresco(
-                    step = step,
-                    auraColor = animatedAura,
-                    frescoTone = animatedFrescoTone,
-                    isHoldPraying = isHoldPraying
-                )
+    Box(
+        modifier = modifier.size(195.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // 1. Artwork inside circular crop with drop shadow
+        Box(
+            modifier = Modifier
+                .size(172.dp)
+                .shadow(12.dp, CircleShape)
+                .clip(CircleShape)
+        ) {
+            Crossfade(
+                targetState = Pair(resId, currentMystery?.imageAsset),
+                animationSpec = tween(durationMillis = 500),
+                label = "MedallionCrossfade"
+            ) { (resolvedResId, _) ->
+                if (resolvedResId != 0) {
+                    Image(
+                        painter = painterResource(id = resolvedResId),
+                        contentDescription = currentMystery?.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    ProceduralSacredFresco(
+                        step = currentStep,
+                        isHoldPraying = isHoldPraying
+                    )
+                }
             }
+
+            // Subtle inner vignette over artwork
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.35f)
+                            )
+                        )
+                    )
+            )
         }
 
-        // Vignette Layer: Dynamically tuned to the active prayer's liturgical palette
+        // 2. Ornate Baroque / Gothic Carved Gold Leaf Frame
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val w = size.width
-            val h = size.height
+            val cx = size.width / 2f
+            val cy = size.height / 2f
+            val outerRadius = 88.dp.toPx()
+            val innerRadius = 85.dp.toPx()
 
-            // Top gradient for banner readability
-            drawRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        animatedVignette.copy(alpha = 0.90f),
-                        animatedVignette.copy(alpha = 0.50f),
-                        Color.Transparent
-                    ),
-                    startY = 0f,
-                    endY = h * 0.38f
-                )
+            // Outer drop shadow
+            drawCircle(
+                color = Color.Black.copy(alpha = 0.5f),
+                radius = outerRadius + 2.dp.toPx(),
+                center = Offset(cx + 1.dp.toPx(), cy + 3.dp.toPx()),
+                style = Stroke(width = 3.dp.toPx())
             )
 
-            // Bottom gradient for bead clarity
-            drawRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        animatedVignette.copy(alpha = 0.65f),
-                        animatedVignette.copy(alpha = 0.95f)
-                    ),
-                    startY = h * 0.55f,
-                    endY = h
-                )
+            // Carved gold ring bevel gradient
+            val goldBrush = Brush.linearGradient(
+                colors = listOf(
+                    MedievalGoldBright,
+                    MedievalGoldDark,
+                    MedievalGold,
+                    MedievalGoldBright,
+                    MedievalGoldDark
+                ),
+                start = Offset(cx - outerRadius, cy - outerRadius),
+                end = Offset(cx + outerRadius, cy + outerRadius)
             )
 
-            // Radial edge darkening (soft cinematic vignette)
-            drawRect(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.Transparent,
-                        animatedVignette.copy(alpha = 0.75f)
-                    ),
-                    center = Offset(w / 2f, h * 0.44f),
-                    radius = w * 0.9f
+            drawCircle(
+                brush = goldBrush,
+                radius = outerRadius,
+                center = Offset(cx, cy),
+                style = Stroke(width = 4.5.dp.toPx())
+            )
+
+            // Inner specular rim
+            drawCircle(
+                color = MedievalGoldBright.copy(alpha = 0.85f),
+                radius = innerRadius,
+                center = Offset(cx, cy),
+                style = Stroke(width = 1.2.dp.toPx())
+            )
+
+            // Outer beaded rim (filigree pearls along perimeter)
+            val numBeads = 36
+            val beadRingRadius = outerRadius + 3.5.dp.toPx()
+            for (i in 0 until numBeads) {
+                val angle = (i * 2.0 * Math.PI / numBeads).toFloat()
+                val bx = cx + (beadRingRadius * kotlin.math.cos(angle))
+                val by = cy + (beadRingRadius * kotlin.math.sin(angle))
+                drawCircle(
+                    color = MedievalGoldDark,
+                    radius = 1.6.dp.toPx(),
+                    center = Offset(bx + 0.5f, by + 0.5f)
                 )
+                drawCircle(
+                    color = MedievalGoldBright,
+                    radius = 1.4.dp.toPx(),
+                    center = Offset(bx, by)
+                )
+            }
+
+            // Bottom Ornate Trefoil Cross / Fleur-de-lis
+            val bottomY = cy + outerRadius + 1.dp.toPx()
+            val crossSize = 10.dp.toPx()
+
+            val crossPath = Path().apply {
+                moveTo(cx, bottomY - 2.dp.toPx())
+                lineTo(cx, bottomY + crossSize)
+                moveTo(cx - crossSize * 0.5f, bottomY + crossSize * 0.35f)
+                lineTo(cx + crossSize * 0.5f, bottomY + crossSize * 0.35f)
+            }
+            drawPath(
+                path = crossPath,
+                color = MedievalGoldBright,
+                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
+            )
+            // Ruby gem center on bottom cross
+            drawCircle(
+                color = Color(0xFFC62828),
+                radius = 2.2.dp.toPx(),
+                center = Offset(cx, bottomY + crossSize * 0.35f)
+            )
+
+            // Top Hanging Loop connecting to crucifix above
+            val topY = cy - outerRadius
+            drawOval(
+                brush = goldBrush,
+                topLeft = Offset(cx - 3.dp.toPx(), topY - 7.dp.toPx()),
+                size = Size(6.dp.toPx(), 8.dp.toPx()),
+                style = Stroke(width = 1.5.dp.toPx())
             )
         }
     }
 }
 
+/**
+ * Procedural Sacred Fresco used when no local image asset exists.
+ */
 @Composable
 private fun ProceduralSacredFresco(
     step: DecadeStep,
-    auraColor: Color,
-    frescoTone: Color,
     isHoldPraying: Boolean
 ) {
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF120E0A))
+            .background(Color(0xFF140F0B))
     ) {
-        val w = size.width
-        val h = size.height
-        val cx = w / 2f
-        val cy = h * 0.38f
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val radius = size.width * 0.48f
 
-        // Celestial light rays bursting according to prayer theme
-        val rayAlpha = if (isHoldPraying) 0.30f else 0.16f
-        val rayBrush = Brush.radialGradient(
+        // Celestial light rays bursting from the divine center
+        val sunburstBrush = Brush.radialGradient(
             colors = listOf(
-                auraColor.copy(alpha = rayAlpha * 1.6f),
-                frescoTone.copy(alpha = rayAlpha),
-                Color.Transparent
+                MedievalGoldBright.copy(alpha = if (isHoldPraying) 0.85f else 0.55f),
+                Color(0xFFFFB300).copy(alpha = 0.35f),
+                Color(0xFF1A120B).copy(alpha = 0.90f)
             ),
-            center = Offset(cx, cy * 0.68f),
-            radius = w * 0.85f
+            center = Offset(cx, cy * 0.85f),
+            radius = radius
         )
-        drawCircle(brush = rayBrush, radius = w * 0.85f, center = Offset(cx, cy * 0.68f))
+        drawCircle(brush = sunburstBrush, radius = radius, center = Offset(cx, cy))
 
-        when (step) {
-            DecadeStep.OUR_FATHER -> {
-                // Heavenly Father celestial sunburst
-                val sunburstBrush = Brush.radialGradient(
-                    colors = listOf(
-                        MedievalGoldBright.copy(alpha = 0.35f),
-                        Color(0xFFFFF9C4).copy(alpha = 0.15f),
-                        Color.Transparent
-                    ),
-                    center = Offset(cx, h * 0.22f),
-                    radius = w * 0.65f
-                )
-                drawCircle(brush = sunburstBrush, radius = w * 0.65f, center = Offset(cx, h * 0.22f))
-            }
-            DecadeStep.GLORY_BE -> {
-                // Holy Trinity tri-radiant aureole
-                val trinityBrush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFFFFD54F).copy(alpha = 0.40f),
-                        Color(0xFFFF8F00).copy(alpha = 0.20f),
-                        Color.Transparent
-                    ),
-                    center = Offset(cx, cy),
-                    radius = w * 0.70f
-                )
-                drawCircle(brush = trinityBrush, radius = w * 0.70f, center = Offset(cx, cy))
-            }
-            DecadeStep.FATIMA -> {
-                // Sacred Heart deep crimson contemplation
-                val fatimaBrush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFFE53935).copy(alpha = 0.32f),
-                        Color(0xFF7F0000).copy(alpha = 0.20f),
-                        Color.Transparent
-                    ),
-                    center = Offset(cx, cy),
-                    radius = w * 0.75f
-                )
-                drawCircle(brush = fatimaBrush, radius = w * 0.75f, center = Offset(cx, cy))
-            }
-            DecadeStep.DECADE_FINISHED -> {
-                // Queen of Heaven starfield & starlight
-                val queenBrush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFFBA68C8).copy(alpha = 0.30f),
-                        Color(0xFF4A148C).copy(alpha = 0.20f),
-                        Color.Transparent
-                    ),
-                    center = Offset(cx, cy * 0.7f),
-                    radius = w * 0.8f
-                )
-                drawCircle(brush = queenBrush, radius = w * 0.8f, center = Offset(cx, cy * 0.7f))
-            }
-            else -> {
-                // Gothic Arch silhouette for Hail Mary
-                val archPath = Path().apply {
-                    moveTo(w * 0.12f, h)
-                    lineTo(w * 0.12f, h * 0.28f)
-                    cubicTo(w * 0.12f, h * 0.12f, cx, h * 0.08f, cx, h * 0.08f)
-                    cubicTo(cx, h * 0.08f, w * 0.88f, h * 0.12f, w * 0.88f, h * 0.28f)
-                    lineTo(w * 0.88f, h)
-                }
+        // Sacred Cross silhouette in the center
+        val crossH = radius * 0.9f
+        val crossW = radius * 0.5f
+        val top = cy - crossH * 0.5f
 
-                drawPath(
-                    path = archPath,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(MedievalGoldDark.copy(alpha = 0.25f), Color.Transparent)
-                    ),
-                    style = Stroke(width = 3.dp.toPx())
-                )
-            }
-        }
+        // Vertical bar
+        drawRoundRect(
+            color = MedievalGoldDark.copy(alpha = 0.75f),
+            topLeft = Offset(cx - 3.dp.toPx(), top),
+            size = Size(6.dp.toPx(), crossH),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
+        // Horizontal bar
+        drawRoundRect(
+            color = MedievalGoldDark.copy(alpha = 0.75f),
+            topLeft = Offset(cx - crossW / 2f, top + crossH * 0.28f),
+            size = Size(crossW, 5.5.dp.toPx()),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(2.dp.toPx(), 2.dp.toPx())
+        )
+
+        // Divine Nimbus Aura Halo
+        drawCircle(
+            color = MedievalGoldBright.copy(alpha = 0.45f),
+            radius = crossH * 0.25f,
+            center = Offset(cx, top + crossH * 0.28f),
+            style = Stroke(width = 1.5.dp.toPx())
+        )
     }
 }

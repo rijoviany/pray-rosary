@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.components
+package com.trivium.rosarium.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -8,12 +8,15 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,122 +63,122 @@ fun PrayerBanner(
     prayer: Prayer?,
     currentPhraseIndex: Int,
     prayerProgress: Float,
-    visible: Boolean,
+    isHoldPraying: Boolean,
     currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     fontScale: Float = 1.0f,
     modifier: Modifier = Modifier
 ) {
-    val theme = PrayerThemes.forStep(currentStep)
-    AnimatedVisibility(
-        visible = visible && prayer != null,
-        enter = fadeIn() + scaleIn(initialScale = 0.94f),
-        exit = fadeOut() + scaleOut(targetScale = 0.94f),
+    if (prayer == null) return
+
+    Box(
         modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .widthIn(max = 420.dp),
+        contentAlignment = Alignment.Center
     ) {
-        if (prayer == null) return@AnimatedVisibility
+        ProceduralParchmentScroll(modifier = Modifier.matchParentSize())
 
-        val context = LocalContext.current
-        val bannerResId = context.resources.getIdentifier("banner_scroll", "drawable", context.packageName)
-
-        Box(
+        // Prayer Text Container
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .widthIn(max = 480.dp),
-            contentAlignment = Alignment.Center
+                .padding(horizontal = 22.dp, vertical = 14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (bannerResId != 0) {
-                Image(
-                    painter = painterResource(id = bannerResId),
-                    contentDescription = null,
-                    modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.FillBounds
+            // Caption "— PRAYING —"
+            Text(
+                text = "— PRAYING —",
+                fontSize = (10.5f * fontScale).sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold,
+                color = MedievalGoldDark,
+                letterSpacing = 2.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(3.dp))
+
+            // Header (e.g. "Hail Mary" or "Our Father")
+            Text(
+                text = prayer.title,
+                fontSize = (20 * fontScale).sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold,
+                color = InkBrownDark,
+                letterSpacing = 0.4.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Prayer Phrases (line by line karaoke)
+            val displayPhrases = prayer.phrases
+            displayPhrases.forEachIndexed { index, phrase ->
+                val isCurrent = isHoldPraying && (index == currentPhraseIndex)
+                val isPast = isHoldPraying && (index < currentPhraseIndex)
+
+                val phraseColor = when {
+                    !isHoldPraying -> InkBrownDark.copy(alpha = 0.88f)
+                    isCurrent -> InkBrownDark
+                    isPast -> InkBrownDark.copy(alpha = 0.75f)
+                    else -> InkBrownMuted.copy(alpha = 0.42f)
+                }
+
+                val phraseWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal
+
+                Text(
+                    text = phrase,
+                    fontSize = (13.5f * fontScale).sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = phraseWeight,
+                    color = phraseColor,
+                    lineHeight = (18.5f * fontScale).sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(vertical = 0.8.dp)
                 )
-            } else {
-                ProceduralParchmentScroll(modifier = Modifier.matchParentSize())
             }
 
-            // Prayer Text Container
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Bottom Ornamental Cross Divider (— ✙ —)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(0.6f)
             ) {
-                // Header (e.g. "Hail Mary," or "Our Father,")
-                Text(
-                    text = prayer.title,
-                    fontSize = (22 * fontScale).sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    color = InkBrownDark,
-                    letterSpacing = 0.4.sp,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Karaoke Phrase List
-                val displayPhrases = prayer.phrases
-                displayPhrases.forEachIndexed { index, phrase ->
-                    val isCurrent = index == currentPhraseIndex
-                    val isPast = index < currentPhraseIndex
-
-                    val phraseColor = when {
-                        isCurrent -> InkBrownDark
-                        isPast -> InkBrown.copy(alpha = 0.95f)
-                        else -> InkBrownMuted.copy(alpha = 0.45f)
-                    }
-
-                    val phraseWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal
-
-                    Text(
-                        text = phrase,
-                        fontSize = (15.5f * fontScale).sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = phraseWeight,
-                        color = phraseColor,
-                        lineHeight = (22 * fontScale).sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = 1.5.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Bottom Ornamental Flourish Divider
-                Canvas(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth(0.55f)
-                        .height(14.dp)
-                ) {
+                        .weight(1f)
+                        .height(1.dp)
+                        .background(MedievalGoldDark.copy(alpha = 0.6f))
+                )
+                Canvas(modifier = Modifier.padding(horizontal = 6.dp).size(12.dp)) {
                     val w = size.width
-                    val cy = size.height / 2f
-
-                    // Center diamond / cross
-                    val diamondPath = Path().apply {
-                        moveTo(w / 2f, cy - 4.dp.toPx())
-                        lineTo(w / 2f + 4.dp.toPx(), cy)
-                        lineTo(w / 2f, cy + 4.dp.toPx())
-                        lineTo(w / 2f - 4.dp.toPx(), cy)
-                        close()
-                    }
-                    drawPath(diamondPath, MedievalGold)
-
-                    // Left & Right delicate wings
+                    val h = size.height
+                    val cx = w / 2f
+                    val cy = h / 2f
+                    // Draw central cross
                     drawLine(
-                        color = MedievalGoldDark.copy(alpha = 0.7f),
-                        start = Offset(0f, cy),
-                        end = Offset(w / 2f - 8.dp.toPx(), cy),
-                        strokeWidth = 1.dp.toPx()
+                        color = MedievalGold,
+                        start = Offset(cx, 1f),
+                        end = Offset(cx, h - 1f),
+                        strokeWidth = 1.5.dp.toPx()
                     )
                     drawLine(
-                        color = MedievalGoldDark.copy(alpha = 0.7f),
-                        start = Offset(w / 2f + 8.dp.toPx(), cy),
-                        end = Offset(w, cy),
-                        strokeWidth = 1.dp.toPx()
+                        color = MedievalGold,
+                        start = Offset(1f, cy),
+                        end = Offset(w - 1f, cy),
+                        strokeWidth = 1.5.dp.toPx()
                     )
+                    drawCircle(MedievalGoldBright, radius = 1.2.dp.toPx(), center = Offset(cx, cy))
                 }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(1.dp)
+                        .background(MedievalGoldDark.copy(alpha = 0.6f))
+                )
             }
         }
     }
@@ -229,16 +232,25 @@ private fun ProceduralParchmentScroll(modifier: Modifier = Modifier) {
             style = Stroke(width = 1.5.dp.toPx())
         )
 
-        // Scroll corner curled ear accents
+        // Scroll corner ornate baroque bracket accents
         fun drawEar(ox: Float, oy: Float, dx: Float, dy: Float) {
             val earPath = Path().apply {
-                moveTo(ox, oy + dy * 14.dp.toPx())
-                quadraticBezierTo(ox + dx * 6.dp.toPx(), oy + dy * 6.dp.toPx(), ox + dx * 14.dp.toPx(), oy)
+                moveTo(ox, oy + dy * 16.dp.toPx())
+                lineTo(ox, oy)
+                lineTo(ox + dx * 16.dp.toPx(), oy)
+                moveTo(ox, oy + dy * 12.dp.toPx())
+                quadraticTo(ox + dx * 6.dp.toPx(), oy + dy * 6.dp.toPx(), ox + dx * 12.dp.toPx(), oy)
             }
             drawPath(
                 path = earPath,
-                color = MedievalGoldDark,
+                color = MedievalGoldBright,
                 style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round)
+            )
+            // Tiny corner gold dot
+            drawCircle(
+                color = MedievalGoldDark,
+                radius = 1.5.dp.toPx(),
+                center = Offset(ox + dx * 4.dp.toPx(), oy + dy * 4.dp.toPx())
             )
         }
 

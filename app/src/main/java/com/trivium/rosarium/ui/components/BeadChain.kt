@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.components
+package com.trivium.rosarium.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -10,6 +10,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,31 +65,11 @@ fun BeadChain(
 ) {
     val density = LocalDensity.current
 
-    // Rotation offset animation: advances from 0 -> 1 -> 2 ... -> 10
-    val rotationAnimatable = remember { Animatable(completedHailMarys.toFloat()) }
-
-    LaunchedEffect(completedHailMarys) {
-        if (completedHailMarys == 0) {
-            rotationAnimatable.snapTo(0f)
-        } else {
-            // Give 300ms for user to see the bead settle & sparkle in the center slot
-            delay(300L)
-            // Smoothly rotate the rosary loop by 1 bead position
-            rotationAnimatable.animateTo(
-                targetValue = completedHailMarys.toFloat(),
-                animationSpec = tween(
-                    durationMillis = 580,
-                    easing = FastOutSlowInEasing
-                )
-            )
-        }
-    }
-
-    // Breathing pulse for the center receiving socket
+    // Breathing pulse for active bead socket
     val infiniteTransition = rememberInfiniteTransition(label = "ReceivingPulse")
     val pulseGlow by infiniteTransition.animateFloat(
-        initialValue = 0.82f,
-        targetValue = 1.18f,
+        initialValue = 0.85f,
+        targetValue = 1.15f,
         animationSpec = infiniteRepeatable(
             animation = tween(1100, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
@@ -95,65 +77,61 @@ fun BeadChain(
         label = "pulseGlow"
     )
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(98.dp)
+    ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
             val cx = w / 2f
 
-            // Hierarchy vertical anchors
-            val ourFatherY = h * 0.29f
-            val crucifixY = h * 0.36f
-            val loopCenterY = h * 0.44f
-            val loopRadiusX = w * 0.36f
-            val loopRadiusY = h * 0.095f
+            val blueBeadRadius = 12.5.dp.toPx()
+            val whiteBeadRadius = 15.5.dp.toPx()
 
-            // The Center Receiving Position (lowest point of the decade loop)
-            val receivingY = loopCenterY + loopRadiusY
+            // Center Our Father bead & hanging crucifix position
+            val ourFatherY = 26.dp.toPx()
+            val crucifixY = ourFatherY + 28.dp.toPx()
 
-            val blueBeadRadius = 14.5.dp.toPx()
-            val whiteBeadRadius = 17.5.dp.toPx()
+            // 10 Hail Mary slot positions along the garland arc (5 on left, 5 on right)
+            val slotPositions = listOf(
+                Offset(w * 0.05f, 8.dp.toPx()),
+                Offset(w * 0.15f, 15.dp.toPx()),
+                Offset(w * 0.25f, 21.dp.toPx()),
+                Offset(w * 0.34f, 25.dp.toPx()),
+                Offset(w * 0.43f, 26.dp.toPx()),
+                // Right side
+                Offset(w * 0.57f, 26.dp.toPx()),
+                Offset(w * 0.66f, 25.dp.toPx()),
+                Offset(w * 0.75f, 21.dp.toPx()),
+                Offset(w * 0.85f, 15.dp.toPx()),
+                Offset(w * 0.95f, 8.dp.toPx())
+            )
 
-            // 1. Calculate positions for the 10 slots on the rosary loop
-            val currentRotation = rotationAnimatable.value
-            val slotPositions = mutableListOf<Offset>()
-            val slotAngles = mutableListOf<Double>()
+            // Draw Golden Chain Links along the arc
+            // Left chain segment
+            for (i in 0 until 4) {
+                drawGoldChainSegment(slotPositions[i], slotPositions[i + 1])
+            }
+            drawGoldChainSegment(slotPositions[4], Offset(cx - whiteBeadRadius, ourFatherY))
 
-            for (i in 0 until 10) {
-                // When (i - currentRotation) is 0, angle is 0 => bottom center receiving position
-                val angleRad = (i - currentRotation) * (2.0 * Math.PI / 10.0)
-                slotAngles.add(angleRad)
-                val sx = cx + (loopRadiusX * sin(angleRad)).toFloat()
-                val sy = loopCenterY + (loopRadiusY * cos(angleRad)).toFloat()
-                slotPositions.add(Offset(sx, sy))
+            // Right chain segment
+            drawGoldChainSegment(Offset(cx + whiteBeadRadius, ourFatherY), slotPositions[5])
+            for (i in 5 until 9) {
+                drawGoldChainSegment(slotPositions[i], slotPositions[i + 1])
             }
 
-            // 2. Draw Golden Chain Links connecting each slot in the continuous loop
-            for (i in 0 until 10) {
-                val next = (i + 1) % 10
-                drawGoldChainSegment(slotPositions[i], slotPositions[next])
-            }
-
-            // Chain connecting top Our Father bead down to Crucifix
+            // Chain connecting Our Father bead down to the hanging Crucifix
             drawGoldChainSegment(
                 Offset(cx, ourFatherY + whiteBeadRadius),
-                Offset(cx, crucifixY - 18.dp.toPx())
+                Offset(cx, crucifixY - 14.dp.toPx())
             )
 
-            // Connector links joining the decade loop to the Crucifix
-            drawGoldChainSegment(
-                Offset(cx - 10.dp.toPx(), loopCenterY - loopRadiusY + 6.dp.toPx()),
-                Offset(cx, crucifixY + 16.dp.toPx())
-            )
-            drawGoldChainSegment(
-                Offset(cx + 10.dp.toPx(), loopCenterY - loopRadiusY + 6.dp.toPx()),
-                Offset(cx, crucifixY + 16.dp.toPx())
-            )
-
-            // 3. Draw Top Crucifix Centerpiece
+            // 1. Draw Hanging Crucifix Pendant
             drawCrucifixPendant(cx, crucifixY)
 
-            // 4. Draw Our Father Bead / Socket at the top
+            // 2. Draw Our Father Bead (Center)
             if (isOurFatherCompleted) {
                 drawMotherOfPearlBead(
                     cx = cx,
@@ -163,7 +141,6 @@ fun BeadChain(
                     pulse = 1f
                 )
             } else {
-                // Empty Mother-of-Pearl socket awaiting Our Father
                 drawEmptyPlaceholderSocket(
                     cx = cx,
                     cy = ourFatherY,
@@ -175,55 +152,41 @@ fun BeadChain(
                 )
             }
 
-            // 5. Draw the 10 Slots (Empty Placeholders or Filled Beads)
+            // 3. Draw 10 Hail Mary Slots (Filled or Empty)
             for (i in 0 until 10) {
                 val pos = slotPositions[i]
-                val angle = slotAngles[i]
                 val isFilled = i < completedHailMarys
-
-                // Check if this slot is near the center receiving position (bottom center)
-                // Normalize angle to [-PI, PI]
-                val normalizedAngle = kotlin.math.atan2(sin(angle), cos(angle))
-                val isAtCenter = kotlin.math.abs(normalizedAngle) < 0.22
+                val isNextTarget = i == completedHailMarys
 
                 if (isFilled) {
-                    drawFilledBeadInSocket(
+                    drawLapisLazuliBead(
                         cx = pos.x,
                         cy = pos.y,
                         radius = blueBeadRadius,
-                        isCenterReceiving = isAtCenter,
-                        pulse = if (isAtCenter) pulseGlow else 1f
+                        isCompleted = true,
+                        pulse = 1f
                     )
                 } else {
                     drawEmptyPlaceholderSocket(
                         cx = pos.x,
                         cy = pos.y,
                         radius = blueBeadRadius,
-                        isCenterReceiving = isAtCenter,
+                        isCenterReceiving = isNextTarget,
                         isPearl = false,
-                        pulse = if (isAtCenter) pulseGlow else 1f,
-                        isHoldPraying = isHoldPraying && isAtCenter
+                        pulse = if (isNextTarget) pulseGlow else 1f,
+                        isHoldPraying = isHoldPraying && isNextTarget
                     )
                 }
             }
         }
 
-        // 6. Golden Sparkle Burst over the Center Receiving Slot on arrival
-        if (justCompletedIndex != null) {
+        // Sparkle burst effect on newly settled bead
+        if (justCompletedIndex != null && justCompletedIndex in 0 until 10) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopCenter
             ) {
-                Box(
-                    modifier = Modifier.offset {
-                        // Position exactly over the center receiving slot (h * 0.535f)
-                        val h = density.run { 800.dp.toPx() } // dynamic estimate
-                        IntOffset(0, (density.run { 428.dp.toPx() }).roundToInt() - 27.dp.roundToPx())
-                    }
-                ) {
-                    SparkleBurst()
-                }
+                SparkleBurst()
             }
         }
     }

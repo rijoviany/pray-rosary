@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.screens
+package com.trivium.rosarium.ui.screens
 
 import android.app.Activity
 import android.view.WindowManager
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
@@ -35,8 +36,8 @@ import com.trivium.rosarium.data.model.DecadeStep
 import com.trivium.rosarium.ui.components.BeadChain
 import com.trivium.rosarium.ui.components.BottomMedievalControls
 import com.trivium.rosarium.ui.components.DraggableBead
-import com.trivium.rosarium.ui.components.MedievalFrameOverlay
 import com.trivium.rosarium.ui.components.MysteryBackground
+import com.trivium.rosarium.ui.components.MysteryMedallion
 import com.trivium.rosarium.ui.components.PrayerBanner
 import com.trivium.rosarium.ui.components.TopMedievalBar
 import com.trivium.rosarium.ui.theme.BackgroundVignette
@@ -75,72 +76,90 @@ fun PrayerScreen(
                 contentDescription = "Rosarium Prayer Screen. ${state.currentMysterySet.name}, decade ${state.decadeIndex + 1} of 5."
             }
     ) {
-        // 1. Crossfading Mystery Artwork with prayer-specific atmosphere
+        // 1. Atmospheric Cathedral Sanctuary Background
         MysteryBackground(
             currentMystery = state.currentMystery,
             currentStep = state.currentStep,
             isHoldPraying = state.isPrayingActive
         )
 
-        // 2. The 10-bead Decade Chain & Our Father Centerpiece
-        BeadChain(
-            completedHailMarys = state.completedHailMarysInDecade,
-            isOurFatherCompleted = state.isOurFatherCompleted,
-            justCompletedIndex = state.justCompletedBeadIndex,
-            isHoldPraying = state.isPrayingActive
-        )
-
-        // 3. Active Draggable / Hold-to-Pray Bead with spring physics
-        DraggableBead(
-            isWhiteBead = state.isWhiteBeadActive,
-            isPrayingActive = state.isPrayingActive,
-            isTapToPrayEnabled = settings.tapToPrayEnabled,
-            prayerProgress = state.prayerProgress,
-            isSnappingUp = state.isSpringSnapping,
-            currentStep = state.currentStep,
-            onHoldStart = { viewModel.startPrayer() },
-            onHoldReleaseEarly = { viewModel.cancelPrayerEarly() },
-            onPrayerFinished = { viewModel.onSnapUpAnimationFinished() },
-            onBounceImpact = { decay -> viewModel.onBounceImpact(decay) },
-            onStringTension = { viewModel.onStringTension() }
-        )
-
-        // 4. Manuscript Frame & Corner Flourishes
-        MedievalFrameOverlay()
-
-        // 5. Header and Prayer Banner Overlay
+        // 2. Main Holy Rosary Column flowing from Top to Bottom
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding(),
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Top Navigation Bar (Menu, Mystery Selector, Read)
             TopMedievalBar(
                 mysterySetName = state.currentMysterySet.name,
                 currentMysteryTitle = "${state.decadeIndex + 1}. ${state.currentMystery?.title ?: ""}",
+                onMenuClick = { showSettingsSheet = true },
                 onTitleClick = { showMysterySelector = true },
-                onScriptureClick = { showProgressSheet = true }
+                onReadClick = { showProgressSheet = true }
+            )
+
+            // Top Rosary Arc: 10 Hail Mary beads, center Our Father bead, and hanging crucifix
+            BeadChain(
+                completedHailMarys = state.completedHailMarysInDecade,
+                isOurFatherCompleted = state.isOurFatherCompleted,
+                justCompletedIndex = state.justCompletedBeadIndex,
+                isHoldPraying = state.isPrayingActive
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Centerpiece Mystery Medallion: Ornate carved gold bezel framing the mystery artwork
+            MysteryMedallion(
+                currentMystery = state.currentMystery,
+                currentStep = state.currentStep,
+                isHoldPraying = state.isPrayingActive
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Prayer Banner with line-by-line karaoke reveal
+            // Parchment Prayer Card: PRAYING header, title, karaoke line-by-line text, cross divider
             PrayerBanner(
                 prayer = state.activePrayer,
                 currentPhraseIndex = state.currentPhraseIndex,
                 prayerProgress = state.prayerProgress,
-                visible = state.isPrayingActive,
+                isHoldPraying = state.isPrayingActive,
                 currentStep = state.currentStep,
                 fontScale = settings.fontScale
             )
-        }
 
-        // 6. Bottom Navigation Controls (Menu & Progress)
-        BottomMedievalControls(
-            onMenuClick = { showSettingsSheet = true },
-            onProgressClick = { showProgressSheet = true },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+            // Active Draggable Bead suspended on vertical golden chain
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                DraggableBead(
+                    isWhiteBead = state.isWhiteBeadActive,
+                    isPrayingActive = state.isPrayingActive,
+                    isTapToPrayEnabled = settings.tapToPrayEnabled,
+                    prayerProgress = state.prayerProgress,
+                    isSnappingUp = state.isSpringSnapping,
+                    currentStep = state.currentStep,
+                    onHoldStart = { viewModel.startPrayer() },
+                    onHoldReleaseEarly = { viewModel.cancelPrayerEarly() },
+                    onPrayerFinished = { viewModel.onSnapUpAnimationFinished() },
+                    onBounceImpact = { decay -> viewModel.onBounceImpact(decay) },
+                    onStringTension = { viewModel.onStringTension() }
+                )
+            }
+
+            // Bottom Navigation Controls: Intentions and Progress (e.g. 4 / 53)
+            val currentBeadCount = (state.decadeIndex * 10) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
+            BottomMedievalControls(
+                onIntentionsClick = { showProgressSheet = true },
+                onProgressClick = { showProgressSheet = true },
+                currentBeadCount = currentBeadCount.coerceIn(1, 53),
+                totalBeadCount = 53
+            )
+        }
 
         // Rosary Completion Celebration Overlay
         AnimatedVisibility(

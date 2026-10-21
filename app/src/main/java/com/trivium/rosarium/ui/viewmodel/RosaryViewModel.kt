@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.viewmodel
+package com.trivium.rosarium.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -158,7 +158,14 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
             audioHelper.performHapticTick()
         }
 
-        val totalDurationMs = _settingsState.value.prayerDurationSeconds * 1000L
+        val baseSpeedSeconds = _settingsState.value.prayerDurationSeconds
+        val totalDurationMs = when (_rosaryState.value.currentStep) {
+            DecadeStep.OUR_FATHER -> maxOf(PhysicsConstants.MIN_OUR_FATHER_DURATION_MS, baseSpeedSeconds * 2000L)
+            DecadeStep.HAIL_MARY -> maxOf(PhysicsConstants.MIN_HAIL_MARY_DURATION_MS, baseSpeedSeconds * 1000L)
+            DecadeStep.GLORY_BE -> maxOf(PhysicsConstants.MIN_HAIL_MARY_DURATION_MS, baseSpeedSeconds * 1000L)
+            DecadeStep.FATIMA -> maxOf(6_000L, (baseSpeedSeconds * 1200L))
+            else -> maxOf(8_000L, baseSpeedSeconds * 1500L)
+        }
         val tickInterval = PhysicsConstants.PROGRESS_TICK_INTERVAL_MS
 
         prayerJob = viewModelScope.launch {

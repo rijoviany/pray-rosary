@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.components
+package com.trivium.rosarium.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -13,7 +13,10 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -36,6 +39,8 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -289,7 +294,7 @@ fun DraggableBead(
                 // Ornate bottom filigree cap in theme accent
                 val filigreePath = Path().apply {
                     moveTo(cx - 10.dp.toPx(), cy + radius * 0.85f)
-                    quadraticBezierTo(cx, cy + radius * 1.35f, cx + 10.dp.toPx(), cy + radius * 0.85f)
+                    quadraticTo(cx, cy + radius * 1.35f, cx + 10.dp.toPx(), cy + radius * 0.85f)
                 }
                 drawPath(
                     path = filigreePath,
@@ -298,30 +303,42 @@ fun DraggableBead(
                 )
             }
 
-            // Downward Pull Indicator Arrow (only shown when resting)
+            // Downward Pull Indicator: Golden Arrow & "DRAG DOWN" (shown when resting)
             if (!isPrayingActive && dragOffsetY.value < 10f) {
-                Canvas(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .offset { IntOffset(x = 0, y = (42.dp.toPx() + arrowFloatY).roundToInt()) }
-                ) {
-                    val w = size.width
-                    val h = size.height
-                    val arrowPath = Path().apply {
-                        moveTo(w / 2f, h)
-                        lineTo(w * 0.2f, h * 0.4f)
-                        lineTo(w * 0.4f, h * 0.4f)
-                        lineTo(w * 0.4f, 0f)
-                        lineTo(w * 0.6f, 0f)
-                        lineTo(w * 0.6f, h * 0.4f)
-                        lineTo(w * 0.8f, h * 0.4f)
-                        close()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.offset {
+                        IntOffset(x = 0, y = (46.dp.toPx() + arrowFloatY).roundToInt())
                     }
-                    drawPath(
-                        path = arrowPath,
-                        brush = Brush.verticalGradient(
-                            listOf(MedievalGoldBright, MedievalGoldDark)
+                ) {
+                    Canvas(modifier = Modifier.size(18.dp)) {
+                        val w = size.width
+                        val h = size.height
+                        val arrowPath = Path().apply {
+                            moveTo(w / 2f, h)
+                            lineTo(w * 0.15f, h * 0.42f)
+                            lineTo(w * 0.38f, h * 0.42f)
+                            lineTo(w * 0.38f, 0f)
+                            lineTo(w * 0.62f, 0f)
+                            lineTo(w * 0.62f, h * 0.42f)
+                            lineTo(w * 0.85f, h * 0.42f)
+                            close()
+                        }
+                        drawPath(
+                            path = arrowPath,
+                            brush = Brush.verticalGradient(
+                                listOf(MedievalGoldBright, MedievalGoldDark)
+                            )
                         )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "DRAG DOWN",
+                        color = MedievalGoldBright,
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.6.sp
                     )
                 }
             }

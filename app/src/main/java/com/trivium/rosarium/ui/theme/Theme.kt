@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.theme
+package com.trivium.rosarium.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -36,8 +36,9 @@ fun RosariumTheme(
             val window = (view.context as? Activity)?.window
             window?.let {
                 WindowCompat.setDecorFitsSystemWindows(it, false)
-                it.statusBarColor = android.graphics.Color.TRANSPARENT
-                it.navigationBarColor = android.graphics.Color.TRANSPARENT
+                val insetsController = WindowCompat.getInsetsController(it, view)
+                insetsController.isAppearanceLightStatusBars = false
+                insetsController.isAppearanceLightNavigationBars = false
             }
         }
     }
