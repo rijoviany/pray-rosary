@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.rosarium.app"
+    namespace = "com.trivium.rosarium"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.rosarium.app"
+        applicationId = "com.trivium.rosarium"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
