@@ -51,6 +51,7 @@ fun PrayerScreen(
 ) {
     val state by viewModel.rosaryState.collectAsState()
     val settings by viewModel.settingsState.collectAsState()
+    val stats by viewModel.statsState.collectAsState()
 
     var showMysterySelector by remember { mutableStateOf(false) }
     var showProgressSheet by remember { mutableStateOf(false) }
@@ -188,6 +189,7 @@ fun PrayerScreen(
         if (showProgressSheet) {
             ProgressSheet(
                 state = state,
+                stats = stats,
                 onResetRosary = { viewModel.resetRosary() },
                 onDismiss = { showProgressSheet = false }
             )

@@ -8,6 +8,7 @@ import com.rosarium.app.data.model.DecadeStep
 import com.rosarium.app.data.model.MysteryCatalog
 import com.rosarium.app.data.model.MysterySet
 import com.rosarium.app.data.model.Prayer
+import com.rosarium.app.data.model.PrayerStats
 import com.rosarium.app.data.model.RosaryState
 import com.rosarium.app.data.model.SettingsState
 import com.rosarium.app.data.repository.PreferencesRepository
@@ -30,6 +31,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _settingsState = MutableStateFlow(SettingsState())
     val settingsState: StateFlow<SettingsState> = _settingsState.asStateFlow()
+
+    private val _statsState = MutableStateFlow(PrayerStats())
+    val statsState: StateFlow<PrayerStats> = _statsState.asStateFlow()
 
     private val _rosaryState: MutableStateFlow<RosaryState>
     val rosaryState: StateFlow<RosaryState>
@@ -55,6 +59,12 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
             preferencesRepository.settingsFlow.collect { settings ->
                 _settingsState.value = settings
                 reloadPrayersAndMysteries(settings.language)
+            }
+        }
+
+        viewModelScope.launch {
+            preferencesRepository.statsFlow.collect { stats ->
+                _statsState.value = stats
             }
         }
 
@@ -279,9 +289,15 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
 
         updateActivePrayer()
         persistCurrentProgress()
+        viewModelScope.launch {
+            preferencesRepository.recordPrayerCompleted()
+        }
     }
 
     private fun onDecadeFinished() {
+        viewModelScope.launch {
+            preferencesRepository.recordDecadeCompleted()
+        }
         val nextDecade = _rosaryState.value.decadeIndex + 1
         if (nextDecade < 5) {
             _rosaryState.update {
@@ -297,6 +313,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
             }
         } else {
             // Full Rosary completed! Conclude with Hail Holy Queen
+            viewModelScope.launch {
+                preferencesRepository.recordRosaryCompleted()
+            }
             _rosaryState.update {
                 it.copy(
                     isRosaryFinished = true,

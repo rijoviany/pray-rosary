@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,7 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rosarium.app.data.model.PrayerStats
 import com.rosarium.app.data.model.RosaryState
+import com.rosarium.app.ui.components.MedievalPrayerHeatmap
 import com.rosarium.app.ui.theme.BackgroundSurface
 import com.rosarium.app.ui.theme.MedievalGold
 import com.rosarium.app.ui.theme.MedievalGoldBright
@@ -46,11 +50,13 @@ import com.rosarium.app.ui.theme.UltramarineLapis
 @Composable
 fun ProgressSheet(
     state: RosaryState,
+    stats: PrayerStats,
     onResetRosary: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val currentMystery = state.currentMystery
+    val streak = stats.calculateStreak()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -63,9 +69,10 @@ fun ProgressSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Rosary Progress",
+                text = "Rosary Devotion & History",
                 color = ParchmentLight,
                 fontSize = 22.sp,
                 fontFamily = FontFamily.Serif,
@@ -73,7 +80,46 @@ fun ProgressSheet(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Current Decade Card
+            // 1. Lifetime Prayer Summary Cards (Total Prayers Done)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                StatCard(
+                    title = "Prayers",
+                    value = stats.totalPrayers.toString(),
+                    subtitle = "Beads counted",
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    title = "Decades",
+                    value = stats.totalDecades.toString(),
+                    subtitle = "Mystery units",
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    title = "Rosaries",
+                    value = stats.totalRosaries.toString(),
+                    subtitle = "Full 5-decades",
+                    modifier = Modifier.weight(1f)
+                )
+                StatCard(
+                    title = "Streak",
+                    value = "$streak d",
+                    subtitle = "Consecutive",
+                    highlight = streak > 0,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // 2. Medieval GitHub-Style Prayer Heatmap
+            MedievalPrayerHeatmap(stats = stats)
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 3. Current Active Decade Card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,7 +129,7 @@ fun ProgressSheet(
                     .padding(18.dp)
             ) {
                 Text(
-                    text = "Decade ${state.decadeIndex + 1} of 5",
+                    text = "Current Decade: ${state.decadeIndex + 1} of 5",
                     color = MedievalGoldBright,
                     fontSize = 14.sp,
                     fontFamily = FontFamily.Serif,
@@ -160,7 +206,7 @@ fun ProgressSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Total 5 Decades Indicator Dots
+            // 4. Total 5 Decades Indicator Dots
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -209,7 +255,7 @@ fun ProgressSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Reset Rosary Button
+            // 5. Reset Rosary Button
             Button(
                 onClick = {
                     onResetRosary()
@@ -229,7 +275,57 @@ fun ProgressSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+}
+
+/**
+ * Individual illuminated medieval metric card for lifetime devotions.
+ */
+@Composable
+private fun StatCard(
+    title: String,
+    value: String,
+    subtitle: String,
+    highlight: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .border(
+                1.dp,
+                if (highlight) MedievalGoldBright else MedievalGoldDark.copy(alpha = 0.4f),
+                RoundedCornerShape(8.dp)
+            )
+            .background(if (highlight) Color(0xFF281E15) else Color(0xFF1B140F))
+            .padding(vertical = 10.dp, horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            color = if (highlight) MedievalGoldBright else ParchmentDark,
+            fontSize = 10.sp,
+            fontFamily = FontFamily.Serif,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = value,
+            color = if (highlight) MedievalGoldBright else ParchmentLight,
+            fontSize = 15.sp,
+            fontFamily = FontFamily.Serif,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = subtitle,
+            color = ParchmentDark.copy(alpha = 0.7f),
+            fontSize = 8.sp,
+            fontFamily = FontFamily.Serif,
+            textAlign = TextAlign.Center,
+            lineHeight = 10.sp
+        )
     }
 }
