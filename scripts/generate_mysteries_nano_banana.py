@@ -11,6 +11,9 @@ Usage:
 import os
 import sys
 import json
+import base64
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 # Character Anchors for Character Consistency
@@ -73,57 +76,87 @@ MYSTERIES = [
     ("mystery_glorious_5", f"The Coronation of Mary as Queen of Heaven. In the highest celestial court of Heaven surrounded by singing angels. {MARY_ANCHOR_MATURE}, enthroned in radiant glory, bows her head humbly as {JESUS_ANCHOR} places an ornate crown of twelve brilliant stars and pure gold upon her head. Divine golden light, deep ultramarine, and celestial crimson majesty. {STYLE_SUFFIX}"),
 ]
 
+def generate_with_nano_banana(api_key: str, model_name: str, prompt: str) -> bytes:
+    """Invokes Google Gemini Nano Banana image generation via REST API."""
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ]
+    }
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+    
+    with urllib.request.urlopen(req) as resp:
+        res_json = json.loads(resp.read().decode("utf-8"))
+        candidates = res_json.get("candidates", [])
+        if not candidates:
+            raise RuntimeError(f"No candidates returned: {res_json}")
+        
+        parts = candidates[0].get("content", {}).get("parts", [])
+        for part in parts:
+            if "inlineData" in part:
+                b64_data = part["inlineData"]["data"]
+                return base64.b64decode(b64_data)
+        raise RuntimeError("No image inlineData in response.")
+
 def main():
     dest_dir = Path("app/src/main/res/drawable-nodpi")
     dest_dir.mkdir(parents=True, exist_ok=True)
     
-    print(f"=== Nano Banana / Imagen 3 Sacred Mystery Generator ===")
-    print(f"Total Mysteries to generate: {len(MYSTERIES)}")
-    print(f"Target Directory: {dest_dir.resolve()}\n")
+    api_key = sys.argv[1] if len(sys.argv) > 1 else (os.environ.get("GEMINI_API_KEY") or "AIzaSyBhJmRLcFtSOKTYAz21PsC-0xn_awo9rnY")
+    models_to_try = [
+        "gemini-2.5-flash-image",
+        "gemini-3.1-flash-image",
+        "gemini-3-pro-image",
+    ]
 
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        print("Note: GEMINI_API_KEY environment variable is not set.")
-        print("You can generate the images in Google AI Studio, Gemini, or any Nano Banana UI using the prompts in:")
-        print(" -> NANO_BANANA_MYSTERIES_PROMPTS.md")
-        print("\nAll 20 prompts are also exported below to 'nano_banana_prompts.json'.")
-        
-        # Export prompts to JSON
-        output_file = Path("scripts/nano_banana_prompts.json")
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump([{"filename": f"{name}.png", "prompt": p} for name, p in MYSTERIES], f, indent=2)
-        print(f"Exported to {output_file.resolve()}.")
-        return
+    print(f"=== Nano Banana (Google Gemini Image) Sacred Mystery Generator ===")
+    print(f"Total Mysteries: {len(MYSTERIES)}")
+    print(f"Destination: {dest_dir.resolve()}\n")
 
-    try:
-        from google import genai
-        client = genai.Client(api_key=api_key)
-        for idx, (filename, prompt) in enumerate(MYSTERIES, 1):
-            out_path = dest_dir / f"{filename}.png"
-            if out_path.exists():
-                print(f"[{idx}/20] {filename}.png already exists. Skipping.")
-                continue
+    for idx, (filename, prompt) in enumerate(MYSTERIES, 1):
+        out_path = dest_dir / f"{filename}.png"
+        if out_path.exists() and out_path.stat().st_size > 10000:
+            print(f"[{idx}/20] {filename}.png already exists. Skipping.")
+            continue
 
-            print(f"[{idx}/20] Generating {filename}.png with Nano Banana (imagen-3.0-generate-002)...")
-            result = client.models.generate_images(
-                model="imagen-3.0-generate-002",
-                prompt=prompt,
-                config=dict(
-                    number_of_images=1,
-                    aspect_ratio="1:1",
-                    person_generation="ALLOW_ADULT",
-                    safety_filter_level="BLOCK_MEDIUM_AND_ABOVE",
-                ),
-            )
-            for generated_image in result.generated_images:
+        print(f"[{idx}/20] Generating {filename}.png with Nano Banana...")
+        generated = False
+        last_error = None
+
+        for model in models_to_try:
+            try:
+                img_bytes = generate_with_nano_banana(api_key, model, prompt)
                 with open(out_path, "wb") as f:
-                    f.write(generated_image.image.image_bytes)
-                print(f"       -> Saved {out_path}")
-        print("\nAll 20 Holy Mystery images generated successfully!")
-    except ImportError:
-        print("google-genai SDK not installed. Run: pip install google-genai")
-    except Exception as e:
-        print(f"Error during generation: {e}")
+                    f.write(img_bytes)
+                print(f"       -> Saved {out_path.name} ({len(img_bytes)} bytes) using {model}")
+                generated = True
+                break
+            except urllib.error.HTTPError as e:
+                err_body = e.read().decode("utf-8")
+                last_error = f"HTTP {e.code}: {err_body}"
+                if e.code == 429:
+                    # Rate limit or quota 0 on free tier
+                    break
+            except Exception as e:
+                last_error = str(e)
+
+        if not generated:
+            print(f"       [!] Generation failed: {last_error}")
+            if "limit: 0" in str(last_error) or "429" in str(last_error):
+                print("\n[NOTE] Google restricts the Nano Banana image API on Free Tier (limit: 0).")
+                print("To enable API generation, link a Billing account / Pay-As-You-Go in Google AI Studio:")
+                print(" -> https://aistudio.google.com/ (Select Project -> Set up Billing)")
+                print("\nAlternatively, paste the prompts directly into Gemini or Google AI Studio for free:")
+                print(" -> Prompts available in: NANO_BANANA_MYSTERIES_PROMPTS.md")
+                break
+
+    print("\nBatch process finished.")
 
 if __name__ == "__main__":
     main()
