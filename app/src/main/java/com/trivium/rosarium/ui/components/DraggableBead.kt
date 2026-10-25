@@ -2,7 +2,6 @@ package com.trivium.rosarium.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -27,6 +26,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -50,18 +49,14 @@ import com.trivium.rosarium.ui.theme.GoldGlow
 import com.trivium.rosarium.ui.theme.MedievalGold
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
 import com.trivium.rosarium.ui.theme.MedievalGoldDark
-import com.trivium.rosarium.ui.theme.ParchmentLight
 import com.trivium.rosarium.ui.theme.PrayerThemes
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
  * The core physical interaction of Rosarium:
- * Draggable bottom bead with hold-to-pray karaoke timing, rubber-band resistance,
- * spring snap-up physics directly into the Center Receiving Slot, rotation wobble,
- * and tension glow.
+ * Draggable active bead suspended on a vertical golden chain directly below the prayer banner.
+ * Drag downward to pray with rubber-band physics, tension glow, and spring snap-up completion.
  */
 @Composable
 fun DraggableBead(
@@ -81,10 +76,22 @@ fun DraggableBead(
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
 
-    val maxDragPx = with(density) { PhysicsConstants.MAX_DRAG_DISTANCE_DP.dp.toPx() }
-    val dragThresholdPx = with(density) { PhysicsConstants.DRAG_THRESHOLD_DP.dp.toPx() }
+    // Up-to-date state references to prevent stale closures in pointer gestures
+    val currentOnHoldStart by rememberUpdatedState(onHoldStart)
+    val currentOnHoldReleaseEarly by rememberUpdatedState(onHoldReleaseEarly)
+    val currentOnPrayerFinished by rememberUpdatedState(onPrayerFinished)
+    val currentOnBounceImpact by rememberUpdatedState(onBounceImpact)
+    val currentOnStringTension by rememberUpdatedState(onStringTension)
+    val currentIsPrayingActive by rememberUpdatedState(isPrayingActive)
+    val currentIsSnappingUp by rememberUpdatedState(isSnappingUp)
 
-    // Physical vertical displacement (0f = resting position, >0 = pulled down)
+    val maxDragPx = with(density) { 90.dp.toPx() }
+    val dragThresholdPx = with(density) { 38.dp.toPx() }
+    val restingBeadCenterYPx = with(density) { 28.dp.toPx() }
+    val snapUpTargetOffsetPx = with(density) { -18.dp.toPx() }
+    val indicatorBaseOffsetPx = with(density) { 36.dp.toPx() }
+
+    // Physical vertical displacement (0f = resting position just below banner, >0 = pulled down)
     val dragOffsetY = remember { Animatable(0f) }
     // Rotational wobble on snap-up
     val rotationWobble = remember { Animatable(0f) }
@@ -96,29 +103,18 @@ fun DraggableBead(
     val infiniteTransition = rememberInfiniteTransition(label = "ArrowPulse")
     val arrowFloatY by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 6.dp.value,
+        targetValue = 5.dp.value,
         animationSpec = infiniteRepeatable(
-            animation = tween(900, easing = FastOutSlowInEasing),
+            animation = tween(850, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "arrowFloatY"
     )
 
-    BoxWithConstraints(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        val screenHeightPx = with(density) { maxHeight.toPx() }
-        // Exact vertical distance from active bead center (0.81h) to center receiving slot (0.535h)
-        val targetReceivingOffsetPx = if (isWhiteBead) {
-            -screenHeightPx * 0.52f // Snap up to top Our Father socket (0.29h)
-        } else {
-            -screenHeightPx * 0.275f // Snap up to center receiving socket (0.535h)
-        }
-
-        // Handle Snap-Up Spring Animation when prayer completes
-        LaunchedEffect(isSnappingUp) {
-            if (isSnappingUp) {
+    // Handle Snap-Up Spring Animation when prayer completes
+    LaunchedEffect(isSnappingUp) {
+        if (isSnappingUp) {
+            try {
                 // Play initial tension release wobble
                 launch {
                     rotationWobble.animateTo(
@@ -132,127 +128,152 @@ fun DraggableBead(
                     rotationWobble.animateTo(0f, animationSpec = tween(160))
                 }
 
-                // Spring up with 2-3 realistic decaying bounces right into the receiving slot!
+                // Spring up into the banner anchor socket with realistic decaying bounce
                 dragOffsetY.animateTo(
-                    targetValue = targetReceivingOffsetPx,
+                    targetValue = snapUpTargetOffsetPx,
                     animationSpec = PhysicsConstants.SnapUpSpringSpec
                 ) {
                     val velocity = velocity
-                    if (kotlin.math.abs(velocity) > 800f) {
-                        onBounceImpact(0.85f)
-                    } else if (kotlin.math.abs(velocity) > 300f) {
-                        onBounceImpact(0.45f)
+                    if (kotlin.math.abs(velocity) > 500f) {
+                        currentOnBounceImpact(0.8f)
+                    } else if (kotlin.math.abs(velocity) > 200f) {
+                        currentOnBounceImpact(0.4f)
                     }
                 }
 
-                onPrayerFinished()
-                // Reset position smoothly for the fresh bead
+                // Settle smoothly back to 0f
+                dragOffsetY.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(80)
+                )
+            } finally {
+                // Guaranteed reset of offsets and drag flags
                 dragOffsetY.snapTo(0f)
                 rawAccumulatedDrag = 0f
                 isDragging = false
             }
+            // Advance to the next bead
+            currentOnPrayerFinished()
         }
+    }
 
+    BoxWithConstraints(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
         val beadYOffsetPx = dragOffsetY.value
+        val beadCenterY = restingBeadCenterYPx + beadYOffsetPx
 
-        // 1. Vertical Golden Chain connecting Center Receiving Slot downward to Active Bead
-        Canvas(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        // 1. Vertical Golden Chain connecting Banner Cross downward to Active Bead
+        Canvas(modifier = Modifier.fillMaxSize()) {
             val cx = size.width / 2f
-            val centerReceivingY = size.height * 0.535f + 14.dp.toPx()
-            val beadCenterY = size.height * 0.81f + beadYOffsetPx
+            val startChainY = 0f
+            val endChainY = beadCenterY - 24.dp.toPx()
 
             // Golden chain links
             drawVerticalChainLinks(
                 cx = cx,
-                startY = centerReceivingY,
-                endY = beadCenterY - 26.dp.toPx(),
-                isUnderTension = isPrayingActive
+                startY = startChainY,
+                endY = endChainY,
+                isUnderTension = currentIsPrayingActive || isDragging
             )
 
-            // Tension light aura if pulled down
-            if (isPrayingActive) {
+            // Tension light aura along chain if pulled down
+            if (currentIsPrayingActive || beadYOffsetPx > 15f) {
                 val auraBrush = Brush.verticalGradient(
                     colors = listOf(
-                        GoldGlow.copy(alpha = 0.25f),
-                        MedievalGoldBright.copy(alpha = 0.50f),
-                        GoldGlow.copy(alpha = 0.75f)
+                        GoldGlow.copy(alpha = 0.20f),
+                        MedievalGoldBright.copy(alpha = 0.45f),
+                        GoldGlow.copy(alpha = 0.70f)
                     ),
-                    startY = centerReceivingY,
+                    startY = startChainY,
                     endY = beadCenterY
                 )
                 drawRect(
                     brush = auraBrush,
-                    topLeft = Offset(cx - 10.dp.toPx(), centerReceivingY),
-                    size = androidx.compose.ui.geometry.Size(20.dp.toPx(), beadCenterY - centerReceivingY)
+                    topLeft = Offset(cx - 8.dp.toPx(), startChainY),
+                    size = androidx.compose.ui.geometry.Size(16.dp.toPx(), (beadCenterY - startChainY).coerceAtLeast(0f))
                 )
             }
         }
 
         // 2. The Active Bead with Gesture Detection
+        val beadCanvasSizeDp = 68.dp
+        val beadHalfSizePx = with(density) { (beadCanvasSizeDp / 2).toPx() }
+        val beadBoxY = (restingBeadCenterYPx - beadHalfSizePx + beadYOffsetPx).roundToInt()
+
         Box(
             modifier = Modifier
-                .offset { IntOffset(x = 0, y = (beadYOffsetPx - 130.dp.toPx()).roundToInt()) }
+                .offset { IntOffset(x = 0, y = beadBoxY) }
                 .graphicsLayer {
                     rotationZ = rotationWobble.value
                 }
                 .pointerInput(isTapToPrayEnabled) {
                     if (isTapToPrayEnabled) {
                         detectTapGestures(
-                            onPress = {
-                                onHoldStart()
-                                tryAwaitRelease()
-                                onHoldReleaseEarly()
+                            onTap = {
+                                if (!currentIsPrayingActive && !currentIsSnappingUp) {
+                                    currentOnHoldStart()
+                                    currentOnStringTension()
+                                    coroutineScope.launch {
+                                        dragOffsetY.animateTo(
+                                            targetValue = dragThresholdPx,
+                                            animationSpec = tween(140)
+                                        )
+                                    }
+                                }
                             }
                         )
                     } else {
                         detectDragGestures(
                             onDragStart = {
-                                isDragging = true
-                                rawAccumulatedDrag = 0f
+                                if (!currentIsPrayingActive && !currentIsSnappingUp) {
+                                    isDragging = true
+                                    rawAccumulatedDrag = 0f
+                                }
                             },
                             onDrag = { change, dragAmount ->
                                 change.consume()
-                                rawAccumulatedDrag = (rawAccumulatedDrag + dragAmount.y).coerceAtLeast(0f)
-                                val calculatedOffset = PhysicsConstants.calculateRubberBandedDrag(
-                                    rawDrag = rawAccumulatedDrag,
-                                    maxDistance = maxDragPx
-                                )
+                                if (!currentIsPrayingActive && !currentIsSnappingUp) {
+                                    rawAccumulatedDrag = (rawAccumulatedDrag + dragAmount.y).coerceAtLeast(0f)
+                                    val calculatedOffset = PhysicsConstants.calculateRubberBandedDrag(
+                                        rawDrag = rawAccumulatedDrag,
+                                        maxDistance = maxDragPx
+                                    )
 
-                                coroutineScope.launch {
-                                    dragOffsetY.snapTo(calculatedOffset)
-                                }
+                                    coroutineScope.launch {
+                                        dragOffsetY.snapTo(calculatedOffset)
+                                    }
 
-                                if (calculatedOffset >= dragThresholdPx && !isPrayingActive) {
-                                    onHoldStart()
-                                    onStringTension()
+                                    if (calculatedOffset >= dragThresholdPx) {
+                                        currentOnHoldStart()
+                                        currentOnStringTension()
+                                    }
                                 }
                             },
                             onDragEnd = {
                                 isDragging = false
                                 rawAccumulatedDrag = 0f
-                                if (isPrayingActive) {
-                                    onHoldReleaseEarly()
-                                }
-                                coroutineScope.launch {
-                                    dragOffsetY.animateTo(
-                                        targetValue = 0f,
-                                        animationSpec = PhysicsConstants.EarlyReleaseSpringSpec
-                                    )
+                                if (!currentIsPrayingActive) {
+                                    // Released before reaching threshold: spring back to resting position
+                                    coroutineScope.launch {
+                                        dragOffsetY.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = PhysicsConstants.EarlyReleaseSpringSpec
+                                        )
+                                    }
                                 }
                             },
                             onDragCancel = {
                                 isDragging = false
                                 rawAccumulatedDrag = 0f
-                                if (isPrayingActive) {
-                                    onHoldReleaseEarly()
-                                }
-                                coroutineScope.launch {
-                                    dragOffsetY.animateTo(
-                                        targetValue = 0f,
-                                        animationSpec = PhysicsConstants.EarlyReleaseSpringSpec
-                                    )
+                                if (!currentIsPrayingActive) {
+                                    coroutineScope.launch {
+                                        dragOffsetY.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = PhysicsConstants.EarlyReleaseSpringSpec
+                                        )
+                                    }
                                 }
                             }
                         )
@@ -261,14 +282,14 @@ fun DraggableBead(
             contentAlignment = Alignment.Center
         ) {
             // Bead Visual with prayer-specific liturgical color and aura
-            Canvas(modifier = Modifier.size(72.dp)) {
+            Canvas(modifier = Modifier.size(beadCanvasSizeDp)) {
                 val cx = size.width / 2f
                 val cy = size.height / 2f
-                val radius = 24.dp.toPx()
+                val radius = 22.dp.toPx()
                 val prayerTheme = PrayerThemes.forStep(currentStep)
 
                 // Pulsing glow if active
-                if (isPrayingActive) {
+                if (currentIsPrayingActive) {
                     val glowBrush = Brush.radialGradient(
                         colors = listOf(
                             prayerTheme.auraGlow.copy(alpha = 0.85f),
@@ -287,60 +308,62 @@ fun DraggableBead(
                     cx = cx,
                     cy = cy,
                     radius = radius,
-                    isCompleted = isPrayingActive,
+                    isCompleted = currentIsPrayingActive,
                     pulse = 1f
                 )
 
                 // Ornate bottom filigree cap in theme accent
                 val filigreePath = Path().apply {
-                    moveTo(cx - 10.dp.toPx(), cy + radius * 0.85f)
-                    quadraticTo(cx, cy + radius * 1.35f, cx + 10.dp.toPx(), cy + radius * 0.85f)
+                    moveTo(cx - 9.dp.toPx(), cy + radius * 0.82f)
+                    quadraticTo(cx, cy + radius * 1.30f, cx + 9.dp.toPx(), cy + radius * 0.82f)
                 }
                 drawPath(
                     path = filigreePath,
                     color = prayerTheme.secondaryAccent,
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.5.dp.toPx())
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.2.dp.toPx())
                 )
             }
+        }
 
-            // Downward Pull Indicator: Golden Arrow & "DRAG DOWN" (shown when resting)
-            if (!isPrayingActive && dragOffsetY.value < 10f) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.offset {
-                        IntOffset(x = 0, y = (46.dp.toPx() + arrowFloatY).roundToInt())
+        // 3. Downward Pull Indicator: Golden Arrow & "DRAG DOWN" (shown when resting)
+        val arrowFloatPx = with(density) { arrowFloatY.dp.toPx() }
+        val indicatorY = (restingBeadCenterYPx + indicatorBaseOffsetPx + beadYOffsetPx + arrowFloatPx).roundToInt()
+        if (!currentIsPrayingActive && beadYOffsetPx < 12f) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.offset {
+                    IntOffset(x = 0, y = indicatorY)
+                }
+            ) {
+                Canvas(modifier = Modifier.size(16.dp)) {
+                    val w = size.width
+                    val h = size.height
+                    val arrowPath = Path().apply {
+                        moveTo(w / 2f, h)
+                        lineTo(w * 0.15f, h * 0.42f)
+                        lineTo(w * 0.38f, h * 0.42f)
+                        lineTo(w * 0.38f, 0f)
+                        lineTo(w * 0.62f, 0f)
+                        lineTo(w * 0.62f, h * 0.42f)
+                        lineTo(w * 0.85f, h * 0.42f)
+                        close()
                     }
-                ) {
-                    Canvas(modifier = Modifier.size(18.dp)) {
-                        val w = size.width
-                        val h = size.height
-                        val arrowPath = Path().apply {
-                            moveTo(w / 2f, h)
-                            lineTo(w * 0.15f, h * 0.42f)
-                            lineTo(w * 0.38f, h * 0.42f)
-                            lineTo(w * 0.38f, 0f)
-                            lineTo(w * 0.62f, 0f)
-                            lineTo(w * 0.62f, h * 0.42f)
-                            lineTo(w * 0.85f, h * 0.42f)
-                            close()
-                        }
-                        drawPath(
-                            path = arrowPath,
-                            brush = Brush.verticalGradient(
-                                listOf(MedievalGoldBright, MedievalGoldDark)
-                            )
+                    drawPath(
+                        path = arrowPath,
+                        brush = Brush.verticalGradient(
+                            listOf(MedievalGoldBright, MedievalGoldDark)
                         )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "DRAG DOWN",
-                        color = MedievalGoldBright,
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.SemiBold,
-                        letterSpacing = 1.6.sp
                     )
                 }
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    text = "DRAG DOWN",
+                    color = MedievalGoldBright,
+                    fontSize = 10.5.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 1.5.sp
+                )
             }
         }
     }
@@ -357,13 +380,13 @@ private fun DrawScope.drawVerticalChainLinks(
 ) {
     if (endY <= startY) return
 
-    val linkSpacing = 9.dp.toPx()
+    val linkSpacing = 8.dp.toPx()
     val steps = ((endY - startY) / linkSpacing).toInt().coerceAtLeast(1)
 
     for (i in 0..steps) {
         val ly = startY + (i * linkSpacing)
-        val linkW = 5.dp.toPx()
-        val linkH = 7.dp.toPx()
+        val linkW = 4.8.dp.toPx()
+        val linkH = 6.8.dp.toPx()
 
         val linkColor = if (isUnderTension) MedievalGoldBright else MedievalGold
 

@@ -83,34 +83,34 @@ fun PrayerBanner(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 22.dp, vertical = 14.dp),
+                .padding(horizontal = 18.dp, vertical = 7.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Caption "— PRAYING —"
             Text(
                 text = "— PRAYING —",
-                fontSize = (10.5f * fontScale).sp,
+                fontSize = (9.5f * fontScale).sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold,
                 color = MedievalGoldDark,
-                letterSpacing = 2.sp,
+                letterSpacing = 1.6.sp,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(1.dp))
 
             // Header (e.g. "Hail Mary" or "Our Father")
             Text(
                 text = prayer.title,
-                fontSize = (20 * fontScale).sp,
+                fontSize = (17 * fontScale).sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold,
                 color = InkBrownDark,
-                letterSpacing = 0.4.sp,
+                letterSpacing = 0.3.sp,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             // Prayer Phrases (line by line karaoke)
             val displayPhrases = prayer.phrases
@@ -129,23 +129,23 @@ fun PrayerBanner(
 
                 Text(
                     text = phrase,
-                    fontSize = (13.5f * fontScale).sp,
+                    fontSize = (12f * fontScale).sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = phraseWeight,
                     color = phraseColor,
-                    lineHeight = (18.5f * fontScale).sp,
+                    lineHeight = (15.5f * fontScale).sp,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(vertical = 0.8.dp)
+                    modifier = Modifier.padding(vertical = 0.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Bottom Ornamental Cross Divider (— ✙ —)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(0.6f)
+                modifier = Modifier.fillMaxWidth(0.55f)
             ) {
                 Box(
                     modifier = Modifier
@@ -153,7 +153,7 @@ fun PrayerBanner(
                         .height(1.dp)
                         .background(MedievalGoldDark.copy(alpha = 0.6f))
                 )
-                Canvas(modifier = Modifier.padding(horizontal = 6.dp).size(12.dp)) {
+                Canvas(modifier = Modifier.padding(horizontal = 5.dp).size(10.dp)) {
                     val w = size.width
                     val h = size.height
                     val cx = w / 2f
@@ -163,15 +163,15 @@ fun PrayerBanner(
                         color = MedievalGold,
                         start = Offset(cx, 1f),
                         end = Offset(cx, h - 1f),
-                        strokeWidth = 1.5.dp.toPx()
+                        strokeWidth = 1.3.dp.toPx()
                     )
                     drawLine(
                         color = MedievalGold,
                         start = Offset(1f, cy),
                         end = Offset(w - 1f, cy),
-                        strokeWidth = 1.5.dp.toPx()
+                        strokeWidth = 1.3.dp.toPx()
                     )
-                    drawCircle(MedievalGoldBright, radius = 1.2.dp.toPx(), center = Offset(cx, cy))
+                    drawCircle(MedievalGoldBright, radius = 1.1.dp.toPx(), center = Offset(cx, cy))
                 }
                 Box(
                     modifier = Modifier

@@ -56,6 +56,7 @@ fun PrayerScreen(
 
     var showMysterySelector by remember { mutableStateOf(false) }
     var showProgressSheet by remember { mutableStateOf(false) }
+    var showIntentionsSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
 
     // Keep screen awake while user is praying the Holy Rosary
@@ -97,7 +98,7 @@ fun PrayerScreen(
                 currentMysteryTitle = "${state.decadeIndex + 1}. ${state.currentMystery?.title ?: ""}",
                 onMenuClick = { showSettingsSheet = true },
                 onTitleClick = { showMysterySelector = true },
-                onReadClick = { showProgressSheet = true }
+                onReadClick = { showIntentionsSheet = true }
             )
 
             // Top Rosary Arc: 10 Hail Mary beads, center Our Father bead, and hanging crucifix
@@ -117,7 +118,7 @@ fun PrayerScreen(
                 isHoldPraying = state.isPrayingActive
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             // Parchment Prayer Card: PRAYING header, title, karaoke line-by-line text, cross divider
             PrayerBanner(
@@ -129,12 +130,12 @@ fun PrayerScreen(
                 fontScale = settings.fontScale
             )
 
-            // Active Draggable Bead suspended on vertical golden chain
+            // Active Draggable Bead suspended on vertical golden chain directly below banner
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.TopCenter
             ) {
                 DraggableBead(
                     isWhiteBead = state.isWhiteBeadActive,
@@ -154,7 +155,7 @@ fun PrayerScreen(
             // Bottom Navigation Controls: Intentions and Progress (e.g. 4 / 53)
             val currentBeadCount = (state.decadeIndex * 10) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
             BottomMedievalControls(
-                onIntentionsClick = { showProgressSheet = true },
+                onIntentionsClick = { showIntentionsSheet = true },
                 onProgressClick = { showProgressSheet = true },
                 currentBeadCount = currentBeadCount.coerceIn(1, 53),
                 totalBeadCount = 53
@@ -202,6 +203,13 @@ fun PrayerScreen(
                 onSelectMysterySet = { viewModel.selectMysterySet(it) },
                 onSelectDecade = { viewModel.selectDecade(it) },
                 onDismiss = { showMysterySelector = false }
+            )
+        }
+
+        if (showIntentionsSheet) {
+            IntentionsSheet(
+                state = state,
+                onDismiss = { showIntentionsSheet = false }
             )
         }
 
