@@ -195,18 +195,46 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 }
             }
 
-            // Finished prayer duration: trigger snap-up animation
+            // Duration completed (5s for Hail Mary / 10s for Our Father):
+            // Ready for user to release the bead! No automatic snap!
+            _rosaryState.update {
+                it.copy(
+                    isReadyToRelease = true,
+                    prayerProgress = 1f,
+                    currentPhraseIndex = phrasesCount - 1
+                )
+            }
+
+            if (_settingsState.value.hapticFeedbackEnabled) {
+                audioHelper.performHapticPulse()
+            }
+
+            // If in Tap-to-Pray mode, automatically release after completion duration
+            if (_settingsState.value.tapToPrayEnabled) {
+                delay(150L)
+                onReleaseBead()
+            }
+        }
+    }
+
+    fun onReleaseBead() {
+        val state = _rosaryState.value
+        if (state.isReadyToRelease || state.prayerProgress >= 0.95f) {
+            prayerJob?.cancel()
             _rosaryState.update {
                 it.copy(
                     isPrayingActive = false,
                     isSpringSnapping = true,
+                    isReadyToRelease = false,
                     prayerProgress = 1f
                 )
             }
-
             if (_settingsState.value.soundEffectsEnabled) {
                 audioHelper.playCompletionBell()
             }
+        } else {
+            // User released too early (< 5s / 10s)
+            cancelPrayerEarly()
         }
     }
 
@@ -215,6 +243,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         _rosaryState.update {
             it.copy(
                 isPrayingActive = false,
+                isReadyToRelease = false,
                 prayerProgress = 0f,
                 currentPhraseIndex = 0
             )

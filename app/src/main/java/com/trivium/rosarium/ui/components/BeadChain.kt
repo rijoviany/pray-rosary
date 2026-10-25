@@ -47,13 +47,12 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
- * Continuous 10-bead Decade Rosary:
- * - Empty filigree wire placeholders/sockets initially awaiting beads to arrive.
- * - The center slot at the bottom of the loop is the dedicated Receiving Slot,
- *   illuminated and ready to receive the active bead.
- * - When a bead arrives, it settles in the center slot with a clack & sparkle burst.
- * - The rosary then smoothly rotates bead-by-bead along the loop, shifting completed
- *   beads along the chain and bringing the next empty placeholder into the center!
+ * Continuous Decade Rosary Chain Arc:
+ * - Empty filigree socket in the center receives each active bead from below.
+ * - When Our Father is completed, the Mother-of-pearl White Bead settles in the center.
+ * - When the next Hail Mary bead is released, the White Bead moves to the left!
+ * - Subsequent Hail Mary beads slide left along the chain, leaving the center slot
+ *   open/empty awaiting the next bead.
  */
 @Composable
 fun BeadChain(
@@ -77,6 +76,18 @@ fun BeadChain(
         label = "pulseGlow"
     )
 
+    // Smooth shift animation along the chain when a new bead completes
+    val shiftAnim = remember { Animatable(1f) }
+    LaunchedEffect(completedHailMarys) {
+        if (completedHailMarys > 0) {
+            shiftAnim.snapTo(0f)
+            shiftAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(420, easing = FastOutSlowInEasing)
+            )
+        }
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -90,98 +101,169 @@ fun BeadChain(
             val blueBeadRadius = 12.5.dp.toPx()
             val whiteBeadRadius = 15.5.dp.toPx()
 
-            // Center Our Father bead & hanging crucifix position
             val ourFatherY = 26.dp.toPx()
+            val centerSlotPos = Offset(cx, ourFatherY)
             val crucifixY = ourFatherY + 28.dp.toPx()
 
-            // 10 Hail Mary slot positions along the garland arc (5 on left, 5 on right)
-            val slotPositions = listOf(
-                Offset(w * 0.05f, 8.dp.toPx()),
-                Offset(w * 0.15f, 15.dp.toPx()),
-                Offset(w * 0.25f, 21.dp.toPx()),
-                Offset(w * 0.34f, 25.dp.toPx()),
-                Offset(w * 0.43f, 26.dp.toPx()),
-                // Right side
-                Offset(w * 0.57f, 26.dp.toPx()),
-                Offset(w * 0.66f, 25.dp.toPx()),
-                Offset(w * 0.75f, 21.dp.toPx()),
-                Offset(w * 0.85f, 15.dp.toPx()),
-                Offset(w * 0.95f, 8.dp.toPx())
-            )
+            // Arc geometry calculation for left and right slots
+            val spanLeft = cx - 18.dp.toPx()
+            val spanRight = (w - 18.dp.toPx()) - cx
 
-            // Draw Golden Chain Links along the arc
-            // Left chain segment
-            for (i in 0 until 4) {
-                drawGoldChainSegment(slotPositions[i], slotPositions[i + 1])
-            }
-            drawGoldChainSegment(slotPositions[4], Offset(cx - whiteBeadRadius, ourFatherY))
-
-            // Right chain segment
-            drawGoldChainSegment(Offset(cx + whiteBeadRadius, ourFatherY), slotPositions[5])
-            for (i in 5 until 9) {
-                drawGoldChainSegment(slotPositions[i], slotPositions[i + 1])
+            fun getLeftSlot(slotIdx: Int): Offset {
+                val frac = ((slotIdx + 1f) / 10.5f).coerceIn(0.08f, 1.0f)
+                val x = cx - (spanLeft * frac)
+                val y = ourFatherY - (22.dp.toPx() * (frac * frac))
+                return Offset(x, y)
             }
 
-            // Chain connecting Our Father bead down to the hanging Crucifix
+            fun getRightSlot(slotIdx: Int): Offset {
+                val frac = ((slotIdx + 1f) / 10.5f).coerceIn(0.08f, 1.0f)
+                val x = cx + (spanRight * frac)
+                val y = ourFatherY - (22.dp.toPx() * (frac * frac))
+                return Offset(x, y)
+            }
+
+            // Maps index 0 -> Center, index 1..10 -> Left Slots 0..9
+            fun getSlotPos(posIdx: Int): Offset {
+                return if (posIdx == 0) centerSlotPos else getLeftSlot(posIdx - 1)
+            }
+
+            // 1. Draw Golden Chain Segments along the arc
+            // Left chain
+            for (i in 6 downTo 1) {
+                drawGoldChainSegment(getLeftSlot(i), getLeftSlot(i - 1))
+            }
+            drawGoldChainSegment(getLeftSlot(0), centerSlotPos)
+
+            // Right chain
+            drawGoldChainSegment(centerSlotPos, getRightSlot(0))
+            for (i in 0 until 6) {
+                drawGoldChainSegment(getRightSlot(i), getRightSlot(i + 1))
+            }
+
+            // Chain to hanging Crucifix
             drawGoldChainSegment(
-                Offset(cx, ourFatherY + whiteBeadRadius),
+                Offset(cx, ourFatherY + 12.dp.toPx()),
                 Offset(cx, crucifixY - 14.dp.toPx())
             )
 
-            // 1. Draw Hanging Crucifix Pendant
+            // 2. Draw Hanging Crucifix Pendant
             drawCrucifixPendant(cx, crucifixY)
 
-            // 2. Draw Our Father Bead (Center)
-            if (isOurFatherCompleted) {
+            // 3. Draw Right Side Empty Wire Sockets
+            for (i in 0..5) {
+                val rPos = getRightSlot(i)
+                drawEmptyPlaceholderSocket(
+                    cx = rPos.x,
+                    cy = rPos.y,
+                    radius = blueBeadRadius * 0.95f,
+                    isCenterReceiving = false,
+                    isPearl = false,
+                    pulse = 1f
+                )
+            }
+
+            // 4. Draw Center Slot
+            // The center slot is the dedicated receiving slot for incoming beads!
+            // When Our Father is completed AND completedHailMarys == 0, Our Father rests in center.
+            // As soon as completedHailMarys > 0, the center slot is left EMPTY awaiting next bead!
+            val isOurFatherInCenter = isOurFatherCompleted && completedHailMarys == 0
+            if (isOurFatherInCenter) {
                 drawMotherOfPearlBead(
-                    cx = cx,
-                    cy = ourFatherY,
+                    cx = centerSlotPos.x,
+                    cy = centerSlotPos.y,
                     radius = whiteBeadRadius,
                     isCompleted = true,
                     pulse = 1f
                 )
             } else {
+                val isCenterTarget = !isOurFatherCompleted || completedHailMarys < 10
                 drawEmptyPlaceholderSocket(
-                    cx = cx,
-                    cy = ourFatherY,
-                    radius = whiteBeadRadius,
-                    isCenterReceiving = true,
-                    isPearl = true,
-                    pulse = pulseGlow,
+                    cx = centerSlotPos.x,
+                    cy = centerSlotPos.y,
+                    radius = if (!isOurFatherCompleted) whiteBeadRadius else blueBeadRadius,
+                    isCenterReceiving = isCenterTarget,
+                    isPearl = !isOurFatherCompleted,
+                    pulse = if (isCenterTarget) pulseGlow else 1f,
                     isHoldPraying = isHoldPraying
                 )
             }
 
-            // 3. Draw 10 Hail Mary Slots (Filled or Empty)
-            for (i in 0 until 10) {
-                val pos = slotPositions[i]
-                val isFilled = i < completedHailMarys
-                val isNextTarget = i == completedHailMarys
+            // 5. Draw Left Slots and Shifting Completed Beads
+            if (isOurFatherCompleted && completedHailMarys > 0) {
+                val progress = shiftAnim.value
 
-                if (isFilled) {
+                // A. The White Bead (Our Father)
+                // Moves left on each Hail Mary release!
+                // Prior to this bead: was at (completedHailMarys - 1) left slots from center.
+                // With this bead: moves to (completedHailMarys) left slots from center.
+                val whiteFromPos = getSlotPos(completedHailMarys - 1)
+                val whiteToPos = getSlotPos(completedHailMarys)
+                val whitePos = lerp(whiteFromPos, whiteToPos, progress)
+
+                drawMotherOfPearlBead(
+                    cx = whitePos.x,
+                    cy = whitePos.y,
+                    radius = whiteBeadRadius,
+                    isCompleted = true,
+                    pulse = 1f
+                )
+
+                // B. Previous completed Hail Mary beads (moving left)
+                for (h in 1 until completedHailMarys) {
+                    val fromIdx = completedHailMarys - h - 1
+                    val toIdx = completedHailMarys - h
+                    val bPos = lerp(getSlotPos(fromIdx), getSlotPos(toIdx), progress)
                     drawLapisLazuliBead(
-                        cx = pos.x,
-                        cy = pos.y,
+                        cx = bPos.x,
+                        cy = bPos.y,
                         radius = blueBeadRadius,
                         isCompleted = true,
                         pulse = 1f
                     )
-                } else {
+                }
+
+                // C. The newly completed Hail Mary bead
+                // Rolls from Center Slot (index 0) to Left Slot 0 (index 1), leaving center empty!
+                val newBeadPos = lerp(getSlotPos(0), getSlotPos(1), progress)
+                drawLapisLazuliBead(
+                    cx = newBeadPos.x,
+                    cy = newBeadPos.y,
+                    radius = blueBeadRadius,
+                    isCompleted = true,
+                    pulse = 1f
+                )
+
+                // D. Draw empty placeholders for remaining left slots
+                for (i in (completedHailMarys + 1)..7) {
+                    val slotPos = getLeftSlot(i)
                     drawEmptyPlaceholderSocket(
-                        cx = pos.x,
-                        cy = pos.y,
-                        radius = blueBeadRadius,
-                        isCenterReceiving = isNextTarget,
+                        cx = slotPos.x,
+                        cy = slotPos.y,
+                        radius = blueBeadRadius * 0.95f,
+                        isCenterReceiving = false,
                         isPearl = false,
-                        pulse = if (isNextTarget) pulseGlow else 1f,
-                        isHoldPraying = isHoldPraying && isNextTarget
+                        pulse = 1f
+                    )
+                }
+            } else {
+                // If no Hail Marys have completed yet, all left slots are empty wire sockets
+                for (i in 0..6) {
+                    val slotPos = getLeftSlot(i)
+                    drawEmptyPlaceholderSocket(
+                        cx = slotPos.x,
+                        cy = slotPos.y,
+                        radius = blueBeadRadius * 0.95f,
+                        isCenterReceiving = false,
+                        isPearl = false,
+                        pulse = 1f
                     )
                 }
             }
         }
 
         // Sparkle burst effect on newly settled bead
-        if (justCompletedIndex != null && justCompletedIndex in 0 until 10) {
+        if (justCompletedIndex != null && justCompletedIndex in -1 until 10) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.TopCenter
@@ -190,6 +272,13 @@ fun BeadChain(
             }
         }
     }
+}
+
+private fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
+    return Offset(
+        start.x + (stop.x - start.x) * fraction,
+        start.y + (stop.y - start.y) * fraction
+    )
 }
 
 /**

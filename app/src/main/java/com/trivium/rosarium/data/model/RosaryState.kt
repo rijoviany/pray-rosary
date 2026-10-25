@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.data.model
+package com.trivium.rosarium.data.model
 
 enum class DecadeStep {
     OUR_FATHER,
@@ -20,6 +20,7 @@ data class RosaryState(
 
     // Hold-to-pray / Active bead state
     val isPrayingActive: Boolean = false,
+    val isReadyToRelease: Boolean = false,
     val prayerProgress: Float = 0f, // 0.0f to 1.0f
     val currentPhraseIndex: Int = 0,
     val isSpringSnapping: Boolean = false,

@@ -140,12 +140,13 @@ fun PrayerScreen(
                 DraggableBead(
                     isWhiteBead = state.isWhiteBeadActive,
                     isPrayingActive = state.isPrayingActive,
+                    isReadyToRelease = state.isReadyToRelease,
                     isTapToPrayEnabled = settings.tapToPrayEnabled,
                     prayerProgress = state.prayerProgress,
                     isSnappingUp = state.isSpringSnapping,
                     currentStep = state.currentStep,
                     onHoldStart = { viewModel.startPrayer() },
-                    onHoldReleaseEarly = { viewModel.cancelPrayerEarly() },
+                    onReleaseBead = { viewModel.onReleaseBead() },
                     onPrayerFinished = { viewModel.onSnapUpAnimationFinished() },
                     onBounceImpact = { decay -> viewModel.onBounceImpact(decay) },
                     onStringTension = { viewModel.onStringTension() }
