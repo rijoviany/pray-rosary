@@ -62,6 +62,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DraggableBead(
     isWhiteBead: Boolean,
+    completedBeadIndex: Int = 0,
     isPrayingActive: Boolean,
     isReadyToRelease: Boolean,
     isTapToPrayEnabled: Boolean,
@@ -89,7 +90,7 @@ fun DraggableBead(
     val currentIsSnappingUp by rememberUpdatedState(isSnappingUp)
 
     val maxDragPx = with(density) { 90.dp.toPx() }
-    val dragThresholdPx = with(density) { 36.dp.toPx() }
+    val dragThresholdPx = with(density) { 34.dp.toPx() }
     val restingBeadCenterYPx = with(density) { 28.dp.toPx() }
     val snapUpTargetOffsetPx = with(density) { -35.dp.toPx() }
     val indicatorBaseOffsetPx = with(density) { 36.dp.toPx() }
@@ -131,23 +132,18 @@ fun DraggableBead(
                     rotationWobble.animateTo(0f, animationSpec = tween(160))
                 }
 
-                // Spring up towards the top center socket with realistic decaying bounce
+                // Crisp snap up towards the top center socket
                 dragOffsetY.animateTo(
                     targetValue = snapUpTargetOffsetPx,
-                    animationSpec = PhysicsConstants.SnapUpSpringSpec
+                    animationSpec = tween(220, easing = FastOutSlowInEasing)
                 ) {
-                    val velocity = velocity
-                    if (kotlin.math.abs(velocity) > 400f) {
-                        currentOnBounceImpact(0.8f)
-                    } else if (kotlin.math.abs(velocity) > 180f) {
-                        currentOnBounceImpact(0.4f)
-                    }
+                    currentOnBounceImpact(0.8f)
                 }
 
                 // Settle smoothly back to 0f
                 dragOffsetY.animateTo(
                     targetValue = 0f,
-                    animationSpec = tween(80)
+                    animationSpec = tween(60)
                 )
             } finally {
                 // Guaranteed reset of offsets and drag flags
@@ -200,18 +196,19 @@ fun DraggableBead(
             }
         }
 
-        // 2. The Active Bead with Gesture Detection
-        val beadCanvasSizeDp = 68.dp
-        val beadHalfSizePx = with(density) { (beadCanvasSizeDp / 2).toPx() }
+        // 2. The Active Bead with Gesture Detection (Generous 80x80 dp touch target)
+        val beadTouchSizeDp = 80.dp
+        val beadHalfSizePx = with(density) { (beadTouchSizeDp / 2).toPx() }
         val beadBoxY = (restingBeadCenterYPx - beadHalfSizePx + beadYOffsetPx).roundToInt()
 
         Box(
             modifier = Modifier
                 .offset { IntOffset(x = 0, y = beadBoxY) }
+                .size(beadTouchSizeDp)
                 .graphicsLayer {
                     rotationZ = rotationWobble.value
                 }
-                .pointerInput(isTapToPrayEnabled) {
+                .pointerInput(isTapToPrayEnabled, currentStep, completedBeadIndex) {
                     if (isTapToPrayEnabled) {
                         detectTapGestures(
                             onTap = {
@@ -233,6 +230,9 @@ fun DraggableBead(
                                 if (!currentIsPrayingActive && !currentIsSnappingUp) {
                                     isDragging = true
                                     rawAccumulatedDrag = 0f
+                                    coroutineScope.launch {
+                                        dragOffsetY.stop()
+                                    }
                                 }
                             },
                             onDrag = { change, dragAmount ->
@@ -258,7 +258,11 @@ fun DraggableBead(
                                 isDragging = false
                                 rawAccumulatedDrag = 0f
                                 if (currentIsPrayingActive) {
-                                    // User released the bead: roll to center if completed, or return
+                                    if (!currentIsReadyToRelease) {
+                                        coroutineScope.launch {
+                                            dragOffsetY.animateTo(0f, tween(150))
+                                        }
+                                    }
                                     currentOnReleaseBead()
                                 } else {
                                     coroutineScope.launch {
@@ -273,6 +277,11 @@ fun DraggableBead(
                                 isDragging = false
                                 rawAccumulatedDrag = 0f
                                 if (currentIsPrayingActive) {
+                                    if (!currentIsReadyToRelease) {
+                                        coroutineScope.launch {
+                                            dragOffsetY.animateTo(0f, tween(150))
+                                        }
+                                    }
                                     currentOnReleaseBead()
                                 } else {
                                     coroutineScope.launch {
@@ -289,7 +298,7 @@ fun DraggableBead(
             contentAlignment = Alignment.Center
         ) {
             // Bead Visual with prayer-specific liturgical color and aura
-            Canvas(modifier = Modifier.size(beadCanvasSizeDp)) {
+            Canvas(modifier = Modifier.size(68.dp)) {
                 val cx = size.width / 2f
                 val cy = size.height / 2f
                 val radius = 22.dp.toPx()

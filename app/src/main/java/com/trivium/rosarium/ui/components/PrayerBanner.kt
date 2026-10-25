@@ -112,27 +112,15 @@ fun PrayerBanner(
 
             Spacer(modifier = Modifier.height(3.dp))
 
-            // Prayer Phrases (line by line karaoke)
+            // Prayer Phrases (clean, static liturgical text)
             val displayPhrases = prayer.phrases
-            displayPhrases.forEachIndexed { index, phrase ->
-                val isCurrent = isHoldPraying && (index == currentPhraseIndex)
-                val isPast = isHoldPraying && (index < currentPhraseIndex)
-
-                val phraseColor = when {
-                    !isHoldPraying -> InkBrownDark.copy(alpha = 0.88f)
-                    isCurrent -> InkBrownDark
-                    isPast -> InkBrownDark.copy(alpha = 0.75f)
-                    else -> InkBrownMuted.copy(alpha = 0.42f)
-                }
-
-                val phraseWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal
-
+            displayPhrases.forEach { phrase ->
                 Text(
                     text = phrase,
                     fontSize = (12f * fontScale).sp,
                     fontFamily = FontFamily.Serif,
-                    fontWeight = phraseWeight,
-                    color = phraseColor,
+                    fontWeight = FontWeight.Normal,
+                    color = InkBrownDark.copy(alpha = 0.9f),
                     lineHeight = (15.5f * fontScale).sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(vertical = 0.dp)

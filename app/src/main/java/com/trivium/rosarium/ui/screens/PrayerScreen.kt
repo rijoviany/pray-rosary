@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -137,20 +138,23 @@ fun PrayerScreen(
                     .fillMaxWidth(),
                 contentAlignment = Alignment.TopCenter
             ) {
-                DraggableBead(
-                    isWhiteBead = state.isWhiteBeadActive,
-                    isPrayingActive = state.isPrayingActive,
-                    isReadyToRelease = state.isReadyToRelease,
-                    isTapToPrayEnabled = settings.tapToPrayEnabled,
-                    prayerProgress = state.prayerProgress,
-                    isSnappingUp = state.isSpringSnapping,
-                    currentStep = state.currentStep,
-                    onHoldStart = { viewModel.startPrayer() },
-                    onReleaseBead = { viewModel.onReleaseBead() },
-                    onPrayerFinished = { viewModel.onSnapUpAnimationFinished() },
-                    onBounceImpact = { decay -> viewModel.onBounceImpact(decay) },
-                    onStringTension = { viewModel.onStringTension() }
-                )
+                key(state.decadeIndex, state.currentStep, state.completedHailMarysInDecade) {
+                    DraggableBead(
+                        isWhiteBead = state.isWhiteBeadActive,
+                        completedBeadIndex = state.completedHailMarysInDecade,
+                        isPrayingActive = state.isPrayingActive,
+                        isReadyToRelease = state.isReadyToRelease,
+                        isTapToPrayEnabled = settings.tapToPrayEnabled,
+                        prayerProgress = state.prayerProgress,
+                        isSnappingUp = state.isSpringSnapping,
+                        currentStep = state.currentStep,
+                        onHoldStart = { viewModel.startPrayer() },
+                        onReleaseBead = { viewModel.onReleaseBead() },
+                        onPrayerFinished = { viewModel.onSnapUpAnimationFinished() },
+                        onBounceImpact = { decay -> viewModel.onBounceImpact(decay) },
+                        onStringTension = { viewModel.onStringTension() }
+                    )
+                }
             }
 
             // Bottom Navigation Controls: Intentions and Progress (e.g. 4 / 53)
