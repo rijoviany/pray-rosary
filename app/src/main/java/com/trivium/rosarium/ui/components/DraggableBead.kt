@@ -53,6 +53,7 @@ import com.trivium.rosarium.ui.theme.PrayerThemes
 import com.trivium.rosarium.ui.theme.UltramarineDark
 import com.trivium.rosarium.ui.theme.UltramarineLapis
 import com.trivium.rosarium.ui.theme.UltramarineSpecular
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -75,6 +76,7 @@ fun DraggableBead(
     primaryColor: Color = UltramarineLapis,
     specularColor: Color = UltramarineSpecular,
     darkColor: Color = UltramarineDark,
+    targetSnapOffsetPx: Float = -1000f,
     onHoldStart: () -> Unit,
     onReleaseBead: () -> Unit,
     onPrayerFinished: () -> Unit,
@@ -125,39 +127,61 @@ fun DraggableBead(
     LaunchedEffect(isSnappingUp) {
         if (isSnappingUp) {
             try {
-                // Play initial tension release wobble
+                // Play tension release wobble during upward flight
                 launch {
                     rotationWobble.animateTo(
-                        targetValue = PhysicsConstants.MAX_WOBBLE_DEGREES,
-                        animationSpec = tween(120, easing = FastOutSlowInEasing)
+                        targetValue = PhysicsConstants.MAX_WOBBLE_DEGREES * 1.2f,
+                        animationSpec = tween(90, easing = FastOutSlowInEasing)
                     )
                     rotationWobble.animateTo(
-                        targetValue = -PhysicsConstants.MAX_WOBBLE_DEGREES * 0.6f,
-                        animationSpec = tween(140)
+                        targetValue = -PhysicsConstants.MAX_WOBBLE_DEGREES * 0.7f,
+                        animationSpec = tween(110)
                     )
-                    rotationWobble.animateTo(0f, animationSpec = tween(160))
+                    rotationWobble.animateTo(0f, animationSpec = tween(120))
                 }
 
-                // Crisp snap up towards the top center socket
-                dragOffsetY.animateTo(
-                    targetValue = snapUpTargetOffsetPx,
-                    animationSpec = tween(220, easing = FastOutSlowInEasing)
-                ) {
-                    currentOnBounceImpact(0.8f)
-                }
+                val targetOffset = if (targetSnapOffsetPx < -80f) targetSnapOffsetPx else with(density) { -410.dp.toPx() }
+                val bounceOvershootPx = with(density) { 7.dp.toPx() }
 
-                // Settle smoothly back to 0f
+                // 1. High-speed upward elastic flight reaching the central empty slot
                 dragOffsetY.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(60)
+                    targetValue = targetOffset,
+                    animationSpec = tween(280, easing = FastOutSlowInEasing)
                 )
+
+                // 2. Initial impact clack sound & haptic
+                currentOnBounceImpact(1.0f)
+
+                // 1st rebound: overshoots slightly into the socket claws
+                dragOffsetY.animateTo(
+                    targetValue = targetOffset - bounceOvershootPx,
+                    animationSpec = tween(70, easing = FastOutSlowInEasing)
+                )
+
+                // 2nd rebound: bounces back down slightly with decay
+                dragOffsetY.animateTo(
+                    targetValue = targetOffset + (bounceOvershootPx * 0.45f),
+                    animationSpec = tween(80, easing = FastOutSlowInEasing)
+                ) {
+                    currentOnBounceImpact(0.4f)
+                }
+
+                // Final settlement: snaps firmly and clings into the central socket
+                dragOffsetY.animateTo(
+                    targetValue = targetOffset,
+                    animationSpec = tween(60, easing = FastOutSlowInEasing)
+                )
+
+                // Hold clinging in socket for a brief beat before rosary shifts left
+                delay(90L)
+
             } finally {
                 // Guaranteed reset of offsets and drag flags
                 dragOffsetY.snapTo(0f)
                 rawAccumulatedDrag = 0f
                 isDragging = false
             }
-            // Advance to the next bead
+            // Advance to the next bead -> BeadChain shifts entire rosary towards left!
             currentOnPrayerFinished()
         }
     }
@@ -307,7 +331,18 @@ fun DraggableBead(
             Canvas(modifier = Modifier.size(68.dp)) {
                 val cx = size.width / 2f
                 val cy = size.height / 2f
-                val radius = 22.dp.toPx()
+
+                // Scale bead radius smoothly as it flies into the top central socket
+                val fullRadiusPx = 22.dp.toPx()
+                val socketRadiusPx = if (isWhiteBead) 11.5.dp.toPx() else 9.2.dp.toPx()
+                val currentTargetOffset = if (targetSnapOffsetPx < -80f) targetSnapOffsetPx else -410.dp.toPx()
+                val flightFrac = if (currentTargetOffset != 0f && beadYOffsetPx < 0f) {
+                    (beadYOffsetPx / currentTargetOffset).coerceIn(0f, 1f)
+                } else {
+                    0f
+                }
+                val radius = fullRadiusPx + (socketRadiusPx - fullRadiusPx) * flightFrac
+
                 val prayerTheme = PrayerThemes.forStep(currentStep)
                 val activeThemeGlow = if (currentStep == DecadeStep.HAIL_MARY) primaryColor else prayerTheme.auraGlow
                 val activeSecondary = if (currentStep == DecadeStep.HAIL_MARY) specularColor else prayerTheme.secondaryAccent

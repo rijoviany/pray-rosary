@@ -21,13 +21,17 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -55,10 +59,20 @@ fun PrayerScreen(
     val settings by viewModel.settingsState.collectAsState()
     val stats by viewModel.statsState.collectAsState()
 
+    val density = LocalDensity.current
     var showMysterySelector by remember { mutableStateOf(false) }
     var showProgressSheet by remember { mutableStateOf(false) }
     var showIntentionsSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
+
+    // Screen-space vertical coordinates for pixel-perfect snap-up animation
+    var centerSocketWindowY by remember { mutableFloatStateOf(0f) }
+    var draggableBeadWindowY by remember { mutableFloatStateOf(0f) }
+    val targetSnapOffsetPx = if (centerSocketWindowY > 0f && draggableBeadWindowY > 0f) {
+        centerSocketWindowY - draggableBeadWindowY
+    } else {
+        with(density) { -410.dp.toPx() }
+    }
 
     // Keep screen awake while user is praying the Holy Rosary
     val context = LocalContext.current
@@ -117,7 +131,10 @@ fun PrayerScreen(
                 totalBeadsInDecade = beadsPerGroup,
                 primaryColor = primaryColor,
                 specularColor = specularColor,
-                darkColor = darkColor
+                darkColor = darkColor,
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    centerSocketWindowY = coordinates.positionInWindow().y + with(density) { 22.dp.toPx() }
+                }
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -161,11 +178,15 @@ fun PrayerScreen(
                         prayerProgress = state.prayerProgress,
                         isSnappingUp = state.isSpringSnapping,
                         currentStep = state.currentStep,
+                        targetSnapOffsetPx = targetSnapOffsetPx,
                         onHoldStart = { viewModel.startPrayer() },
                         onReleaseBead = { viewModel.onReleaseBead() },
                         onPrayerFinished = { viewModel.onSnapUpAnimationFinished() },
                         onBounceImpact = { decay -> viewModel.onBounceImpact(decay) },
-                        onStringTension = { viewModel.onStringTension() }
+                        onStringTension = { viewModel.onStringTension() },
+                        modifier = Modifier.onGloballyPositioned { coordinates ->
+                            draggableBeadWindowY = coordinates.positionInWindow().y + with(density) { 28.dp.toPx() }
+                        }
                     )
                 }
             }
