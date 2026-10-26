@@ -58,11 +58,13 @@ fun PrayerScreen(
     val state by viewModel.rosaryState.collectAsState()
     val settings by viewModel.settingsState.collectAsState()
     val stats by viewModel.statsState.collectAsState()
+    val novenaProgressMap by viewModel.novenaProgressMap.collectAsState()
 
     val density = LocalDensity.current
     var showMysterySelector by remember { mutableStateOf(false) }
     var showProgressSheet by remember { mutableStateOf(false) }
     var showIntentionsSheet by remember { mutableStateOf(false) }
+    var showNovenasSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
 
     // Screen-space vertical coordinates for pixel-perfect snap-up animation
@@ -191,12 +193,13 @@ fun PrayerScreen(
                 }
             }
 
-            // Bottom Navigation Controls: Intentions and Progress (e.g. 4 / 53)
+            // Bottom Navigation Controls: Intentions, Novenas, and Progress (e.g. 4 / 53)
             val totalGroups = currentSet.mysteries.size.coerceAtLeast(1)
             val currentBeadCount = (state.decadeIndex * beadsPerGroup) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
             val totalBeadCount = (totalGroups * beadsPerGroup) + totalGroups
             BottomMedievalControls(
                 onIntentionsClick = { showIntentionsSheet = true },
+                onNovenasClick = { showNovenasSheet = true },
                 onProgressClick = { showProgressSheet = true },
                 currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
                 totalBeadCount = totalBeadCount
@@ -244,6 +247,16 @@ fun PrayerScreen(
                 onSelectMysterySet = { viewModel.selectMysterySet(it) },
                 onSelectDecade = { viewModel.selectDecade(it) },
                 onDismiss = { showMysterySelector = false }
+            )
+        }
+
+        if (showNovenasSheet) {
+            NovenasSheet(
+                novenas = viewModel.allNovenas,
+                novenaProgressMap = novenaProgressMap,
+                onMarkDayComplete = { novenaId, day -> viewModel.markNovenaDayCompleted(novenaId, day) },
+                onResetNovena = { novenaId -> viewModel.resetNovena(novenaId) },
+                onDismiss = { showNovenasSheet = false }
             )
         }
 

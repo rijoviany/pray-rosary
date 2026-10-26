@@ -65,5 +65,74 @@
       "O clement, O loving, O sweet Virgin Mary.",
       "Pray for us, O Holy Mother of God, that we may be made worthy of the promises of Christ."
     ]
+  },
+  "eternal_father": {
+    "id": "eternal_father",
+    "title": "Eternal Father",
+    "phrases": [
+      "Eternal Father,",
+      "I offer You the Body and Blood,",
+      "Soul and Divinity",
+      "of Your Dearly Beloved Son,",
+      "Our Lord, Jesus Christ,",
+      "in atonement for our sins",
+      "and those of the whole world.",
+      "Amen."
+    ]
+  },
+  "sorrowful_passion": {
+    "id": "sorrowful_passion",
+    "title": "For the Sake of His Sorrowful Passion",
+    "phrases": [
+      "For the sake of His sorrowful Passion,",
+      "have mercy on us",
+      "and on the whole world.",
+      "Amen."
+    ]
+  },
+  "holy_god": {
+    "id": "holy_god",
+    "title": "Holy God",
+    "phrases": [
+      "Holy God,",
+      "Holy Mighty One,",
+      "Holy Immortal One,",
+      "have mercy on us",
+      "and on the whole world.",
+      "Amen."
+    ]
+  },
+  "hail_joseph": {
+    "id": "hail_joseph",
+    "title": "Hail Joseph",
+    "phrases": [
+      "Hail Joseph, Son of David, just and gentle,",
+      "the Church honors and invokes you;",
+      "blessed are you among men,",
+      "and blessed is Jesus, the fruit of Mary, your spouse.",
+      "Holy Joseph, guardian of the Redeemer,",
+      "pray for us sinners, now and at the hour of our death.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_large": {
+    "id": "sacred_heart_large",
+    "title": "Offering to the Sacred Heart",
+    "phrases": [
+      "O Most Sacred Heart of Jesus,",
+      "fount of all love and mercy,",
+      "have mercy on us",
+      "and make our hearts like unto Thine.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_small": {
+    "id": "sacred_heart_small",
+    "title": "Aspiration to the Sacred Heart",
+    "phrases": [
+      "Jesus, meek and humble of heart,",
+      "make my heart like unto Thine.",
+      "Amen."
+    ]
   }
 }

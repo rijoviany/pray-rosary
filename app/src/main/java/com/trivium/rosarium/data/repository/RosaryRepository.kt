@@ -29,12 +29,12 @@ class RosaryRepository(private val context: Context) {
         }
 
         var catalog = loadMysteryCatalog(resId)
-        if (catalog.mysterySets.none { it.id == "saint_michael" }) {
+        val chapletIds = setOf("saint_michael", "divine_mercy", "saint_joseph", "seven_sorrows", "sacred_heart")
+        val missingChapletIds = chapletIds.filter { chapletId -> catalog.mysterySets.none { it.id == chapletId } }
+        if (missingChapletIds.isNotEmpty()) {
             val enCatalog = loadMysteryCatalog(R.raw.mysteries_en)
-            val michaelSet = enCatalog.mysterySets.find { it.id == "saint_michael" }
-            if (michaelSet != null) {
-                catalog = catalog.copy(mysterySets = catalog.mysterySets + michaelSet)
-            }
+            val missingSets = enCatalog.mysterySets.filter { it.id in missingChapletIds }
+            catalog = catalog.copy(mysterySets = catalog.mysterySets + missingSets)
         }
         mysteryCache[language] = catalog
         return catalog
@@ -49,7 +49,15 @@ class RosaryRepository(private val context: Context) {
             resId = R.raw.prayers_en
         }
 
-        val prayers = loadPrayers(resId)
+        val prayers = loadPrayers(resId).toMutableMap()
+        if (resId != R.raw.prayers_en) {
+            val enPrayers = loadPrayers(R.raw.prayers_en)
+            for ((key, prayer) in enPrayers) {
+                if (!prayers.containsKey(key)) {
+                    prayers[key] = prayer
+                }
+            }
+        }
         prayerCache[language] = prayers
         return prayers
     }

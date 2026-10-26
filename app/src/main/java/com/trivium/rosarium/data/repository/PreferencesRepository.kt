@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.trivium.rosarium.data.model.NovenaProgress
 import com.trivium.rosarium.data.model.PrayerStats
 import com.trivium.rosarium.data.model.SettingsState
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,7 @@ class PreferencesRepository(private val context: Context) {
         val KEY_TOTAL_DECADES = intPreferencesKey("total_decades_count")
         val KEY_TOTAL_ROSARIES = intPreferencesKey("total_rosaries_count")
         val KEY_HISTORY_JSON = stringPreferencesKey("prayer_history_json")
+        val KEY_NOVENAS_PROGRESS_JSON = stringPreferencesKey("novenas_progress_json")
     }
 
     val settingsFlow: Flow<SettingsState> = context.dataStore.data.map { prefs ->
@@ -83,6 +85,51 @@ class PreferencesRepository(private val context: Context) {
             totalRosaries = prefs[PreferencesKeys.KEY_TOTAL_ROSARIES] ?: 0,
             historyMap = historyMap
         )
+    }
+
+    val novenaProgressFlow: Flow<Map<String, NovenaProgress>> = context.dataStore.data.map { prefs ->
+        val jsonString = prefs[PreferencesKeys.KEY_NOVENAS_PROGRESS_JSON] ?: "{}"
+        try {
+            json.decodeFromString<Map<String, NovenaProgress>>(jsonString)
+        } catch (e: Exception) {
+            emptyMap()
+        }
+    }
+
+    suspend fun saveNovenaDayCompleted(novenaId: String, dayNumber: Int) {
+        val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+        context.dataStore.edit { prefs ->
+            val jsonString = prefs[PreferencesKeys.KEY_NOVENAS_PROGRESS_JSON] ?: "{}"
+            val map: MutableMap<String, NovenaProgress> = try {
+                json.decodeFromString<Map<String, NovenaProgress>>(jsonString).toMutableMap()
+            } catch (e: Exception) {
+                mutableMapOf()
+            }
+            val existing = map[novenaId] ?: NovenaProgress(novenaId = novenaId, currentDay = 1)
+            val updatedCompletedDays = (existing.completedDays + dayNumber).distinct().sorted()
+            val nextDay = if (dayNumber < 9) dayNumber + 1 else 9
+            val isComplete = updatedCompletedDays.size >= 9
+            map[novenaId] = existing.copy(
+                currentDay = nextDay,
+                completedDays = updatedCompletedDays,
+                lastCompletedDate = today,
+                isCompleted = isComplete
+            )
+            prefs[PreferencesKeys.KEY_NOVENAS_PROGRESS_JSON] = json.encodeToString(map)
+        }
+    }
+
+    suspend fun resetNovena(novenaId: String) {
+        context.dataStore.edit { prefs ->
+            val jsonString = prefs[PreferencesKeys.KEY_NOVENAS_PROGRESS_JSON] ?: "{}"
+            val map: MutableMap<String, NovenaProgress> = try {
+                json.decodeFromString<Map<String, NovenaProgress>>(jsonString).toMutableMap()
+            } catch (e: Exception) {
+                mutableMapOf()
+            }
+            map[novenaId] = NovenaProgress(novenaId = novenaId, currentDay = 1, completedDays = emptyList(), isCompleted = false)
+            prefs[PreferencesKeys.KEY_NOVENAS_PROGRESS_JSON] = json.encodeToString(map)
+        }
     }
 
     suspend fun saveProgress(mysteryId: String, decadeIndex: Int, beadCount: Int) {

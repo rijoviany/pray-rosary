@@ -171,11 +171,12 @@ fun TopMedievalBar(
 }
 
 /**
- * Bottom navigation controls: Intentions and Progress circular medieval buttons.
+ * Bottom navigation controls: Intentions, Novenas, and Progress circular medieval buttons.
  */
 @Composable
 fun BottomMedievalControls(
     onIntentionsClick: () -> Unit,
+    onNovenasClick: () -> Unit,
     onProgressClick: () -> Unit,
     currentBeadCount: Int = 4,
     totalBeadCount: Int = 53,
@@ -184,23 +185,23 @@ fun BottomMedievalControls(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 28.dp, vertical = 12.dp),
+            .padding(horizontal = 24.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Intentions Button with Candle icon
+        // 1. Intentions Button with Candle icon
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.clickable(onClick = onIntentionsClick)
         ) {
             Box(
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
                     .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
             ) {
-                Canvas(modifier = Modifier.size(22.dp)) {
+                Canvas(modifier = Modifier.size(20.dp)) {
                     val w = size.width
                     val h = size.height
                     // Candle flame
@@ -219,26 +220,90 @@ fun BottomMedievalControls(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
             Text(
                 text = "Intentions",
                 color = ParchmentLight.copy(alpha = 0.9f),
-                fontSize = 11.5.sp,
+                fontSize = 11.sp,
                 fontFamily = FontFamily.Serif,
-                letterSpacing = 0.4.sp
+                letterSpacing = 0.3.sp
+            )
+            Text(
+                text = "Prayer",
+                color = MedievalGoldBright.copy(alpha = 0.75f),
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Serif
             )
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Progress Button
+        // 2. 9-Day Catholic Novenas Button with Cross
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.clickable(onClick = onNovenasClick)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
+                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Canvas(modifier = Modifier.size(20.dp)) {
+                    val w = size.width
+                    val h = size.height
+                    // Radiance behind cross
+                    drawCircle(
+                        color = MedievalGold.copy(alpha = 0.3f),
+                        radius = 4.dp.toPx(),
+                        center = Offset(w * 0.5f, h * 0.38f)
+                    )
+                    // Latin cross
+                    drawLine(
+                        color = MedievalGoldBright,
+                        start = Offset(w * 0.5f, h * 0.12f),
+                        end = Offset(w * 0.5f, h * 0.88f),
+                        strokeWidth = 2.dp.toPx(),
+                        cap = StrokeCap.Round
+                    )
+                    drawLine(
+                        color = MedievalGoldBright,
+                        start = Offset(w * 0.22f, h * 0.38f),
+                        end = Offset(w * 0.78f, h * 0.38f),
+                        strokeWidth = 2.dp.toPx(),
+                        cap = StrokeCap.Round
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(3.dp))
+            Text(
+                text = "Novenas",
+                color = ParchmentLight.copy(alpha = 0.9f),
+                fontSize = 11.sp,
+                fontFamily = FontFamily.Serif,
+                letterSpacing = 0.3.sp
+            )
+            Text(
+                text = "9 Days",
+                color = MedievalGoldBright.copy(alpha = 0.9f),
+                fontSize = 10.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // 3. Rosary Progress Button
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.clickable(onClick = onProgressClick)
         ) {
             Box(
                 modifier = Modifier
-                    .size(46.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
                     .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
                     .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
@@ -248,21 +313,21 @@ fun BottomMedievalControls(
                     imageVector = Icons.Default.BarChart,
                     contentDescription = "Progress",
                     tint = MedievalGoldBright,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
             Text(
                 text = "Progress",
                 color = ParchmentLight.copy(alpha = 0.9f),
-                fontSize = 11.5.sp,
+                fontSize = 11.sp,
                 fontFamily = FontFamily.Serif,
-                letterSpacing = 0.4.sp
+                letterSpacing = 0.3.sp
             )
             Text(
                 text = "$currentBeadCount / $totalBeadCount",
                 color = MedievalGoldBright.copy(alpha = 0.9f),
-                fontSize = 10.5.sp,
+                fontSize = 10.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold
             )

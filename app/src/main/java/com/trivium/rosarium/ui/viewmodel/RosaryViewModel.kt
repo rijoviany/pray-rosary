@@ -7,10 +7,13 @@ import com.trivium.rosarium.audio.RosaryAudioHelper
 import com.trivium.rosarium.data.model.DecadeStep
 import com.trivium.rosarium.data.model.MysteryCatalog
 import com.trivium.rosarium.data.model.MysterySet
+import com.trivium.rosarium.data.model.Novena
+import com.trivium.rosarium.data.model.NovenaProgress
 import com.trivium.rosarium.data.model.Prayer
 import com.trivium.rosarium.data.model.PrayerStats
 import com.trivium.rosarium.data.model.RosaryState
 import com.trivium.rosarium.data.model.SettingsState
+import com.trivium.rosarium.data.repository.NovenaRepository
 import com.trivium.rosarium.data.repository.PreferencesRepository
 import com.trivium.rosarium.data.repository.RosaryRepository
 import com.trivium.rosarium.physics.PhysicsConstants
@@ -27,7 +30,13 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
 
     private val rosaryRepository = RosaryRepository(application)
     private val preferencesRepository = PreferencesRepository(application)
+    private val novenaRepository = NovenaRepository()
     val audioHelper = RosaryAudioHelper(application)
+
+    val allNovenas: List<Novena> = novenaRepository.getAllNovenas()
+
+    private val _novenaProgressMap = MutableStateFlow<Map<String, NovenaProgress>>(emptyMap())
+    val novenaProgressMap: StateFlow<Map<String, NovenaProgress>> = _novenaProgressMap.asStateFlow()
 
     private val _settingsState = MutableStateFlow(SettingsState())
     val settingsState: StateFlow<SettingsState> = _settingsState.asStateFlow()
@@ -65,6 +74,12 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             preferencesRepository.statsFlow.collect { stats ->
                 _statsState.value = stats
+            }
+        }
+
+        viewModelScope.launch {
+            preferencesRepository.novenaProgressFlow.collect { progressMap ->
+                _novenaProgressMap.value = progressMap
             }
         }
 
@@ -138,6 +153,24 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     fun updateSettings(newSettings: SettingsState) {
         viewModelScope.launch {
             preferencesRepository.updateSettings(newSettings)
+        }
+    }
+
+    fun markNovenaDayCompleted(novenaId: String, dayNumber: Int) {
+        viewModelScope.launch {
+            preferencesRepository.saveNovenaDayCompleted(novenaId, dayNumber)
+            if (_settingsState.value.soundEffectsEnabled) {
+                audioHelper.playCompletionBell()
+            }
+            if (_settingsState.value.hapticFeedbackEnabled) {
+                audioHelper.performImpactClack(1.0f)
+            }
+        }
+    }
+
+    fun resetNovena(novenaId: String) {
+        viewModelScope.launch {
+            preferencesRepository.resetNovena(novenaId)
         }
     }
 
@@ -305,7 +338,15 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 }
             }
             DecadeStep.GLORY_BE -> {
-                if (_settingsState.value.includeFatimaPrayer) {
+                val mysteryId = currentState.currentMysterySet.id
+                if (mysteryId == "divine_mercy") {
+                    _rosaryState.update {
+                        it.copy(
+                            isGloryBeCompleted = true,
+                            currentStep = DecadeStep.FATIMA
+                        )
+                    }
+                } else if (_settingsState.value.includeFatimaPrayer && !currentState.currentMysterySet.isChaplet) {
                     _rosaryState.update {
                         it.copy(
                             isGloryBeCompleted = true,
@@ -366,12 +407,28 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun updateActivePrayer() {
         val prayers = rosaryRepository.getPrayers(_settingsState.value.language)
+        val mysteryId = _rosaryState.value.currentMysterySet.id
         val prayerKey = when (_rosaryState.value.currentStep) {
-            DecadeStep.OUR_FATHER -> "our_father"
-            DecadeStep.HAIL_MARY -> "hail_mary"
+            DecadeStep.OUR_FATHER -> when (mysteryId) {
+                "divine_mercy" -> "eternal_father"
+                "sacred_heart" -> "sacred_heart_large"
+                else -> "our_father"
+            }
+            DecadeStep.HAIL_MARY -> when (mysteryId) {
+                "divine_mercy" -> "sorrowful_passion"
+                "saint_joseph" -> "hail_joseph"
+                "sacred_heart" -> "sacred_heart_small"
+                else -> "hail_mary"
+            }
             DecadeStep.GLORY_BE -> "glory_be"
-            DecadeStep.FATIMA -> "fatima"
-            DecadeStep.DECADE_FINISHED -> "hail_holy_queen"
+            DecadeStep.FATIMA -> when (mysteryId) {
+                "divine_mercy" -> "holy_god"
+                else -> "fatima"
+            }
+            DecadeStep.DECADE_FINISHED -> when (mysteryId) {
+                "divine_mercy" -> "holy_god"
+                else -> "hail_holy_queen"
+            }
         }
         _rosaryState.update {
             it.copy(activePrayer = prayers[prayerKey] ?: prayers["hail_mary"])
