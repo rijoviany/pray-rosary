@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.data.repository
+package com.trivium.rosarium.data.repository
 
 import android.content.Context
 import com.trivium.rosarium.R
@@ -28,7 +28,14 @@ class RosaryRepository(private val context: Context) {
             resId = R.raw.mysteries_en
         }
 
-        val catalog = loadMysteryCatalog(resId)
+        var catalog = loadMysteryCatalog(resId)
+        if (catalog.mysterySets.none { it.id == "saint_michael" }) {
+            val enCatalog = loadMysteryCatalog(R.raw.mysteries_en)
+            val michaelSet = enCatalog.mysterySets.find { it.id == "saint_michael" }
+            if (michaelSet != null) {
+                catalog = catalog.copy(mysterySets = catalog.mysterySets + michaelSet)
+            }
+        }
         mysteryCache[language] = catalog
         return catalog
     }

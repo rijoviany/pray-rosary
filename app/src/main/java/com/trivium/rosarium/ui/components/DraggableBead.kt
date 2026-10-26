@@ -50,6 +50,9 @@ import com.trivium.rosarium.ui.theme.MedievalGold
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
 import com.trivium.rosarium.ui.theme.MedievalGoldDark
 import com.trivium.rosarium.ui.theme.PrayerThemes
+import com.trivium.rosarium.ui.theme.UltramarineDark
+import com.trivium.rosarium.ui.theme.UltramarineLapis
+import com.trivium.rosarium.ui.theme.UltramarineSpecular
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -69,6 +72,9 @@ fun DraggableBead(
     prayerProgress: Float,
     isSnappingUp: Boolean,
     currentStep: DecadeStep = DecadeStep.HAIL_MARY,
+    primaryColor: Color = UltramarineLapis,
+    specularColor: Color = UltramarineSpecular,
+    darkColor: Color = UltramarineDark,
     onHoldStart: () -> Unit,
     onReleaseBead: () -> Unit,
     onPrayerFinished: () -> Unit,
@@ -303,6 +309,8 @@ fun DraggableBead(
                 val cy = size.height / 2f
                 val radius = 22.dp.toPx()
                 val prayerTheme = PrayerThemes.forStep(currentStep)
+                val activeThemeGlow = if (currentStep == DecadeStep.HAIL_MARY) primaryColor else prayerTheme.auraGlow
+                val activeSecondary = if (currentStep == DecadeStep.HAIL_MARY) specularColor else prayerTheme.secondaryAccent
 
                 // Pulsing glow if active
                 if (currentIsPrayingActive) {
@@ -315,8 +323,8 @@ fun DraggableBead(
                             )
                         } else {
                             listOf(
-                                prayerTheme.auraGlow.copy(alpha = 0.85f),
-                                prayerTheme.secondaryAccent.copy(alpha = 0.45f),
+                                activeThemeGlow.copy(alpha = 0.85f),
+                                activeSecondary.copy(alpha = 0.45f),
                                 Color.Transparent
                             )
                         },
@@ -333,7 +341,10 @@ fun DraggableBead(
                     cy = cy,
                     radius = radius,
                     isCompleted = currentIsPrayingActive,
-                    pulse = 1f
+                    pulse = 1f,
+                    primaryColor = primaryColor,
+                    specularColor = specularColor,
+                    darkColor = darkColor
                 )
 
                 // Ornate bottom filigree cap in theme accent
@@ -343,7 +354,7 @@ fun DraggableBead(
                 }
                 drawPath(
                     path = filigreePath,
-                    color = if (currentIsReadyToRelease) MedievalGoldBright else prayerTheme.secondaryAccent,
+                    color = if (currentIsReadyToRelease) MedievalGoldBright else activeSecondary,
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.2.dp.toPx())
                 )
             }

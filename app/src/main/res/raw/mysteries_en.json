@@ -207,6 +207,78 @@
           "imageAsset": "mystery_glorious_5"
         }
       ]
+    },
+    {
+      "id": "saint_michael",
+      "name": "Chaplet of Saint Michael",
+      "recommendedDays": ["Angelic Devotion"],
+      "beadsPerDecade": 7,
+      "beadColorHex": "#DC2626",
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "1st Salutation: Choir of Seraphim",
+          "scriptureReference": "Isaiah 6:2-3",
+          "scriptureText": "Above him stood the seraphim... Holy, holy, holy is the Lord of hosts.",
+          "meditation": "By the intercession of St. Michael and the heavenly Choir of Seraphim, may the Lord make us worthy of the flame of perfect charity.",
+          "fruitOfMystery": "Divine Love",
+          "imageAsset": "mystery_glorious_3"
+        },
+        {
+          "number": 2,
+          "title": "2nd Salutation: Choir of Cherubim",
+          "scriptureReference": "Genesis 3:24",
+          "scriptureText": "He placed at the east of Eden cherubim and a flaming sword.",
+          "meditation": "By the intercession of St. Michael and the Choir of Cherubim, may the Lord grant us grace to forsake evil and advance in Christian perfection.",
+          "fruitOfMystery": "Heavenly Wisdom",
+          "imageAsset": "mystery_joyful_1"
+        },
+        {
+          "number": 3,
+          "title": "3rd Salutation: Choir of Thrones",
+          "scriptureReference": "Colossians 1:16",
+          "scriptureText": "For in him all things were created, in heaven and on earth, visible and invisible.",
+          "meditation": "By the intercession of St. Michael and the celestial Choir of Thrones, may the Lord infuse into our souls a true spirit of humility.",
+          "fruitOfMystery": "Spirit of Humility",
+          "imageAsset": "mystery_sorrowful_1"
+        },
+        {
+          "number": 4,
+          "title": "4th Salutation: Choir of Dominions",
+          "scriptureReference": "Ephesians 1:21",
+          "scriptureText": "Far above all rule and authority and power and dominion.",
+          "meditation": "By the intercession of St. Michael and the Choir of Dominions, may the Lord give us grace to master our senses and overcome unruly passions.",
+          "fruitOfMystery": "Self-Mastery",
+          "imageAsset": "mystery_luminous_4"
+        },
+        {
+          "number": 5,
+          "title": "5th Salutation: Choir of Powers",
+          "scriptureReference": "1 Peter 3:22",
+          "scriptureText": "With angels, authorities, and powers subject to him.",
+          "meditation": "By the intercession of St. Michael and the celestial Choir of Powers, may the Lord protect our souls against the snares of the enemy.",
+          "fruitOfMystery": "Spiritual Protection",
+          "imageAsset": "mystery_sorrowful_4"
+        },
+        {
+          "number": 6,
+          "title": "6th Salutation: Choir of Virtues",
+          "scriptureReference": "Romans 8:38-39",
+          "scriptureText": "Nor angels nor rulers... will be able to separate us from the love of God.",
+          "meditation": "By the intercession of St. Michael and the Choir of Virtues, may the Lord keep us from falling into temptation.",
+          "fruitOfMystery": "Perseverance in Grace",
+          "imageAsset": "mystery_glorious_1"
+        },
+        {
+          "number": 7,
+          "title": "7th Salutation: Choir of Principalities",
+          "scriptureReference": "Revelation 12:7",
+          "scriptureText": "Now war arose in heaven, Michael and his angels fighting against the dragon.",
+          "meditation": "By the intercession of St. Michael and the Choir of Principalities, may God fill our souls with a true and sincere spirit of obedience.",
+          "fruitOfMystery": "True Obedience",
+          "imageAsset": "mystery_glorious_5"
+        }
+      ]
     }
   ]
 }

@@ -115,9 +115,10 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun selectDecade(index: Int) {
+        val maxIndex = (_rosaryState.value.currentMysterySet.mysteries.size - 1).coerceAtLeast(0)
         _rosaryState.update {
             it.copy(
-                decadeIndex = index.coerceIn(0, 4),
+                decadeIndex = index.coerceIn(0, maxIndex),
                 currentStep = DecadeStep.OUR_FATHER,
                 completedHailMarysInDecade = 0,
                 isOurFatherCompleted = false,
@@ -284,13 +285,14 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 }
             }
             DecadeStep.HAIL_MARY -> {
+                val targetCount = currentState.currentMysterySet.effectiveBeadsPerDecade
                 val nextBead = currentState.completedHailMarysInDecade + 1
-                if (nextBead >= 10) {
+                if (nextBead >= targetCount) {
                     _rosaryState.update {
                         it.copy(
-                            completedHailMarysInDecade = 10,
+                            completedHailMarysInDecade = targetCount,
                             currentStep = DecadeStep.GLORY_BE,
-                            justCompletedBeadIndex = 9
+                            justCompletedBeadIndex = targetCount - 1
                         )
                     }
                 } else {
@@ -334,8 +336,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             preferencesRepository.recordDecadeCompleted()
         }
+        val totalGroups = _rosaryState.value.currentMysterySet.mysteries.size.coerceAtLeast(1)
         val nextDecade = _rosaryState.value.decadeIndex + 1
-        if (nextDecade < 5) {
+        if (nextDecade < totalGroups) {
             _rosaryState.update {
                 it.copy(
                     decadeIndex = nextDecade,

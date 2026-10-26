@@ -102,12 +102,22 @@ fun PrayerScreen(
                 onReadClick = { showIntentionsSheet = true }
             )
 
-            // Top Rosary Arc: 10 Hail Mary beads, center Our Father bead, and hanging crucifix
+            val currentSet = state.currentMysterySet
+            val beadsPerGroup = currentSet.effectiveBeadsPerDecade
+            val primaryColor = currentSet.primaryBeadColor
+            val specularColor = currentSet.specularBeadColor
+            val darkColor = currentSet.darkBeadColor
+
+            // Top Rosary Arc: 10 Hail Mary beads (or 7 for St. Michael), center Our Father bead, and hanging crucifix
             BeadChain(
                 completedHailMarys = state.completedHailMarysInDecade,
                 isOurFatherCompleted = state.isOurFatherCompleted,
                 justCompletedIndex = state.justCompletedBeadIndex,
-                isHoldPraying = state.isPrayingActive
+                isHoldPraying = state.isPrayingActive,
+                totalBeadsInDecade = beadsPerGroup,
+                primaryColor = primaryColor,
+                specularColor = specularColor,
+                darkColor = darkColor
             )
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -142,6 +152,9 @@ fun PrayerScreen(
                     DraggableBead(
                         isWhiteBead = state.isWhiteBeadActive,
                         completedBeadIndex = state.completedHailMarysInDecade,
+                        primaryColor = primaryColor,
+                        specularColor = specularColor,
+                        darkColor = darkColor,
                         isPrayingActive = state.isPrayingActive,
                         isReadyToRelease = state.isReadyToRelease,
                         isTapToPrayEnabled = settings.tapToPrayEnabled,
@@ -158,12 +171,14 @@ fun PrayerScreen(
             }
 
             // Bottom Navigation Controls: Intentions and Progress (e.g. 4 / 53)
-            val currentBeadCount = (state.decadeIndex * 10) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
+            val totalGroups = currentSet.mysteries.size.coerceAtLeast(1)
+            val currentBeadCount = (state.decadeIndex * beadsPerGroup) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
+            val totalBeadCount = (totalGroups * beadsPerGroup) + totalGroups
             BottomMedievalControls(
                 onIntentionsClick = { showIntentionsSheet = true },
                 onProgressClick = { showProgressSheet = true },
-                currentBeadCount = currentBeadCount.coerceIn(1, 53),
-                totalBeadCount = 53
+                currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
+                totalBeadCount = totalBeadCount
             )
         }
 

@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.ui.screens
+package com.trivium.rosarium.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -105,6 +105,17 @@ fun MysterySelectorSheet(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            // Gemstone color indicator dot
+                            Box(
+                                modifier = Modifier
+                                    .size(14.dp)
+                                    .clip(CircleShape)
+                                    .background(set.primaryBeadColor)
+                                    .border(1.dp, set.specularBeadColor, CircleShape)
+                            )
+
+                            Spacer(modifier = Modifier.width(10.dp))
+
                             Text(
                                 text = set.name,
                                 color = if (isSelected) MedievalGoldBright else ParchmentLight,
@@ -113,6 +124,25 @@ fun MysterySelectorSheet(
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.weight(1f)
                             )
+
+                            // Bead count badge (e.g. 10 Beads or 7 Beads)
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Color(0xFF2E2218))
+                                    .border(1.dp, MedievalGoldDark.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 7.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "${set.effectiveBeadsPerDecade} Beads",
+                                    color = MedievalGoldBright,
+                                    fontSize = 11.sp,
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
 
                             if (isToday) {
                                 Box(
