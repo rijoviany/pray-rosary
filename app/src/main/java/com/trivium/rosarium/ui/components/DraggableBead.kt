@@ -97,11 +97,11 @@ fun DraggableBead(
     val currentIsReadyToRelease by rememberUpdatedState(isReadyToRelease)
     val currentIsSnappingUp by rememberUpdatedState(isSnappingUp)
 
-    val maxDragPx = with(density) { 90.dp.toPx() }
-    val dragThresholdPx = with(density) { 34.dp.toPx() }
-    val restingBeadCenterYPx = with(density) { 28.dp.toPx() }
+    val maxDragPx = with(density) { 68.dp.toPx() }
+    val dragThresholdPx = with(density) { 26.dp.toPx() }
+    val restingBeadCenterYPx = with(density) { 20.dp.toPx() }
     val snapUpTargetOffsetPx = with(density) { -35.dp.toPx() }
-    val indicatorBaseOffsetPx = with(density) { 36.dp.toPx() }
+    val indicatorBaseOffsetPx = with(density) { 30.dp.toPx() }
 
     // Physical vertical displacement (0f = resting position just below banner, >0 = pulled down)
     val dragOffsetY = remember { Animatable(0f) }

@@ -148,21 +148,30 @@ fun MysteryMedallion(
     currentMystery: Mystery?,
     currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     isHoldPraying: Boolean,
+    fontScale: Float = 1.0f,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val imageName = currentMystery?.imageAsset ?: "mystery_joyful_1"
     val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
 
+    // Dynamically scale medallion size when user selects larger font sizes to preserve generous drag room
+    val medallionSizeDp = when {
+        fontScale >= 1.25f -> 124.dp
+        fontScale >= 1.10f -> 146.dp
+        else -> 172.dp
+    }
+    val artworkSizeDp = medallionSizeDp * 0.88f
+
     Box(
-        modifier = modifier.size(195.dp),
+        modifier = modifier.size(medallionSizeDp),
         contentAlignment = Alignment.Center
     ) {
         // 1. Artwork inside circular crop with drop shadow
         Box(
             modifier = Modifier
-                .size(172.dp)
-                .shadow(12.dp, CircleShape)
+                .size(artworkSizeDp)
+                .shadow(10.dp, CircleShape)
                 .clip(CircleShape)
         ) {
             Crossfade(
@@ -205,15 +214,15 @@ fun MysteryMedallion(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val cx = size.width / 2f
             val cy = size.height / 2f
-            val outerRadius = 88.dp.toPx()
-            val innerRadius = 85.dp.toPx()
+            val outerRadius = (minOf(size.width, size.height) / 2f) - 5.dp.toPx()
+            val innerRadius = outerRadius - 3.dp.toPx()
 
             // Outer drop shadow
             drawCircle(
                 color = Color.Black.copy(alpha = 0.5f),
                 radius = outerRadius + 2.dp.toPx(),
-                center = Offset(cx + 1.dp.toPx(), cy + 3.dp.toPx()),
-                style = Stroke(width = 3.dp.toPx())
+                center = Offset(cx + 1.dp.toPx(), cy + 2.dp.toPx()),
+                style = Stroke(width = 2.5.dp.toPx())
             )
 
             // Carved gold ring bevel gradient
@@ -233,7 +242,7 @@ fun MysteryMedallion(
                 brush = goldBrush,
                 radius = outerRadius,
                 center = Offset(cx, cy),
-                style = Stroke(width = 4.5.dp.toPx())
+                style = Stroke(width = 3.8.dp.toPx())
             )
 
             // Inner specular rim
@@ -241,31 +250,31 @@ fun MysteryMedallion(
                 color = MedievalGoldBright.copy(alpha = 0.85f),
                 radius = innerRadius,
                 center = Offset(cx, cy),
-                style = Stroke(width = 1.2.dp.toPx())
+                style = Stroke(width = 1.1.dp.toPx())
             )
 
             // Outer beaded rim (filigree pearls along perimeter)
-            val numBeads = 36
-            val beadRingRadius = outerRadius + 3.5.dp.toPx()
+            val numBeads = 32
+            val beadRingRadius = outerRadius + 3.dp.toPx()
             for (i in 0 until numBeads) {
                 val angle = (i * 2.0 * Math.PI / numBeads).toFloat()
                 val bx = cx + (beadRingRadius * kotlin.math.cos(angle))
                 val by = cy + (beadRingRadius * kotlin.math.sin(angle))
                 drawCircle(
                     color = MedievalGoldDark,
-                    radius = 1.6.dp.toPx(),
+                    radius = 1.4.dp.toPx(),
                     center = Offset(bx + 0.5f, by + 0.5f)
                 )
                 drawCircle(
                     color = MedievalGoldBright,
-                    radius = 1.4.dp.toPx(),
+                    radius = 1.2.dp.toPx(),
                     center = Offset(bx, by)
                 )
             }
 
             // Bottom Ornate Trefoil Cross / Fleur-de-lis
             val bottomY = cy + outerRadius + 1.dp.toPx()
-            val crossSize = 10.dp.toPx()
+            val crossSize = 8.dp.toPx()
 
             val crossPath = Path().apply {
                 moveTo(cx, bottomY - 2.dp.toPx())
@@ -276,12 +285,12 @@ fun MysteryMedallion(
             drawPath(
                 path = crossPath,
                 color = MedievalGoldBright,
-                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
+                style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round)
             )
             // Ruby gem center on bottom cross
             drawCircle(
                 color = Color(0xFFC62828),
-                radius = 2.2.dp.toPx(),
+                radius = 1.8.dp.toPx(),
                 center = Offset(cx, bottomY + crossSize * 0.35f)
             )
 
@@ -289,9 +298,9 @@ fun MysteryMedallion(
             val topY = cy - outerRadius
             drawOval(
                 brush = goldBrush,
-                topLeft = Offset(cx - 3.dp.toPx(), topY - 7.dp.toPx()),
-                size = Size(6.dp.toPx(), 8.dp.toPx()),
-                style = Stroke(width = 1.5.dp.toPx())
+                topLeft = Offset(cx - 3.dp.toPx(), topY - 6.dp.toPx()),
+                size = Size(6.dp.toPx(), 7.dp.toPx()),
+                style = Stroke(width = 1.3.dp.toPx())
             )
         }
     }

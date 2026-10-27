@@ -144,10 +144,11 @@ fun PrayerScreen(
             MysteryMedallion(
                 currentMystery = state.currentMystery,
                 currentStep = state.currentStep,
-                isHoldPraying = state.isPrayingActive
+                isHoldPraying = state.isPrayingActive,
+                fontScale = settings.fontScale
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             // Parchment Prayer Card: PRAYING header, title, karaoke line-by-line text, cross divider
             PrayerBanner(
@@ -186,13 +187,13 @@ fun PrayerScreen(
                         onBounceImpact = { decay -> viewModel.onBounceImpact(decay) },
                         onStringTension = { viewModel.onStringTension() },
                         modifier = Modifier.onGloballyPositioned { coordinates ->
-                            draggableBeadWindowY = coordinates.positionInWindow().y + with(density) { 28.dp.toPx() }
+                            draggableBeadWindowY = coordinates.positionInWindow().y + with(density) { 20.dp.toPx() }
                         }
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(4.dp))
         }
 
         // Rosary Completion Celebration Overlay

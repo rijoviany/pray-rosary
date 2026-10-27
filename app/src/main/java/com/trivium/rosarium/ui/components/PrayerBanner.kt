@@ -15,11 +15,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -70,11 +74,22 @@ fun PrayerBanner(
 ) {
     if (prayer == null) return
 
+    val maxBannerHeight = when {
+        fontScale >= 1.25f -> 150.dp
+        fontScale >= 1.10f -> 170.dp
+        else -> 205.dp
+    }
+
+    val stanzas = remember(prayer.id, prayer.phrases) {
+        formatLiturgicalStanzas(prayer.phrases)
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .widthIn(max = 420.dp),
+            .padding(horizontal = 22.dp)
+            .widthIn(max = 420.dp)
+            .heightIn(max = maxBannerHeight),
         contentAlignment = Alignment.Center
     ) {
         ProceduralParchmentScroll(modifier = Modifier.matchParentSize())
@@ -83,57 +98,57 @@ fun PrayerBanner(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 7.dp),
+                .padding(horizontal = 16.dp, vertical = 5.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Caption "— PRAYING —"
             Text(
                 text = "— PRAYING —",
-                fontSize = (9.5f * fontScale).sp,
+                fontSize = (9f * fontScale).coerceIn(8.5f, 10.5f).sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold,
                 color = MedievalGoldDark,
-                letterSpacing = 1.6.sp,
+                letterSpacing = 1.4.sp,
                 textAlign = TextAlign.Center
             )
-
-            Spacer(modifier = Modifier.height(1.dp))
 
             // Header (e.g. "Hail Mary" or "Our Father")
             Text(
                 text = prayer.title,
-                fontSize = (17 * fontScale).sp,
+                fontSize = (15f * fontScale).coerceIn(13.5f, 17.5f).sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold,
                 color = InkBrownDark,
-                letterSpacing = 0.3.sp,
+                letterSpacing = 0.2.sp,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-            // Prayer Phrases (clean, static liturgical text)
-            val displayPhrases = prayer.phrases
-            displayPhrases.forEach { phrase ->
+            // Prayer text formatted in elegant flowing liturgical stanzas (prevents excessive height)
+            stanzas.forEachIndexed { index, stanza ->
+                if (index > 0) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
                 Text(
-                    text = phrase,
-                    fontSize = (12f * fontScale).sp,
+                    text = stanza,
+                    fontSize = (11.5f * fontScale).coerceIn(11f, 15f).sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Normal,
-                    color = InkBrownDark.copy(alpha = 0.9f),
-                    lineHeight = (15.5f * fontScale).sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(vertical = 0.dp)
+                    color = InkBrownDark.copy(alpha = 0.92f),
+                    lineHeight = (15f * fontScale).coerceIn(14.5f, 19.5f).sp,
+                    textAlign = TextAlign.Center
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
             // Bottom Ornamental Cross Divider (— ✙ —)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(0.55f)
+                modifier = Modifier.fillMaxWidth(0.50f)
             ) {
                 Box(
                     modifier = Modifier
@@ -141,7 +156,7 @@ fun PrayerBanner(
                         .height(1.dp)
                         .background(MedievalGoldDark.copy(alpha = 0.6f))
                 )
-                Canvas(modifier = Modifier.padding(horizontal = 5.dp).size(10.dp)) {
+                Canvas(modifier = Modifier.padding(horizontal = 4.dp).size(9.dp)) {
                     val w = size.width
                     val h = size.height
                     val cx = w / 2f
@@ -151,15 +166,15 @@ fun PrayerBanner(
                         color = MedievalGold,
                         start = Offset(cx, 1f),
                         end = Offset(cx, h - 1f),
-                        strokeWidth = 1.3.dp.toPx()
+                        strokeWidth = 1.2.dp.toPx()
                     )
                     drawLine(
                         color = MedievalGold,
                         start = Offset(1f, cy),
                         end = Offset(w - 1f, cy),
-                        strokeWidth = 1.3.dp.toPx()
+                        strokeWidth = 1.2.dp.toPx()
                     )
-                    drawCircle(MedievalGoldBright, radius = 1.1.dp.toPx(), center = Offset(cx, cy))
+                    drawCircle(MedievalGoldBright, radius = 1.dp.toPx(), center = Offset(cx, cy))
                 }
                 Box(
                     modifier = Modifier
@@ -170,6 +185,25 @@ fun PrayerBanner(
             }
         }
     }
+}
+
+/**
+ * Formats comma-separated phrase lists into natural, balanced liturgical stanzas
+ * so text wraps cleanly and avoids excessive vertical elongation on larger fonts.
+ */
+private fun formatLiturgicalStanzas(phrases: List<String>): List<String> {
+    if (phrases.isEmpty()) return emptyList()
+    val fullText = phrases.joinToString(" ") { it.trim() }
+        .replace(Regex("\\s+"), " ")
+
+    val sentences = fullText.split(Regex("(?<=[.?!])\\s+")).filter { it.isNotBlank() }
+    if (sentences.size <= 2) {
+        return listOf(fullText)
+    }
+    val mid = (sentences.size + 1) / 2
+    val stanza1 = sentences.subList(0, mid).joinToString(" ")
+    val stanza2 = sentences.subList(mid, sentences.size).joinToString(" ")
+    return listOf(stanza1, stanza2)
 }
 
 /**
