@@ -66,7 +66,6 @@ fun TopMedievalBar(
     currentMysteryTitle: String,
     onMenuClick: () -> Unit,
     onTitleClick: () -> Unit,
-    onReadClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -75,7 +74,7 @@ fun TopMedievalBar(
             .padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left: Menu circular button
+        // Left: Hamburg Menu circular button
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.clickable(role = Role.Button, onClick = onMenuClick)
@@ -139,34 +138,8 @@ fun TopMedievalBar(
             )
         }
 
-        // Right: Read / Scripture book button
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clickable(role = Role.Button, onClick = onReadClick)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
-                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AutoStories,
-                    contentDescription = "Read Scripture and Intentions",
-                    tint = MedievalGoldBright,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = "Read",
-                color = ParchmentLight.copy(alpha = 0.9f),
-                fontSize = 11.5.sp,
-                fontFamily = FontFamily.Serif
-            )
-        }
+        // Right: Symmetric spacer matching left Menu button width for perfect centering
+        Spacer(modifier = Modifier.width(42.dp))
     }
 }
 

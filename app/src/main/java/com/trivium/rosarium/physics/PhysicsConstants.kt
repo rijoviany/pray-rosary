@@ -28,6 +28,9 @@ object PhysicsConstants {
     /** Minimum and default duration for Our Father (10 seconds) */
     const val MIN_OUR_FATHER_DURATION_MS = 10_000L
 
+    /** Duration to recite Glory Be prayer while holding bead (2 seconds) */
+    const val GLORY_BE_DURATION_MS = 2_000L
+
     /** Default duration to recite a full prayer while holding the bead */
     const val DEFAULT_PRAYER_DURATION_MS = 5_000L
 

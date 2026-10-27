@@ -196,7 +196,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         val totalDurationMs = when (_rosaryState.value.currentStep) {
             DecadeStep.OUR_FATHER -> maxOf(PhysicsConstants.MIN_OUR_FATHER_DURATION_MS, baseSpeedSeconds * 2000L)
             DecadeStep.HAIL_MARY -> maxOf(PhysicsConstants.MIN_HAIL_MARY_DURATION_MS, baseSpeedSeconds * 1000L)
-            DecadeStep.GLORY_BE -> maxOf(PhysicsConstants.MIN_HAIL_MARY_DURATION_MS, baseSpeedSeconds * 1000L)
+            DecadeStep.GLORY_BE -> PhysicsConstants.GLORY_BE_DURATION_MS // Reduced to 2s
             DecadeStep.FATIMA -> maxOf(6_000L, (baseSpeedSeconds * 1200L))
             else -> maxOf(8_000L, baseSpeedSeconds * 1500L)
         }
@@ -229,7 +229,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 }
             }
 
-            // Duration completed (5s for Hail Mary / 10s for Our Father):
+            // Duration completed (5s for Hail Mary / 10s for Our Father / 2s for Glory Be):
             // Ready for user to release the bead! No automatic snap!
             _rosaryState.update {
                 it.copy(
@@ -239,8 +239,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 )
             }
 
+            // Tiny haptic notifying user that it is time to release the bead
             if (_settingsState.value.hapticFeedbackEnabled) {
-                audioHelper.performHapticPulse()
+                audioHelper.performReleaseReadyHaptic()
             }
 
             // If in Tap-to-Pray mode, automatically release after completion duration

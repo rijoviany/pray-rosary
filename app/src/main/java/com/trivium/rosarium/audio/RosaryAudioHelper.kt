@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium.audio
+package com.trivium.rosarium.audio
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -81,6 +81,21 @@ class RosaryAudioHelper(private val context: Context) {
             } else {
                 @Suppress("DEPRECATION")
                 v.vibrate(15)
+            }
+        }
+    }
+
+    /**
+     * Subtle, crisp, tiny haptic tick specifically when the bead has completed its prayer duration
+     * and is ready to be released by the user.
+     */
+    fun performReleaseReadyHaptic() {
+        vibrator?.let { v ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK))
+            } else {
+                @Suppress("DEPRECATION")
+                v.vibrate(10)
             }
         }
     }

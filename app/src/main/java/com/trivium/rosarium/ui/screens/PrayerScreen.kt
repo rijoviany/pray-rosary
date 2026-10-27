@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.data.model.DecadeStep
 import com.trivium.rosarium.ui.components.BeadChain
-import com.trivium.rosarium.ui.components.BottomMedievalControls
 import com.trivium.rosarium.ui.components.DraggableBead
 import com.trivium.rosarium.ui.components.MysteryBackground
 import com.trivium.rosarium.ui.components.MysteryMedallion
@@ -109,13 +108,12 @@ fun PrayerScreen(
                 .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Navigation Bar (Menu, Mystery Selector, Read)
+            // Top Navigation Bar (Hamburg Menu, Mystery Selector)
             TopMedievalBar(
                 mysterySetName = state.currentMysterySet.name,
                 currentMysteryTitle = "${state.decadeIndex + 1}. ${state.currentMystery?.title ?: ""}",
                 onMenuClick = { showSettingsSheet = true },
-                onTitleClick = { showMysterySelector = true },
-                onReadClick = { showIntentionsSheet = true }
+                onTitleClick = { showMysterySelector = true }
             )
 
             val currentSet = state.currentMysterySet
@@ -193,17 +191,7 @@ fun PrayerScreen(
                 }
             }
 
-            // Bottom Navigation Controls: Intentions, Novenas, and Progress (e.g. 4 / 53)
-            val totalGroups = currentSet.mysteries.size.coerceAtLeast(1)
-            val currentBeadCount = (state.decadeIndex * beadsPerGroup) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
-            val totalBeadCount = (totalGroups * beadsPerGroup) + totalGroups
-            BottomMedievalControls(
-                onIntentionsClick = { showIntentionsSheet = true },
-                onNovenasClick = { showNovenasSheet = true },
-                onProgressClick = { showProgressSheet = true },
-                currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
-                totalBeadCount = totalBeadCount
-            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         // Rosary Completion Celebration Overlay
@@ -277,9 +265,19 @@ fun PrayerScreen(
         }
 
         if (showSettingsSheet) {
+            val totalGroups = state.currentMysterySet.mysteries.size.coerceAtLeast(1)
+            val beadsPerGroup = state.currentMysterySet.effectiveBeadsPerDecade
+            val currentBeadCount = (state.decadeIndex * beadsPerGroup) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
+            val totalBeadCount = (totalGroups * beadsPerGroup) + totalGroups
+
             SettingsSheet(
                 settings = settings,
                 onUpdateSettings = { viewModel.updateSettings(it) },
+                onOpenNovenas = { showNovenasSheet = true },
+                onOpenProgress = { showProgressSheet = true },
+                onOpenReadIntentions = { showIntentionsSheet = true },
+                currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
+                totalBeadCount = totalBeadCount,
                 onDismiss = { showSettingsSheet = false }
             )
         }
