@@ -64,6 +64,7 @@ fun PrayerScreen(
     var showProgressSheet by remember { mutableStateOf(false) }
     var showIntentionsSheet by remember { mutableStateOf(false) }
     var showNovenasSheet by remember { mutableStateOf(false) }
+    var focusedNovenaId by remember { mutableStateOf<String?>(null) }
     var showSettingsSheet by remember { mutableStateOf(false) }
 
     // Screen-space vertical coordinates for pixel-perfect snap-up animation
@@ -242,9 +243,13 @@ fun PrayerScreen(
             NovenasSheet(
                 novenas = viewModel.allNovenas,
                 novenaProgressMap = novenaProgressMap,
+                initialNovenaId = focusedNovenaId,
                 onMarkDayComplete = { novenaId, day -> viewModel.markNovenaDayCompleted(novenaId, day) },
                 onResetNovena = { novenaId -> viewModel.resetNovena(novenaId) },
-                onDismiss = { showNovenasSheet = false }
+                onDismiss = {
+                    showNovenasSheet = false
+                    focusedNovenaId = null
+                }
             )
         }
 
@@ -272,12 +277,20 @@ fun PrayerScreen(
 
             SettingsSheet(
                 settings = settings,
-                onUpdateSettings = { viewModel.updateSettings(it) },
-                onOpenNovenas = { showNovenasSheet = true },
-                onOpenProgress = { showProgressSheet = true },
+                catalog = viewModel.getMysteryCatalog(),
+                currentMysterySetId = state.currentMysterySet.id,
+                onSelectMysterySet = { viewModel.selectMysterySet(it) },
+                allNovenas = viewModel.allNovenas,
+                novenaProgressMap = novenaProgressMap,
+                onSelectNovena = { novena ->
+                    focusedNovenaId = novena.id
+                    showNovenasSheet = true
+                },
                 onOpenReadIntentions = { showIntentionsSheet = true },
+                onOpenProgress = { showProgressSheet = true },
                 currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
                 totalBeadCount = totalBeadCount,
+                onUpdateSettings = { viewModel.updateSettings(it) },
                 onDismiss = { showSettingsSheet = false }
             )
         }

@@ -1,5 +1,11 @@
 package com.trivium.rosarium.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +27,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -32,21 +41,32 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.trivium.rosarium.data.model.MysteryCatalog
+import com.trivium.rosarium.data.model.MysterySet
+import com.trivium.rosarium.data.model.Novena
+import com.trivium.rosarium.data.model.NovenaProgress
 import com.trivium.rosarium.data.model.SettingsState
 import com.trivium.rosarium.ui.theme.BackgroundSurface
 import com.trivium.rosarium.ui.theme.MedievalGold
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
 import com.trivium.rosarium.ui.theme.MedievalGoldDark
+import com.trivium.rosarium.ui.theme.OxbloodRed
 import com.trivium.rosarium.ui.theme.ParchmentBase
 import com.trivium.rosarium.ui.theme.ParchmentDark
 import com.trivium.rosarium.ui.theme.ParchmentLight
@@ -56,15 +76,26 @@ import com.trivium.rosarium.ui.theme.UltramarineLapis
 @Composable
 fun SettingsSheet(
     settings: SettingsState,
-    onUpdateSettings: (SettingsState) -> Unit,
-    onOpenNovenas: () -> Unit,
-    onOpenProgress: () -> Unit,
+    catalog: MysteryCatalog,
+    currentMysterySetId: String,
+    onSelectMysterySet: (MysterySet) -> Unit,
+    allNovenas: List<Novena>,
+    novenaProgressMap: Map<String, NovenaProgress>,
+    onSelectNovena: (Novena) -> Unit,
     onOpenReadIntentions: () -> Unit,
+    onOpenProgress: () -> Unit,
     currentBeadCount: Int = 0,
     totalBeadCount: Int = 53,
+    onUpdateSettings: (SettingsState) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    // Accordion Expansion states (User hierarchical menu)
+    var isRosariesExpanded by remember { mutableStateOf(false) }
+    var isNovenasExpanded by remember { mutableStateOf(false) }
+
+    val activeMysterySet = catalog.mysterySets.find { it.id == currentMysterySetId }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -76,51 +107,134 @@ fun SettingsSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 22.dp, vertical = 14.dp)
+                .padding(horizontal = 20.dp, vertical = 14.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Rosarium Sanctuary",
+                text = "Rosarium Menu",
                 color = MedievalGoldBright,
                 fontSize = 22.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Devotions, scripture readings, progress & preferences",
+                text = "Select devotions, 9-day novenas, scripture & progress",
                 color = ParchmentDark,
                 fontSize = 12.sp,
                 fontFamily = FontFamily.Serif,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // --- 1. Top Devotions & Reading Section ---
-            Text(
-                text = "DEVOTIONS & MEDITATIONS",
-                color = MedievalGold,
-                fontSize = 11.5.sp,
-                fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.8.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
+            // ==========================================
+            // 1. ROSARIES >
+            // ==========================================
+            ExpandableMenuHeader(
+                title = "Rosaries & Chaplets",
+                subtitle = "Holy Rosaries, Divine Mercy, St. Michael...",
+                badgeText = activeMysterySet?.name?.take(16) ?: "${catalog.mysterySets.size} Devotions",
+                isExpanded = isRosariesExpanded,
+                onToggle = { isRosariesExpanded = !isRosariesExpanded },
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(activeMysterySet?.primaryBeadColor ?: MedievalGold)
+                            .border(1.2.dp, activeMysterySet?.specularBeadColor ?: MedievalGoldBright, CircleShape)
+                    )
+                }
             )
 
-            // Novenas Navigation Card
-            MenuNavigationCard(
+            AnimatedVisibility(
+                visible = isRosariesExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 2.dp, top = 6.dp, bottom = 10.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF140E0A))
+                        .border(1.dp, MedievalGoldDark.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Catholic Chaplets & Devotions first (as highlighted by user)
+                    val chaplets = catalog.mysterySets.filter { it.isChaplet }
+                    val marian = catalog.mysterySets.filter { !it.isChaplet }
+
+                    Text(
+                        text = "APPROVED CATHOLIC CHAPLETS",
+                        color = MedievalGold,
+                        fontSize = 10.5.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.6.sp
+                    )
+
+                    chaplets.forEach { set ->
+                        SubMenuItem(
+                            title = set.name,
+                            subtitle = "${set.effectiveBeadsPerDecade} beads per group",
+                            badgeText = "${set.effectiveBeadsPerDecade} Beads",
+                            dotColor = set.primaryBeadColor,
+                            dotHighlight = set.specularBeadColor,
+                            isSelected = set.id == currentMysterySetId,
+                            onClick = {
+                                onSelectMysterySet(set)
+                                onDismiss()
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "THE HOLY ROSARY (BLESSED VIRGIN MARY)",
+                        color = MedievalGold,
+                        fontSize = 10.5.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.6.sp
+                    )
+
+                    marian.forEach { set ->
+                        SubMenuItem(
+                            title = set.name,
+                            subtitle = set.recommendedDays.joinToString(", "),
+                            badgeText = "10 Beads",
+                            dotColor = set.primaryBeadColor,
+                            dotHighlight = set.specularBeadColor,
+                            isSelected = set.id == currentMysterySetId,
+                            onClick = {
+                                onSelectMysterySet(set)
+                                onDismiss()
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // ==========================================
+            // 2. NOVENAS >
+            // ==========================================
+            val activeNovenasCount = novenaProgressMap.count { it.value.completedDays.isNotEmpty() && !it.value.isCompleted }
+            val novenasBadge = if (activeNovenasCount > 0) "$activeNovenasCount Active" else "${allNovenas.size} Novenas"
+
+            ExpandableMenuHeader(
                 title = "9-Day Catholic Novenas",
-                subtitle = "St. Jude, Divine Mercy, Undoer of Knots & more",
-                badgeText = "9 Days",
+                subtitle = "Holy Spirit, St. Anthony, St. Jude & more",
+                badgeText = novenasBadge,
+                isExpanded = isNovenasExpanded,
+                onToggle = { isNovenasExpanded = !isNovenasExpanded },
                 icon = {
-                    Canvas(modifier = Modifier.size(20.dp)) {
+                    Canvas(modifier = Modifier.size(18.dp)) {
                         val w = size.width
                         val h = size.height
-                        // Radiance circle
-                        drawCircle(
-                            color = MedievalGold.copy(alpha = 0.35f),
-                            radius = 4.dp.toPx(),
-                            center = Offset(w * 0.5f, h * 0.38f)
-                        )
-                        // Latin Cross
+                        // Radiant Cross
                         drawLine(
                             color = MedievalGoldBright,
                             start = Offset(w * 0.5f, h * 0.12f),
@@ -136,17 +250,79 @@ fun SettingsSheet(
                             cap = StrokeCap.Round
                         )
                     }
+                }
+            )
+
+            AnimatedVisibility(
+                visible = isNovenasExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp, end = 2.dp, top = 6.dp, bottom = 10.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF140E0A))
+                        .border(1.dp, MedievalGoldDark.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    allNovenas.forEach { novena ->
+                        val progress = novenaProgressMap[novena.id]
+                        val isDone = progress?.isCompleted == true
+                        val badge = when {
+                            isDone -> "Complete"
+                            progress != null && progress.completedDays.isNotEmpty() -> "Day ${progress.currentDay}/9"
+                            else -> "9 Days"
+                        }
+
+                        SubMenuItem(
+                            title = novena.title.removePrefix("Novena to ").removePrefix("Novena of the "),
+                            subtitle = novena.subtitle,
+                            badgeText = badge,
+                            dotColor = novena.themeColor,
+                            dotHighlight = MedievalGoldBright,
+                            isSelected = false,
+                            isDone = isDone,
+                            onClick = {
+                                onSelectNovena(novena)
+                                onDismiss()
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // ==========================================
+            // 3. INTENTIONS >
+            // ==========================================
+            DirectNavigationRow(
+                title = "Read Intentions & Scripture",
+                subtitle = "Active mystery scripture passage & fruit",
+                badgeText = "Read",
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.AutoStories,
+                        contentDescription = null,
+                        tint = MedievalGoldBright,
+                        modifier = Modifier.size(20.dp)
+                    )
                 },
                 onClick = {
                     onDismiss()
-                    onOpenNovenas()
+                    onOpenReadIntentions()
                 }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Prayer Progress & History Navigation Card
-            MenuNavigationCard(
+            // ==========================================
+            // 4. PROGRESS >
+            // ==========================================
+            DirectNavigationRow(
                 title = "Prayer Progress & History",
                 subtitle = "Completed rosaries, streaks & liturgical heatmap",
                 badgeText = if (totalBeadCount > 0) "$currentBeadCount / $totalBeadCount" else "History",
@@ -164,57 +340,28 @@ fun SettingsSheet(
                 }
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Read Scripture & Intentions Navigation Card
-            MenuNavigationCard(
-                title = "Read Scripture & Intentions",
-                subtitle = "Active mystery scripture passage & spiritual fruit",
-                badgeText = "Read",
-                icon = {
-                    Icon(
-                        imageVector = Icons.Default.AutoStories,
-                        contentDescription = null,
-                        tint = MedievalGoldBright,
-                        modifier = Modifier.size(20.dp)
-                    )
-                },
-                onClick = {
-                    onDismiss()
-                    onOpenReadIntentions()
-                }
-            )
-
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- 2. Golden Section Divider ---
+            // ==========================================
+            // 5. PREFERENCES & SETTINGS DIVIDER
+            // ==========================================
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                        .background(MedievalGold.copy(alpha = 0.3f))
-                )
+                Box(modifier = Modifier.weight(1f).height(1.dp).background(MedievalGold.copy(alpha = 0.3f)))
                 Text(
-                    text = "  ☩  SETTINGS & PREFERENCES  ☩  ",
+                    text = "  ☩  SETTINGS & AUDIO  ☩  ",
                     color = MedievalGold.copy(alpha = 0.75f),
                     fontSize = 11.sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.6.sp
                 )
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(1.dp)
-                        .background(MedievalGold.copy(alpha = 0.3f))
-                )
+                Box(modifier = Modifier.weight(1f).height(1.dp).background(MedievalGold.copy(alpha = 0.3f)))
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Language Selector
             Text(
@@ -267,7 +414,7 @@ fun SettingsSheet(
                                 fontSize = 13.5.sp,
                                 fontFamily = FontFamily.Serif,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
@@ -390,21 +537,31 @@ fun SettingsSheet(
     }
 }
 
+/**
+ * Expandable Accordion Header Row (e.g. "rosaries >", "novenas >")
+ */
 @Composable
-private fun MenuNavigationCard(
+private fun ExpandableMenuHeader(
     title: String,
     subtitle: String,
     badgeText: String,
-    icon: @Composable () -> Unit,
-    onClick: () -> Unit
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    icon: @Composable () -> Unit
 ) {
+    val rotation by animateFloatAsState(targetValue = if (isExpanded) 90f else 0f, label = "arrowRotation")
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, MedievalGold.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
-            .background(Color(0xFF1E1711))
-            .clickable(onClick = onClick)
+            .border(
+                width = if (isExpanded) 1.5.dp else 1.dp,
+                color = if (isExpanded) MedievalGoldBright else MedievalGold.copy(alpha = 0.45f),
+                shape = RoundedCornerShape(12.dp)
+            )
+            .background(if (isExpanded) Color(0xFF241B14) else Color(0xFF1C1510))
+            .clickable(onClick = onToggle)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -412,7 +569,7 @@ private fun MenuNavigationCard(
             modifier = Modifier
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF120C08))
+                .background(Color(0xFF100B07))
                 .border(1.dp, MedievalGold.copy(alpha = 0.7f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -424,8 +581,8 @@ private fun MenuNavigationCard(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                color = ParchmentLight,
-                fontSize = 14.5.sp,
+                color = if (isExpanded) MedievalGoldBright else ParchmentLight,
+                fontSize = 15.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold
             )
@@ -443,14 +600,14 @@ private fun MenuNavigationCard(
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(6.dp))
-                .background(Color(0xFF2E2218))
+                .background(Color(0xFF2C2016))
                 .border(1.dp, MedievalGoldDark.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
                 .padding(horizontal = 8.dp, vertical = 3.dp)
         ) {
             Text(
                 text = badgeText,
                 color = MedievalGoldBright,
-                fontSize = 11.sp,
+                fontSize = 10.5.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold
             )
@@ -460,10 +617,185 @@ private fun MenuNavigationCard(
 
         Icon(
             imageVector = Icons.Default.ChevronRight,
-            contentDescription = null,
-            tint = MedievalGoldBright.copy(alpha = 0.7f),
-            modifier = Modifier.size(18.dp)
+            contentDescription = if (isExpanded) "Collapse" else "Expand",
+            tint = MedievalGoldBright,
+            modifier = Modifier
+                .size(20.dp)
+                .rotate(rotation)
         )
+    }
+}
+
+/**
+ * Direct Navigation Row (e.g. "intentions >", "progress >")
+ */
+@Composable
+private fun DirectNavigationRow(
+    title: String,
+    subtitle: String,
+    badgeText: String,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, MedievalGold.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+            .background(Color(0xFF1C1510))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF100B07))
+                .border(1.dp, MedievalGold.copy(alpha = 0.7f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            icon()
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                color = ParchmentLight,
+                fontSize = 15.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                color = ParchmentDark,
+                fontSize = 11.sp,
+                fontFamily = FontFamily.Serif
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color(0xFF2C2016))
+                .border(1.dp, MedievalGoldDark.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                .padding(horizontal = 8.dp, vertical = 3.dp)
+        ) {
+            Text(
+                text = badgeText,
+                color = MedievalGoldBright,
+                fontSize = 10.5.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
+        Spacer(modifier = Modifier.width(6.dp))
+
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = "Open",
+            tint = MedievalGoldBright,
+            modifier = Modifier.size(20.dp)
+        )
+    }
+}
+
+/**
+ * Sub-Menu Item for inside expanded Rosaries or Novenas list
+ */
+@Composable
+private fun SubMenuItem(
+    title: String,
+    subtitle: String,
+    badgeText: String,
+    dotColor: Color,
+    dotHighlight: Color,
+    isSelected: Boolean = false,
+    isDone: Boolean = false,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .border(
+                width = if (isSelected) 1.2.dp else 0.8.dp,
+                color = if (isSelected) MedievalGoldBright else ParchmentDark.copy(alpha = 0.25f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .background(if (isSelected) Color(0xFF2B2016) else Color(0xFF1B140F))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 9.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(CircleShape)
+                .background(dotColor)
+                .border(1.dp, dotHighlight, CircleShape)
+        )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                color = if (isSelected) MedievalGoldBright else ParchmentLight,
+                fontSize = 13.5.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+            )
+            Text(
+                text = subtitle,
+                color = ParchmentDark,
+                fontSize = 10.5.sp,
+                fontFamily = FontFamily.Serif
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        if (isDone) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = "Completed",
+                tint = MedievalGoldBright,
+                modifier = Modifier.size(16.dp)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Color(0xFF241A12))
+                    .border(0.8.dp, MedievalGoldDark.copy(alpha = 0.4f), RoundedCornerShape(5.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = badgeText,
+                    color = MedievalGoldBright,
+                    fontSize = 10.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+
+        if (isSelected) {
+            Spacer(modifier = Modifier.width(6.dp))
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Selected",
+                tint = MedievalGoldBright,
+                modifier = Modifier.size(16.dp)
+            )
+        }
     }
 }
 

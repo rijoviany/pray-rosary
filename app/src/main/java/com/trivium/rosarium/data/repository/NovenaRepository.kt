@@ -11,11 +11,12 @@ class NovenaRepository {
 
     companion object {
         private val novenasList = listOf(
+            createHolySpiritNovena(),
+            createStAnthonyNovena(),
             createStJudeNovena(),
             createDivineMercyNovena(),
             createUndoerOfKnotsNovena(),
             createSacredHeartNovena(),
-            createHolySpiritNovena(),
             createStJosephNovena(),
             createMiraculousMedalNovena(),
             createStThereseNovena()
@@ -560,6 +561,137 @@ class NovenaRepository {
                         )
                     )
                 }
+            )
+        }
+
+        private fun createStAnthonyNovena(): Novena {
+            return Novena(
+                id = "st_anthony",
+                title = "Novena to Saint Anthony of Padua",
+                subtitle = "The Wonder-Worker • Patron of Lost Things & the Poor",
+                patron = "Saint Anthony of Padua, Priest and Doctor of the Church",
+                feastDay = "June 13",
+                description = "St. Anthony is renowned throughout the Catholic world as the 'Miracle Worker'. Millions pray this novena for the recovery of lost articles, restoring spiritual peace, family healing, and God's assistance in temporal needs.",
+                colorHex = "#92400E",
+                days = listOf(
+                    NovenaDay(
+                        dayNumber = 1,
+                        theme = "Saint Anthony, Mirror of Humility",
+                        scriptureReference = "Luke 14:11",
+                        scriptureText = "For all those who exalt themselves will be humbled, and those who humble themselves will be exalted.",
+                        intention = "For true humility of heart, purity of mind, and detachment from worldly pride.",
+                        meditation = "Though blessed with immense learning and eloquence, Saint Anthony chose to wash dishes and perform the humblest monastery duties. True greatness before God is found in lowliness of spirit.",
+                        prayer = listOf(
+                            "O Blessed Saint Anthony, mirror of true humility, who preferred to be forgotten by the world rather than praised,",
+                            "obtain for me a truly humble heart. Remove from my soul all vanity and self-righteousness.",
+                            "Intercede for me before the Divine Child, and help me in my present petition (mention your request). Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 2,
+                        theme = "Saint Anthony, Ark of the Holy Scriptures",
+                        scriptureReference = "2 Timothy 3:16-17",
+                        scriptureText = "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.",
+                        intention = "For love of God's Holy Word and devotion to daily scripture meditation.",
+                        meditation = "Pope Gregory IX called Saint Anthony the 'Ark of the Testament' because of his profound mastery and contemplation of the Sacred Scriptures. May God's Word be a lamp unto our feet.",
+                        prayer = listOf(
+                            "Saint Anthony, illustrious Doctor of the Gospel,",
+                            "inspire in my soul a profound hunger for the Word of God.",
+                            "Help me not only to hear the Gospel, but to live it faithfully in charity and virtue every day. Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 3,
+                        theme = "Saint Anthony, Defender of Truth",
+                        scriptureReference = "1 Peter 3:15",
+                        scriptureText = "Always be prepared to give an answer to everyone who asks you to give the reason for the hope that you have.",
+                        intention = "For fortitude to profess and live the Catholic Faith amidst confusion and secularism.",
+                        meditation = "Saint Anthony proclaimed the truth with burning charity and gentle conviction, converting hardened hearts and guiding souls back to the Catholic Church.",
+                        prayer = listOf(
+                            "Courageous Apostle of Christ, Saint Anthony,",
+                            "strengthen my faith when doubt or temptation surrounds me.",
+                            "Give me the courage to stand steadfast in the teachings of the Church with charity and zeal. Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 4,
+                        theme = "Saint Anthony, Father and Friend of the Poor",
+                        scriptureReference = "Proverbs 19:17",
+                        scriptureText = "Whoever is kind to the poor lends to the Lord, and he will reward them for what they have done.",
+                        intention = "For the poor, the homeless, the destitute, and for our own generosity toward those in need.",
+                        meditation = "Devotion to 'Saint Anthony's Bread' has fed millions of hungry families. Anthony gave away everything he possessed to relieve the destitute and suffering.",
+                        prayer = listOf(
+                            "O Generous Saint Anthony, protector of the poor and comforter of the wretched,",
+                            "open my hands and heart to share what I have with those who suffer lack.",
+                            "Look with tender mercy on all who are hungry, sick, or without shelter today. Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 5,
+                        theme = "Saint Anthony, Restorer of What Was Lost",
+                        scriptureReference = "Luke 19:10",
+                        scriptureText = "For the Son of Man came to seek and to save the lost.",
+                        intention = "For the recovery of lost articles, lost health, lost peace, and souls lost in sin.",
+                        meditation = "God has granted Saint Anthony the unique charism of finding what is lost. Above all temporal possessions, he desires to help us recover lost sanctifying grace and peace of conscience.",
+                        prayer = listOf(
+                            "Glorious Saint Anthony, God has endowed you with the miraculous gift of restoring lost things.",
+                            "I ask your powerful help in finding that which I have lost (mention lost article or spiritual gift),",
+                            "and above all, preserve in me the grace of God that I may never lose my eternal salvation. Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 6,
+                        theme = "Saint Anthony, Pure Lover of the Infant Jesus",
+                        scriptureReference = "Matthew 5:8",
+                        scriptureText = "Blessed are the pure in heart, for they will see God.",
+                        intention = "For purity of thoughts, words, and deeds in our state of life.",
+                        meditation = "Because of his angelic purity and burning love, the Child Jesus descended from heaven and rested in Saint Anthony's arms, filling his cell with celestial radiance.",
+                        prayer = listOf(
+                            "O Chaste Lily of Heaven, Blessed Anthony,",
+                            "who held the Divine Child lovingly in your arms and conversed with Him face to face,",
+                            "preserve my heart from all defilement and obtain for me childlike simplicity and purity before God. Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 7,
+                        theme = "Saint Anthony, Healer of the Sick",
+                        scriptureReference = "Jeremiah 17:14",
+                        scriptureText = "Heal me, Lord, and I will be healed; save me and I will be saved, for you are the one I praise.",
+                        intention = "For the sick, those facing surgery, and all enduring chronic physical or mental pain.",
+                        meditation = "During his earthly life and throughout the centuries, thousands of miraculous cures have been granted through the touch and prayers of Saint Anthony.",
+                        prayer = listOf(
+                            "Compassionate Saint Anthony, physician of souls and bodies,",
+                            "plead before the Divine Healer for all who are suffering under illness and infirmity.",
+                            "May God grant them relief, strength, and complete healing according to His Holy Will. Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 8,
+                        theme = "Saint Anthony, Peacemaker in Families",
+                        scriptureReference = "Colossians 3:13",
+                        scriptureText = "Bear with each other and forgive one another... Forgive as the Lord forgave you.",
+                        intention = "For reconciliation in broken families, marital harmony, and peace in communities.",
+                        meditation = "Saint Anthony traveled across Italy reconciling bitter civic enemies, estranged family members, and broken households through the peace of Christ.",
+                        prayer = listOf(
+                            "Apostle of Peace, Saint Anthony,",
+                            "bring harmony and mutual understanding into our homes.",
+                            "Melt away all resentment, silence, and anger, and bind our families together in Christ's enduring charity. Amen."
+                        )
+                    ),
+                    NovenaDay(
+                        dayNumber = 9,
+                        theme = "Saint Anthony, Guide to Eternal Beatitude",
+                        scriptureReference = "Revelation 21:4",
+                        scriptureText = "He will wipe every tear from their eyes. There will be no more death or mourning or crying or pain.",
+                        intention = "For final perseverance, the grace of a holy death, and eternal union with Christ.",
+                        meditation = "On his deathbed, Saint Anthony said: 'I see my Lord!' As this novena concludes, we place all our hopes in the hands of this faithful intercessor.",
+                        prayer = listOf(
+                            "O Most Glorious Saint Anthony, wonder-worker and friend of all who invoke you,",
+                            "as I conclude this novena, I place my petitions with total confidence before you.",
+                            "Present them to the Lord Jesus, and guide my steps on earth until I join you in singing the eternal praises of God in Heaven. Amen."
+                        )
+                    )
+                )
             )
         }
     }

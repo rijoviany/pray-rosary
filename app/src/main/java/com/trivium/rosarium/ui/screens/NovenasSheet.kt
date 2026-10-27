@@ -67,12 +67,15 @@ import com.trivium.rosarium.ui.theme.ParchmentLight
 fun NovenasSheet(
     novenas: List<Novena>,
     novenaProgressMap: Map<String, NovenaProgress>,
+    initialNovenaId: String? = null,
     onMarkDayComplete: (String, Int) -> Unit,
     onResetNovena: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var selectedNovenaId by remember { mutableStateOf(novenas.firstOrNull()?.id ?: "st_jude") }
+    var selectedNovenaId by remember(initialNovenaId) {
+        mutableStateOf(initialNovenaId ?: novenas.firstOrNull()?.id ?: "holy_spirit")
+    }
     val currentNovena = novenas.find { it.id == selectedNovenaId } ?: novenas.first()
     val progress = novenaProgressMap[currentNovena.id] ?: NovenaProgress(novenaId = currentNovena.id, currentDay = 1)
 
