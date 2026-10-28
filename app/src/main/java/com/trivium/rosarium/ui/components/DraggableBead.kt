@@ -1,5 +1,7 @@
 package com.trivium.rosarium.ui.components
 
+import android.os.Build
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -38,6 +40,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -86,6 +89,7 @@ fun DraggableBead(
 ) {
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
+    val view = LocalView.current
 
     // Up-to-date state references to prevent stale closures in pointer gestures
     val currentOnHoldStart by rememberUpdatedState(onHoldStart)
@@ -122,6 +126,20 @@ fun DraggableBead(
         ),
         label = "arrowFloatY"
     )
+
+    // Haptic feedback when bead reaches completion and is ready to release
+    LaunchedEffect(isReadyToRelease) {
+        if (isReadyToRelease && currentIsPrayingActive) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                } else {
+                    @Suppress("DEPRECATION")
+                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                }
+            } catch (_: Exception) {}
+        }
+    }
 
     // Handle Snap-Up Spring Animation when prayer completes
     LaunchedEffect(isSnappingUp) {

@@ -86,16 +86,32 @@ class RosaryAudioHelper(private val context: Context) {
     }
 
     /**
-     * Subtle, crisp, tiny haptic tick specifically when the bead has completed its prayer duration
+     * Subtle, crisp, tiny vibration specifically when the bead has completed its prayer duration
      * and is ready to be released by the user.
+     * Uses a crisp double-pulse waveform (or short one-shot) to guarantee physical motor actuation
+     * across all Android OEMs (Pixel, Samsung, Xiaomi, etc.) without relying on suppressed EFFECT_TICK.
      */
     fun performReleaseReadyHaptic() {
         vibrator?.let { v ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK))
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(10)
+            if (!v.hasVibrator()) return@let
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (v.hasAmplitudeControl()) {
+                        val timings = longArrayOf(0, 35, 30, 35)
+                        val amplitudes = intArrayOf(0, 210, 0, 190)
+                        v.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
+                    } else {
+                        v.vibrate(VibrationEffect.createOneShot(45, VibrationEffect.DEFAULT_AMPLITUDE))
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    v.vibrate(longArrayOf(0, 35, 30, 35), -1)
+                }
+            } catch (e: Exception) {
+                try {
+                    @Suppress("DEPRECATION")
+                    v.vibrate(40)
+                } catch (_: Exception) {}
             }
         }
     }

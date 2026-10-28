@@ -180,6 +180,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         if (_rosaryState.value.isPrayingActive || _rosaryState.value.isSpringSnapping) return
 
         prayerJob?.cancel()
+        lastHapticTime = 0L
         _rosaryState.update {
             it.copy(
                 isPrayingActive = true,
