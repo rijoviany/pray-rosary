@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -91,9 +93,10 @@ fun SettingsSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    // Accordion Expansion states (User hierarchical menu)
-    var isRosariesExpanded by remember { mutableStateOf(false) }
-    var isNovenasExpanded by remember { mutableStateOf(false) }
+    // Menu list expansion states: Rosaries & Novenas open by default as a visible list
+    var isRosariesExpanded by remember { mutableStateOf(true) }
+    var isNovenasExpanded by remember { mutableStateOf(true) }
+    var isSettingsExpanded by remember { mutableStateOf(false) }
 
     val activeMysterySet = catalog.mysterySets.find { it.id == currentMysterySetId }
 
@@ -126,11 +129,19 @@ fun SettingsSheet(
             )
 
             // ==========================================
-            // 1. ROSARIES >
+            // 1. ROSARIES & CHAPLETS (LIST)
             // ==========================================
+            val chaplets = catalog.mysterySets.filter { it.isChaplet }
+            val marian = catalog.mysterySets.filter { !it.isChaplet }
+            val chapletPriority = listOf("divine_mercy", "saint_michael", "saint_joseph", "seven_sorrows", "sacred_heart")
+            val sortedChaplets = chaplets.sortedBy { set ->
+                val idx = chapletPriority.indexOf(set.id)
+                if (idx != -1) idx else 999
+            }
+
             ExpandableMenuHeader(
                 title = "Rosaries & Chaplets",
-                subtitle = "Holy Rosaries, Divine Mercy, St. Michael...",
+                subtitle = "Divine Mercy, St. Michael, Holy Rosary...",
                 badgeText = activeMysterySet?.name?.take(16) ?: "${catalog.mysterySets.size} Devotions",
                 isExpanded = isRosariesExpanded,
                 onToggle = { isRosariesExpanded = !isRosariesExpanded },
@@ -153,27 +164,20 @@ fun SettingsSheet(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 10.dp, end = 2.dp, top = 6.dp, bottom = 10.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF140E0A))
-                        .border(1.dp, MedievalGoldDark.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(start = 8.dp, end = 2.dp, top = 6.dp, bottom = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    // Catholic Chaplets & Devotions first (as highlighted by user)
-                    val chaplets = catalog.mysterySets.filter { it.isChaplet }
-                    val marian = catalog.mysterySets.filter { !it.isChaplet }
-
                     Text(
                         text = "APPROVED CATHOLIC CHAPLETS",
                         color = MedievalGold,
                         fontSize = 10.5.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.6.sp
+                        letterSpacing = 0.6.sp,
+                        modifier = Modifier.padding(start = 4.dp, top = 4.dp, bottom = 2.dp)
                     )
 
-                    chaplets.forEach { set ->
+                    sortedChaplets.forEach { set ->
                         SubMenuItem(
                             title = set.name,
                             subtitle = "${set.effectiveBeadsPerDecade} beads per group",
@@ -196,7 +200,8 @@ fun SettingsSheet(
                         fontSize = 10.5.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.6.sp
+                        letterSpacing = 0.6.sp,
+                        modifier = Modifier.padding(start = 4.dp, top = 4.dp, bottom = 2.dp)
                     )
 
                     marian.forEach { set ->
@@ -219,14 +224,14 @@ fun SettingsSheet(
             Spacer(modifier = Modifier.height(10.dp))
 
             // ==========================================
-            // 2. NOVENAS >
+            // 2. NOVENAS (LIST)
             // ==========================================
             val activeNovenasCount = novenaProgressMap.count { it.value.completedDays.isNotEmpty() && !it.value.isCompleted }
             val novenasBadge = if (activeNovenasCount > 0) "$activeNovenasCount Active" else "${allNovenas.size} Novenas"
 
             ExpandableMenuHeader(
                 title = "9-Day Catholic Novenas",
-                subtitle = "Holy Spirit, St. Anthony, St. Jude & more",
+                subtitle = "Holy Spirit, St. Anthony, Divine Mercy...",
                 badgeText = novenasBadge,
                 isExpanded = isNovenasExpanded,
                 onToggle = { isNovenasExpanded = !isNovenasExpanded },
@@ -261,12 +266,8 @@ fun SettingsSheet(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 10.dp, end = 2.dp, top = 6.dp, bottom = 10.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF140E0A))
-                        .border(1.dp, MedievalGoldDark.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(start = 8.dp, end = 2.dp, top = 6.dp, bottom = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     allNovenas.forEach { novena ->
                         val progress = novenaProgressMap[novena.id]
@@ -340,28 +341,37 @@ fun SettingsSheet(
                 }
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // ==========================================
-            // 5. PREFERENCES & SETTINGS DIVIDER
+            // 5. SETTINGS & AUDIO PREFERENCES (EXPANDABLE)
             // ==========================================
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            ExpandableMenuHeader(
+                title = "Settings & Audio Preferences",
+                subtitle = "Language, audio speed, chant, sound & haptics",
+                badgeText = settings.language.uppercase(),
+                isExpanded = isSettingsExpanded,
+                onToggle = { isSettingsExpanded = !isSettingsExpanded },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = null,
+                        tint = MedievalGoldBright,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            )
+
+            AnimatedVisibility(
+                visible = isSettingsExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
             ) {
-                Box(modifier = Modifier.weight(1f).height(1.dp).background(MedievalGold.copy(alpha = 0.3f)))
-                Text(
-                    text = "  ☩  SETTINGS & AUDIO  ☩  ",
-                    color = MedievalGold.copy(alpha = 0.75f),
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.6.sp
-                )
-                Box(modifier = Modifier.weight(1f).height(1.dp).background(MedievalGold.copy(alpha = 0.3f)))
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, end = 2.dp, top = 10.dp, bottom = 10.dp)
+                ) {
 
             // Language Selector
             Text(
@@ -531,6 +541,8 @@ fun SettingsSheet(
                     )
                 )
             }
+        }
+    }
 
             Spacer(modifier = Modifier.height(30.dp))
         }
@@ -723,10 +735,11 @@ private fun SubMenuItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(
                 width = if (isSelected) 1.2.dp else 0.8.dp,
-                color = if (isSelected) MedievalGoldBright else ParchmentDark.copy(alpha = 0.25f),
+                color = if (isSelected) MedievalGoldBright else MedievalGoldDark.copy(alpha = 0.35f),
                 shape = RoundedCornerShape(8.dp)
             )
             .background(if (isSelected) Color(0xFF2B2016) else Color(0xFF1B140F))
@@ -736,26 +749,26 @@ private fun SubMenuItem(
     ) {
         Box(
             modifier = Modifier
-                .size(12.dp)
+                .size(14.dp)
                 .clip(CircleShape)
                 .background(dotColor)
-                .border(1.dp, dotHighlight, CircleShape)
+                .border(1.2.dp, dotHighlight, CircleShape)
         )
 
-        Spacer(modifier = Modifier.width(10.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 color = if (isSelected) MedievalGoldBright else ParchmentLight,
-                fontSize = 13.5.sp,
+                fontSize = 14.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
             )
             Text(
                 text = subtitle,
                 color = ParchmentDark,
-                fontSize = 10.5.sp,
+                fontSize = 11.sp,
                 fontFamily = FontFamily.Serif
             )
         }
