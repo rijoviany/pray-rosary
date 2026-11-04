@@ -414,21 +414,30 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
             DecadeStep.OUR_FATHER -> when (mysteryId) {
                 "divine_mercy" -> "eternal_father"
                 "sacred_heart" -> "sacred_heart_large"
+                "holy_wounds" -> "holy_wounds_father"
                 else -> "our_father"
             }
             DecadeStep.HAIL_MARY -> when (mysteryId) {
                 "divine_mercy" -> "sorrowful_passion"
                 "saint_joseph" -> "hail_joseph"
                 "sacred_heart" -> "sacred_heart_small"
+                "holy_souls" -> "requiem_aeternam"
+                "holy_wounds" -> "holy_wounds_bead"
+                "precious_blood" -> "precious_blood_bead"
+                "saint_anne" -> "saint_anne_bead"
                 else -> "hail_mary"
             }
-            DecadeStep.GLORY_BE -> "glory_be"
+            DecadeStep.GLORY_BE -> when (mysteryId) {
+                "holy_souls" -> "requiem_aeternam"
+                else -> "glory_be"
+            }
             DecadeStep.FATIMA -> when (mysteryId) {
                 "divine_mercy" -> "holy_god"
                 else -> "fatima"
             }
             DecadeStep.DECADE_FINISHED -> when (mysteryId) {
                 "divine_mercy" -> "holy_god"
+                "holy_souls" -> "requiem_aeternam"
                 else -> "hail_holy_queen"
             }
         }

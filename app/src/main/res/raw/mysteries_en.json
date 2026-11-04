@@ -535,6 +535,299 @@
           "imageAsset": "mystery_glorious_1"
         }
       ]
+    },
+    {
+      "id": "precious_blood",
+      "name": "Chaplet of the Precious Blood",
+      "recommendedDays": ["Thursday Devotions", "Month of July"],
+      "beadsPerDecade": 5,
+      "beadColorHex": "#7F1D1D",
+      "category": "catholic_chaplet",
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "1st Shedding: The Circumcision of Jesus",
+          "scriptureReference": "Luke 2:21",
+          "scriptureText": "And at the end of eight days, when he was circumcised, he was called Jesus.",
+          "meditation": "The Divine Infant sheds His first drops of Blood for our salvation, submitting to the Law in perfect obedience.",
+          "fruitOfMystery": "Purity of Heart and Obedience",
+          "imageAsset": "mystery_precious_blood_1"
+        },
+        {
+          "number": 2,
+          "title": "2nd Shedding: The Agony in the Garden of Gethsemane",
+          "scriptureReference": "Luke 22:44",
+          "scriptureText": "And being in agony he prayed more earnestly; and his sweat became like great drops of blood falling down to the ground.",
+          "meditation": "Under the crushing weight of the sins of all humanity, the Savior bleeds from every pore in holy surrender.",
+          "fruitOfMystery": "Conformity to the Will of God",
+          "imageAsset": "mystery_precious_blood_2"
+        },
+        {
+          "number": 3,
+          "title": "3rd Shedding: The Scourging at the Pillar",
+          "scriptureReference": "John 19:1",
+          "scriptureText": "Then Pilate took Jesus and scourged him.",
+          "meditation": "In deep reparation for our sins of the flesh, Jesus offers His sacred Body to brutal scourges until drenched in Blood.",
+          "fruitOfMystery": "Mortification and Penance",
+          "imageAsset": "mystery_precious_blood_3"
+        },
+        {
+          "number": 4,
+          "title": "4th Shedding: The Crowning with Thorns",
+          "scriptureReference": "Matthew 27:29",
+          "scriptureText": "And twisting together a crown of thorns, they put it on his head and put a reed in his right hand.",
+          "meditation": "Sharp thorns pierce the venerable Head of Christ, the King of Glory, making His Blood stream down His sacred Face.",
+          "fruitOfMystery": "Humility and Destruction of Pride",
+          "imageAsset": "mystery_precious_blood_4"
+        },
+        {
+          "number": 5,
+          "title": "5th Shedding: The Carrying of the Cross",
+          "scriptureReference": "John 19:17",
+          "scriptureText": "And bearing his own cross, he went out to the place called The Place of a Skull.",
+          "meditation": "The heavy cross tears open the wound on Jesus' shoulder as He leaves a crimson trail of Blood along the Via Dolorosa.",
+          "fruitOfMystery": "Patience in Adversity",
+          "imageAsset": "mystery_precious_blood_5"
+        },
+        {
+          "number": 6,
+          "title": "6th Shedding: The Crucifixion of Our Lord",
+          "scriptureReference": "Luke 23:33",
+          "scriptureText": "And when they came to the place that is called The Skull, there they crucified him.",
+          "meditation": "Iron nails tear through the hands and feet of our Redeemer, releasing the cleansing stream that redeems the cosmos.",
+          "fruitOfMystery": "Forgiveness and Love of Enemies",
+          "imageAsset": "mystery_precious_blood_6"
+        },
+        {
+          "number": 7,
+          "title": "7th Shedding: The Piercing of the Sacred Side",
+          "scriptureReference": "John 19:34",
+          "scriptureText": "One of the soldiers pierced his side with a spear, and at once there came out blood and water.",
+          "meditation": "The soldier's lance opens the infinite treasury of the Sacred Heart, giving birth to the Church and Sacraments.",
+          "fruitOfMystery": "Perseverance in Grace",
+          "imageAsset": "mystery_precious_blood_7"
+        }
+      ]
+    },
+    {
+      "id": "franciscan_crown",
+      "name": "Franciscan Crown (Seven Joys of Mary)",
+      "recommendedDays": ["Franciscan Devotions", "Saturdays"],
+      "beadsPerDecade": 10,
+      "beadColorHex": "#D97706",
+      "category": "catholic_chaplet",
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "1st Joy: The Annunciation",
+          "scriptureReference": "Luke 1:28",
+          "scriptureText": "Hail, full of grace, the Lord is with you.",
+          "meditation": "Mary rejoices with sublime humility as the Holy Spirit overshadows her and the Word becomes Flesh.",
+          "fruitOfMystery": "Joy in God's Holy Will",
+          "imageAsset": "mystery_franciscan_1"
+        },
+        {
+          "number": 2,
+          "title": "2nd Joy: The Visitation to Saint Elizabeth",
+          "scriptureReference": "Luke 1:41",
+          "scriptureText": "When Elizabeth heard the greeting of Mary, the baby leaped in her womb.",
+          "meditation": "Mary's heart overflows with jubilation as she proclaims the Magnificat in service to her cousin.",
+          "fruitOfMystery": "Joy in Christian Charity",
+          "imageAsset": "mystery_franciscan_2"
+        },
+        {
+          "number": 3,
+          "title": "3rd Joy: The Nativity of Jesus in Bethlehem",
+          "scriptureReference": "Luke 2:7",
+          "scriptureText": "And she gave birth to her firstborn son and wrapped him in swaddling clothes.",
+          "meditation": "Mary gazes in adoration upon the newborn Savior, holding the Light of the World in maternal peace.",
+          "fruitOfMystery": "Joy in Holy Poverty",
+          "imageAsset": "mystery_franciscan_3"
+        },
+        {
+          "number": 4,
+          "title": "4th Joy: The Adoration of the Magi",
+          "scriptureReference": "Matthew 2:11",
+          "scriptureText": "They saw the child with Mary his mother, and they fell down and worshiped him.",
+          "meditation": "Mary rejoices as Gentile kings from distant lands offer gold, frankincense, and myrrh to the King of Kings.",
+          "fruitOfMystery": "Joy in Worship and Faith",
+          "imageAsset": "mystery_franciscan_4"
+        },
+        {
+          "number": 5,
+          "title": "5th Joy: The Finding of the Boy Jesus in the Temple",
+          "scriptureReference": "Luke 2:46",
+          "scriptureText": "After three days they found him in the temple, sitting among the teachers.",
+          "meditation": "The agonizing sorrow of loss transforms into radiant bliss as Mary and Joseph find Jesus in His Father's House.",
+          "fruitOfMystery": "Joy in Seeking and Finding Christ",
+          "imageAsset": "mystery_franciscan_5"
+        },
+        {
+          "number": 6,
+          "title": "6th Joy: The Resurrection of Our Lord",
+          "scriptureReference": "Mark 16:6",
+          "scriptureText": "He has risen; he is not here. See the place where they laid him.",
+          "meditation": "Traditional piety contemplates the triumphant Risen Christ appearing first to His Blessed Mother in glory.",
+          "fruitOfMystery": "Joy in the Victory of Eternal Life",
+          "imageAsset": "mystery_franciscan_6"
+        },
+        {
+          "number": 7,
+          "title": "7th Joy: The Assumption and Coronation of Our Lady",
+          "scriptureReference": "Revelation 12:1",
+          "scriptureText": "A great sign appeared in heaven: a woman clothed with the sun, with the moon under her feet.",
+          "meditation": "Mary is assumed body and soul into heaven and crowned Queen of angels and saints by the Blessed Trinity.",
+          "fruitOfMystery": "Joy in Heavenly Hope",
+          "imageAsset": "mystery_franciscan_7"
+        }
+      ]
+    },
+    {
+      "id": "holy_souls",
+      "name": "Chaplet for the Holy Souls in Purgatory",
+      "recommendedDays": ["Mondays", "Month of November", "All Souls"],
+      "beadsPerDecade": 10,
+      "beadColorHex": "#475569",
+      "category": "catholic_chaplet",
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "1st Mystery: The Souls Longing for the Beatific Vision",
+          "scriptureReference": "Psalm 130:1-2",
+          "scriptureText": "Out of the depths I cry to you, O Lord! O Lord, hear my voice!",
+          "meditation": "We pray for the holy souls who ache with profound love to gaze upon the Face of God in eternal peace.",
+          "fruitOfMystery": "Yearning for Holiness",
+          "imageAsset": "mystery_holy_souls_1"
+        },
+        {
+          "number": 2,
+          "title": "2nd Mystery: The Purifying Love of God",
+          "scriptureReference": "1 Corinthians 3:15",
+          "scriptureText": "If anyone's work is burned up, he will suffer loss, though he himself will be saved, but only as through fire.",
+          "meditation": "We offer our prayers and suffrages to relieve the suffering souls as divine love cleanses away every imperfection.",
+          "fruitOfMystery": "Contrition and Reparation",
+          "imageAsset": "mystery_holy_souls_2"
+        },
+        {
+          "number": 3,
+          "title": "3rd Mystery: The Consolation of Holy Angels",
+          "scriptureReference": "Luke 22:43",
+          "scriptureText": "And there appeared to him an angel from heaven, strengthening him.",
+          "meditation": "We pray that Guardian Angels and Saint Michael visit and console the holy souls with heavenly dew and grace.",
+          "fruitOfMystery": "Communion with Angels",
+          "imageAsset": "mystery_holy_souls_3"
+        },
+        {
+          "number": 4,
+          "title": "4th Mystery: The Maternal Intercession of Our Lady",
+          "scriptureReference": "John 19:26",
+          "scriptureText": "When Jesus saw his mother and the disciple whom he loved standing nearby, he said to his mother, 'Woman, behold, your son!'",
+          "meditation": "We invoke the Mother of Mercy, who descends into purgatory to comfort her children and lead them toward light.",
+          "fruitOfMystery": "Filial Trust in Our Lady",
+          "imageAsset": "mystery_holy_souls_4"
+        },
+        {
+          "number": 5,
+          "title": "5th Mystery: The Triumphant Entrance into Paradise",
+          "scriptureReference": "Revelation 21:4",
+          "scriptureText": "He will wipe away every tear from their eyes, and death shall be no more, neither shall there be mourning, nor crying, nor pain.",
+          "meditation": "We rejoice with the liberated souls admitted into the banquet of the Lamb to intercede for us for all eternity.",
+          "fruitOfMystery": "Consolation of Eternal Life",
+          "imageAsset": "mystery_holy_souls_5"
+        }
+      ]
+    },
+    {
+      "id": "holy_wounds",
+      "name": "Chaplet of the Holy Wounds",
+      "recommendedDays": ["Tuesdays & Fridays", "Passiontide"],
+      "beadsPerDecade": 10,
+      "beadColorHex": "#831843",
+      "category": "catholic_chaplet",
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "1st Mystery: The Sacred Wound of the Left Foot",
+          "scriptureReference": "Psalm 22:16",
+          "scriptureText": "They have pierced my hands and feet; I can count all my bones.",
+          "meditation": "Through the merits of the sacred Wound in Christ's left foot, we implore forgiveness for all steps taken on paths of sin.",
+          "fruitOfMystery": "Holy Direction in Life",
+          "imageAsset": "mystery_holy_wounds_1"
+        },
+        {
+          "number": 2,
+          "title": "2nd Mystery: The Sacred Wound of the Right Foot",
+          "scriptureReference": "Isaiah 53:5",
+          "scriptureText": "He was pierced for our transgressions; he was crushed for our iniquities.",
+          "meditation": "By the sacred Wound in Christ's right foot, we ask for grace to walk steadfastly in the footsteps of the Gospel.",
+          "fruitOfMystery": "Perseverance in Good Works",
+          "imageAsset": "mystery_holy_wounds_2"
+        },
+        {
+          "number": 3,
+          "title": "3rd Mystery: The Sacred Wound of the Left Hand",
+          "scriptureReference": "Zechariah 13:6",
+          "scriptureText": "What are these wounds on your back? He will answer: The wounds I received in the house of my friends.",
+          "meditation": "By the holy Wound in Christ's left hand, we plead for deliverance from all spiritual sluggishness and pride.",
+          "fruitOfMystery": "Generosity and Purity of Action",
+          "imageAsset": "mystery_holy_wounds_3"
+        },
+        {
+          "number": 4,
+          "title": "4th Mystery: The Sacred Wound of the Right Hand",
+          "scriptureReference": "John 20:27",
+          "scriptureText": "Put your finger here, and see my hands... Do not disbelieve, but believe.",
+          "meditation": "Through the holy Wound of Christ's right hand, we pray for the sanctification of our families, priests, and religious.",
+          "fruitOfMystery": "Fidelity to the Church",
+          "imageAsset": "mystery_holy_wounds_4"
+        },
+        {
+          "number": 5,
+          "title": "5th Mystery: The Sacred Wound of the Pierced Heart and Side",
+          "scriptureReference": "John 19:34",
+          "scriptureText": "One of the soldiers pierced his side with a spear, and at once there came out blood and water.",
+          "meditation": "We take refuge inside the open wound of Jesus' Side, the burning furnace of love and divine mercy.",
+          "fruitOfMystery": "Total Consecration to Christ",
+          "imageAsset": "mystery_holy_wounds_5"
+        }
+      ]
+    },
+    {
+      "id": "saint_anne",
+      "name": "Chaplet of Saint Anne",
+      "recommendedDays": ["Tuesdays", "July 26 (Feast Day)"],
+      "beadsPerDecade": 5,
+      "beadColorHex": "#047857",
+      "category": "catholic_chaplet",
+      "mysteries": [
+        {
+          "number": 1,
+          "title": "1st Mystery: Saint Anne and the Holy Matrimony",
+          "scriptureReference": "Proverbs 31:10",
+          "scriptureText": "An excellent wife who can find? She is far more precious than jewels.",
+          "meditation": "We honor the holy life and righteous prayers of Saints Joachim and Anne, blessed by God with unshakeable trust.",
+          "fruitOfMystery": "Sanctity in Family Life",
+          "imageAsset": "mystery_saint_anne_1"
+        },
+        {
+          "number": 2,
+          "title": "2nd Mystery: The Immaculate Conception of Mary",
+          "scriptureReference": "Luke 1:28",
+          "scriptureText": "Hail, full of grace, the Lord is with you.",
+          "meditation": "Saint Anne gives birth to the Immaculate Mother of God, the dawn of our redemption and Ark of the Covenant.",
+          "fruitOfMystery": "Purity and Divine Favor",
+          "imageAsset": "mystery_saint_anne_2"
+        },
+        {
+          "number": 3,
+          "title": "3rd Mystery: The Grandmother of the Incarnate Word",
+          "scriptureReference": "Matthew 1:1",
+          "scriptureText": "The book of the genealogy of Jesus Christ, the son of David, the son of Abraham.",
+          "meditation": "We contemplate Saint Anne cradling and teaching the Blessed Virgin Mary who bore the Savior of the world.",
+          "fruitOfMystery": "Guidance for Parents and Grandparents",
+          "imageAsset": "mystery_saint_anne_3"
+        }
+      ]
     }
   ]
 }

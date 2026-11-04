@@ -133,7 +133,11 @@ fun SettingsSheet(
             // ==========================================
             val chaplets = catalog.mysterySets.filter { it.isChaplet }
             val marian = catalog.mysterySets.filter { !it.isChaplet }
-            val chapletPriority = listOf("divine_mercy", "saint_michael", "saint_joseph", "seven_sorrows", "sacred_heart")
+            val chapletPriority = listOf(
+                "divine_mercy", "saint_michael", "precious_blood", "holy_wounds",
+                "saint_joseph", "seven_sorrows", "sacred_heart", "franciscan_crown",
+                "holy_souls", "saint_anne"
+            )
             val sortedChaplets = chaplets.sortedBy { set ->
                 val idx = chapletPriority.indexOf(set.id)
                 if (idx != -1) idx else 999

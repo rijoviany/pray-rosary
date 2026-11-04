@@ -29,7 +29,10 @@ class RosaryRepository(private val context: Context) {
         }
 
         var catalog = loadMysteryCatalog(resId)
-        val chapletIds = setOf("saint_michael", "divine_mercy", "saint_joseph", "seven_sorrows", "sacred_heart")
+        val chapletIds = setOf(
+            "saint_michael", "divine_mercy", "saint_joseph", "seven_sorrows", "sacred_heart",
+            "precious_blood", "franciscan_crown", "holy_souls", "holy_wounds", "saint_anne"
+        )
         val missingChapletIds = chapletIds.filter { chapletId -> catalog.mysterySets.none { it.id == chapletId } }
         if (missingChapletIds.isNotEmpty()) {
             val enCatalog = loadMysteryCatalog(R.raw.mysteries_en)
