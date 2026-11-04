@@ -222,7 +222,7 @@
           "scriptureText": "Above him stood the seraphim... Holy, holy, holy is the Lord of hosts.",
           "meditation": "By the intercession of St. Michael and the heavenly Choir of Seraphim, may the Lord make us worthy of the flame of perfect charity.",
           "fruitOfMystery": "Divine Love",
-          "imageAsset": "mystery_glorious_3"
+          "imageAsset": "mystery_michael_1"
         },
         {
           "number": 2,
@@ -231,7 +231,7 @@
           "scriptureText": "He placed at the east of Eden cherubim and a flaming sword.",
           "meditation": "By the intercession of St. Michael and the Choir of Cherubim, may the Lord grant us grace to forsake evil and advance in Christian perfection.",
           "fruitOfMystery": "Heavenly Wisdom",
-          "imageAsset": "mystery_joyful_1"
+          "imageAsset": "mystery_michael_2"
         },
         {
           "number": 3,
@@ -240,7 +240,7 @@
           "scriptureText": "For in him all things were created, in heaven and on earth, visible and invisible.",
           "meditation": "By the intercession of St. Michael and the celestial Choir of Thrones, may the Lord infuse into our souls a true spirit of humility.",
           "fruitOfMystery": "Spirit of Humility",
-          "imageAsset": "mystery_sorrowful_1"
+          "imageAsset": "mystery_michael_3"
         },
         {
           "number": 4,
@@ -249,7 +249,7 @@
           "scriptureText": "Far above all rule and authority and power and dominion.",
           "meditation": "By the intercession of St. Michael and the Choir of Dominions, may the Lord give us grace to master our senses and overcome unruly passions.",
           "fruitOfMystery": "Self-Mastery",
-          "imageAsset": "mystery_luminous_4"
+          "imageAsset": "mystery_michael_4"
         },
         {
           "number": 5,
@@ -258,7 +258,7 @@
           "scriptureText": "With angels, authorities, and powers subject to him.",
           "meditation": "By the intercession of St. Michael and the celestial Choir of Powers, may the Lord protect our souls against the snares of the enemy.",
           "fruitOfMystery": "Spiritual Protection",
-          "imageAsset": "mystery_sorrowful_4"
+          "imageAsset": "mystery_michael_5"
         },
         {
           "number": 6,
@@ -267,7 +267,7 @@
           "scriptureText": "Nor angels nor rulers... will be able to separate us from the love of God.",
           "meditation": "By the intercession of St. Michael and the Choir of Virtues, may the Lord keep us from falling into temptation.",
           "fruitOfMystery": "Perseverance in Grace",
-          "imageAsset": "mystery_glorious_1"
+          "imageAsset": "mystery_michael_6"
         },
         {
           "number": 7,
@@ -276,7 +276,7 @@
           "scriptureText": "Now war arose in heaven, Michael and his angels fighting against the dragon.",
           "meditation": "By the intercession of St. Michael and the Choir of Principalities, may God fill our souls with a true and sincere spirit of obedience.",
           "fruitOfMystery": "True Obedience",
-          "imageAsset": "mystery_glorious_5"
+          "imageAsset": "mystery_michael_7"
         },
         {
           "number": 8,
@@ -285,7 +285,7 @@
           "scriptureText": "For the Lord himself will descend from heaven with a cry of command, with the voice of an archangel.",
           "meditation": "By the intercession of St. Michael and the celestial Choir of Archangels, may the Lord grant us perseverance in faith and good works, that we may attain the glory of Paradise.",
           "fruitOfMystery": "Perseverance in Faith",
-          "imageAsset": "mystery_glorious_2"
+          "imageAsset": "mystery_michael_8"
         },
         {
           "number": 9,
@@ -294,7 +294,7 @@
           "scriptureText": "For he will command his angels concerning you to guard you in all your ways.",
           "meditation": "By the intercession of St. Michael and the celestial Choir of Angels, may the Lord grant us to be protected by them in this life and conducted hereafter into eternal glory.",
           "fruitOfMystery": "Angelic Protection",
-          "imageAsset": "mystery_joyful_2"
+          "imageAsset": "mystery_michael_9"
         }
       ]
     },
@@ -313,7 +313,7 @@
           "scriptureText": "Father, forgive them, for they know not what they do.",
           "meditation": "I offer You the Body and Blood, Soul and Divinity of Your Dearly Beloved Son, Our Lord Jesus Christ, in atonement for our sins and those of the whole world.",
           "fruitOfMystery": "Conversion of Sinners",
-          "imageAsset": "mystery_sorrowful_5"
+          "imageAsset": "mystery_divine_mercy_1"
         },
         {
           "number": 2,
@@ -322,7 +322,7 @@
           "scriptureText": "For their sake I consecrate myself, that they also may be sanctified in truth.",
           "meditation": "We offer this decade for the holiness, strength, and fidelity of our bishops, priests, and consecrated religious.",
           "fruitOfMystery": "Sanctification of the Clergy",
-          "imageAsset": "mystery_luminous_5"
+          "imageAsset": "mystery_divine_mercy_2"
         },
         {
           "number": 3,
@@ -331,7 +331,7 @@
           "scriptureText": "Well done, good and faithful servant. Enter into the joy of your master.",
           "meditation": "We offer this decade for all faithful souls who bring comfort to the wounded Heart of Jesus through daily fidelity.",
           "fruitOfMystery": "Fidelity and Hope",
-          "imageAsset": "mystery_glorious_4"
+          "imageAsset": "mystery_divine_mercy_3"
         },
         {
           "number": 4,
@@ -340,7 +340,7 @@
           "scriptureText": "The light shines in the darkness, and the darkness has not overcome it.",
           "meditation": "We offer this decade for those who do not believe in God and those who do not yet know the radiant love of Christ.",
           "fruitOfMystery": "Enlightenment of Souls",
-          "imageAsset": "mystery_luminous_1"
+          "imageAsset": "mystery_divine_mercy_4"
         },
         {
           "number": 5,
@@ -349,7 +349,7 @@
           "scriptureText": "It is a holy and wholesome thought to pray for the dead, that they may be loosed from sins.",
           "meditation": "We submerge the suffering souls into the ocean of Christ's Blood and Water, that their purification may be hastened.",
           "fruitOfMystery": "Eternal Repose",
-          "imageAsset": "mystery_glorious_1"
+          "imageAsset": "mystery_divine_mercy_5"
         }
       ]
     },
@@ -368,7 +368,7 @@
           "scriptureText": "Joseph, son of David, do not fear to take Mary as your wife, for that which is conceived in her is from the Holy Spirit.",
           "meditation": "Joseph accepts his sacred calling with serene faith, protecting Mary with chaste and steadfast love.",
           "fruitOfMystery": "Faith and Uprightness",
-          "imageAsset": "mystery_joyful_1"
+          "imageAsset": "mystery_st_joseph_1"
         },
         {
           "number": 2,
@@ -377,7 +377,7 @@
           "scriptureText": "And she gave birth to her firstborn son and wrapped him in swaddling clothes and laid him in a manger.",
           "meditation": "Joseph adores the Infant King in the humble manger, providing for the Holy Family with loving care.",
           "fruitOfMystery": "Humility and Adoration",
-          "imageAsset": "mystery_joyful_3"
+          "imageAsset": "mystery_st_joseph_2"
         },
         {
           "number": 3,
@@ -386,7 +386,7 @@
           "scriptureText": "He was called Jesus, the name given by the angel before he was conceived.",
           "meditation": "Joseph confers the saving Name of Jesus, participating in the first shedding of Christ's precious blood.",
           "fruitOfMystery": "Reverence for the Holy Name",
-          "imageAsset": "mystery_joyful_4"
+          "imageAsset": "mystery_st_joseph_3"
         },
         {
           "number": 4,
@@ -395,7 +395,7 @@
           "scriptureText": "And he rose and took the child and his mother by night and departed to Egypt.",
           "meditation": "In prompt obedience, Joseph rises in the night to shield the Christ Child from Herod's persecution.",
           "fruitOfMystery": "Prompt Obedience",
-          "imageAsset": "mystery_sorrowful_1"
+          "imageAsset": "mystery_st_joseph_4"
         },
         {
           "number": 5,
@@ -404,7 +404,7 @@
           "scriptureText": "And he went down with them and came to Nazareth and was submissive to them.",
           "meditation": "In quiet carpenter work, Joseph guides and provides for Jesus as He grows in wisdom, age, and grace.",
           "fruitOfMystery": "Sanctification of Labor",
-          "imageAsset": "mystery_joyful_5"
+          "imageAsset": "mystery_st_joseph_5"
         }
       ]
     },
@@ -423,7 +423,7 @@
           "scriptureText": "And a sword will pierce through your own soul also.",
           "meditation": "Simeon foretells the bitter passion of Christ, wounding Mary's maternal heart from the days of His infancy.",
           "fruitOfMystery": "Submissive Humility",
-          "imageAsset": "mystery_joyful_4"
+          "imageAsset": "mystery_sorrows_1"
         },
         {
           "number": 2,
@@ -432,7 +432,7 @@
           "scriptureText": "Flee to Egypt, and remain there until I tell you, for Herod is about to search for the child to destroy him.",
           "meditation": "Mary endures hardship, poverty, and exile in a strange land to protect her newborn Child from death.",
           "fruitOfMystery": "Patience in Adversity",
-          "imageAsset": "mystery_sorrowful_1"
+          "imageAsset": "mystery_sorrows_2"
         },
         {
           "number": 3,
@@ -441,7 +441,7 @@
           "scriptureText": "Son, why have you treated us so? Behold, your father and I have been searching for you in great distress.",
           "meditation": "For three days of anguish, Mary searches for the Boy Jesus, feeling the deep spiritual ache of His absence.",
           "fruitOfMystery": "Diligence in Seeking God",
-          "imageAsset": "mystery_joyful_5"
+          "imageAsset": "mystery_sorrows_3"
         },
         {
           "number": 4,
@@ -450,7 +450,7 @@
           "scriptureText": "A great multitude followed him, including women who mourned and lamented him.",
           "meditation": "Mother and Son exchange a sorrowful gaze amidst the scourging wounds and weight of the heavy cross.",
           "fruitOfMystery": "Compassion with Christ",
-          "imageAsset": "mystery_sorrowful_4"
+          "imageAsset": "mystery_sorrows_4"
         },
         {
           "number": 5,
@@ -459,7 +459,7 @@
           "scriptureText": "Standing by the cross of Jesus were his mother and his mother's sister.",
           "meditation": "Mary stands faithfully beneath the cross for three agonizing hours until her divine Son yields His spirit.",
           "fruitOfMystery": "Forgiveness and Fortitude",
-          "imageAsset": "mystery_sorrowful_5"
+          "imageAsset": "mystery_sorrows_5"
         },
         {
           "number": 6,
@@ -468,7 +468,7 @@
           "scriptureText": "One of the soldiers pierced his side with a spear, and at once there came out blood and water.",
           "meditation": "Mary receives the lifeless, scourged Body of Jesus into her lap, bathing His sacred wounds with tears.",
           "fruitOfMystery": "Contrition for Our Sins",
-          "imageAsset": "mystery_sorrowful_3"
+          "imageAsset": "mystery_sorrows_6"
         },
         {
           "number": 7,
@@ -477,7 +477,7 @@
           "scriptureText": "They laid Jesus there, and rolled a stone to the entrance of the tomb.",
           "meditation": "Mary watches the heavy stone seal the holy sepulcher, returning home in lonely faith awaiting the Resurrection.",
           "fruitOfMystery": "Hope in Eternal Life",
-          "imageAsset": "mystery_glorious_1"
+          "imageAsset": "mystery_sorrows_7"
         }
       ]
     },
@@ -496,7 +496,7 @@
           "scriptureText": "For God so loved the world, that he gave his only begotten Son.",
           "meditation": "The Sacred Heart beats from all eternity with tender, merciful affection for every soul.",
           "fruitOfMystery": "Love of God",
-          "imageAsset": "mystery_joyful_1"
+          "imageAsset": "mystery_sacred_heart_1"
         },
         {
           "number": 2,
@@ -505,7 +505,7 @@
           "scriptureText": "And being in agony he prayed more earnestly; and his sweat became like great drops of blood.",
           "meditation": "In Gethsemane, the Heart of Jesus suffered excruciating sorrow over the sins and indifference of mankind.",
           "fruitOfMystery": "Reparation for Sins",
-          "imageAsset": "mystery_sorrowful_1"
+          "imageAsset": "mystery_sacred_heart_2"
         },
         {
           "number": 3,
@@ -514,7 +514,7 @@
           "scriptureText": "One of the soldiers pierced his side with a spear, and at once there came out blood and water.",
           "meditation": "From the pierced Heart of Jesus gushed forth the living fountain of the Sacraments and Church.",
           "fruitOfMystery": "Spiritual Cleansing",
-          "imageAsset": "mystery_sorrowful_5"
+          "imageAsset": "mystery_sacred_heart_3"
         },
         {
           "number": 4,
@@ -523,7 +523,7 @@
           "scriptureText": "Take, eat; this is my body.",
           "meditation": "In the Blessed Sacrament, the Heart of Jesus remains present with us day and night, waiting for our adoration.",
           "fruitOfMystery": "Reverence for the Eucharist",
-          "imageAsset": "mystery_luminous_5"
+          "imageAsset": "mystery_sacred_heart_4"
         },
         {
           "number": 5,
@@ -532,7 +532,7 @@
           "scriptureText": "Worthy is the Lamb who was slain, to receive power and wealth and wisdom and strength!",
           "meditation": "The Sacred Heart reigns victorious over sin and death, drawing all hearts to His eternal kingdom.",
           "fruitOfMystery": "Zest for Christ's Kingdom",
-          "imageAsset": "mystery_glorious_1"
+          "imageAsset": "mystery_sacred_heart_5"
         }
       ]
     },

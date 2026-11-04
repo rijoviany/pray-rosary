@@ -74,6 +74,84 @@ MYSTERIES = [
     ("mystery_glorious_3", f"The Descent of the Holy Spirit at Pentecost. Inside the Cenacle Upper Room. {MARY_ANCHOR_MATURE} sits at the center in peaceful prayer, surrounded by the Twelve Apostles. Above each of their heads rests a dancing tongue of sacred fire. From above, the Holy Spirit appears as a brilliant golden dove emitting divine beams of light. {STYLE_SUFFIX}"),
     ("mystery_glorious_4", f"The Assumption of the Blessed Virgin Mary into Heaven. {MARY_ANCHOR_MATURE} (radiant with eternal youth and celestial grace) is borne bodily upward into heavenly clouds by a host of golden seraphim. Below on earth, the Apostles gather around her empty stone tomb filled with fragrant white lilies and roses in awe. {STYLE_SUFFIX}"),
     ("mystery_glorious_5", f"The Coronation of Mary as Queen of Heaven. In the highest celestial court of Heaven surrounded by singing angels. {MARY_ANCHOR_MATURE}, enthroned in radiant glory, bows her head humbly as {JESUS_ANCHOR} places an ornate crown of twelve brilliant stars and pure gold upon her head. Divine golden light, deep ultramarine, and celestial crimson majesty. {STYLE_SUFFIX}"),
+
+    # Saint Michael
+    ("mystery_michael_1", f"Saint Michael leading the Choir of Seraphim before the throne of God in blazing celestial flames of divine love. Iridescent wings, golden armor, glowing Latin inscriptions. {STYLE_SUFFIX}"),
+    ("mystery_michael_2", f"Saint Michael with the Choir of Cherubim with four-winged halos, radiant with divine wisdom and flaming swords. {STYLE_SUFFIX}"),
+    ("mystery_michael_3", f"Saint Michael with the celestial Choir of Thrones supporting the celestial glory and justice of God. {STYLE_SUFFIX}"),
+    ("mystery_michael_4", f"Saint Michael with the Choir of Dominions in royal liturgical robes with scepters of authority. {STYLE_SUFFIX}"),
+    ("mystery_michael_5", f"Saint Michael with the celestial Choir of Powers holding golden shields against demonic shadows. {STYLE_SUFFIX}"),
+    ("mystery_michael_6", f"Saint Michael with the Choir of Virtues working divine miracles, lightning, and cosmic wonders. {STYLE_SUFFIX}"),
+    ("mystery_michael_7", f"Saint Michael with the Choir of Principalities standing watch over holy kingdoms and dioceses. {STYLE_SUFFIX}"),
+    ("mystery_michael_8", f"Saint Michael with Archangels Gabriel and Raphael in radiant armor bearing lilies and healing vials. {STYLE_SUFFIX}"),
+    ("mystery_michael_9", f"Saint Michael with the Guardian Angels guiding and protecting pilgrims on earth into eternal paradise. {STYLE_SUFFIX}"),
+
+    # Divine Mercy
+    ("mystery_divine_mercy_1", f"The Divine Mercy. Risen Christ in seamless white robe, pale and red rays streaming from His heart into the darkness. 'Jesus, I Trust in You'. {STYLE_SUFFIX}"),
+    ("mystery_divine_mercy_2", f"Christ enduring His sorrowful passion for the salvation of the world, eyes filled with boundless mercy. {STYLE_SUFFIX}"),
+    ("mystery_divine_mercy_3", f"The ocean of Divine Mercy cleansing souls coming to the sacrament of reconciliation. {STYLE_SUFFIX}"),
+    ("mystery_divine_mercy_4", f"Saint Faustina Kowalska kneeling in black habit in prayer before the radiant apparition of Merciful Jesus. {STYLE_SUFFIX}"),
+    ("mystery_divine_mercy_5", f"Christ enthroned as the King of Divine Mercy, right hand raised in blessing over all nations. {STYLE_SUFFIX}"),
+
+    # Saint Joseph
+    ("mystery_st_joseph_1", f"The Betrothal of Saint Joseph and Mary in the Jerusalem Temple under golden arched lamps. {STYLE_SUFFIX}"),
+    ("mystery_st_joseph_2", f"The Annunciation to Saint Joseph in a dream; an angel reassuring him not to fear to take Mary as his wife. {STYLE_SUFFIX}"),
+    ("mystery_st_joseph_3", f"Saint Joseph cradling the newborn Infant Jesus in the Bethlehem manger with tears of adoration. {STYLE_SUFFIX}"),
+    ("mystery_st_joseph_4", f"The Flight into Egypt; Saint Joseph leading the donkey carrying Mary and Child across the moonlit desert. {STYLE_SUFFIX}"),
+    ("mystery_st_joseph_5", f"The Carpenter Workshop of Nazareth; Saint Joseph teaching young Jesus woodworking in warm sunlight. {STYLE_SUFFIX}"),
+
+    # Seven Sorrows
+    ("mystery_sorrows_1", f"Prophecy of Simeon; Simeon holds the Infant Jesus while a mystical sword pierces Mary's maternal heart. {STYLE_SUFFIX}"),
+    ("mystery_sorrows_2", f"The Flight into Egypt; Mary weeping as she flees the soldiers of Herod into the desert night. {STYLE_SUFFIX}"),
+    ("mystery_sorrows_3", f"The Loss of Jesus in Jerusalem; Mary and Joseph searching anxiously through crowded city streets. {STYLE_SUFFIX}"),
+    ("mystery_sorrows_4", f"Mary Meets Jesus on the Way of the Cross; mother and Son locking eyes in redemptive grief. {STYLE_SUFFIX}"),
+    ("mystery_sorrows_5", f"The Crucifixion of Jesus; Mary standing bravely beneath the Cross as darkness covers the land. {STYLE_SUFFIX}"),
+    ("mystery_sorrows_6", f"The Pieta; Mary cradling the lifeless, wounded body of Jesus taken down from the Cross. {STYLE_SUFFIX}"),
+    ("mystery_sorrows_7", f"The Burial of Jesus; Mary watching the stone rolled over the entrance of the garden sepulcher. {STYLE_SUFFIX}"),
+
+    # Sacred Heart
+    ("mystery_sacred_heart_1", f"The Incarnation of Divine Love; the Sacred Heart of Jesus beating with tender affection for humanity. {STYLE_SUFFIX}"),
+    ("mystery_sacred_heart_2", f"The Agony of the Sacred Heart in Gethsemane under olive trees weeping over cold hearts. {STYLE_SUFFIX}"),
+    ("mystery_sacred_heart_3", f"The Wounded Side of Christ pierced by the lance, pouring forth the fountain of the Sacraments. {STYLE_SUFFIX}"),
+    ("mystery_sacred_heart_4", f"The Eucharistic Heart of Jesus glowing from within a golden monstrance on an altar. {STYLE_SUFFIX}"),
+    ("mystery_sacred_heart_5", f"The Triumphant Reign of Love; the Sacred Heart crowned victorious as King of Kings. {STYLE_SUFFIX}"),
+
+    # Precious Blood
+    ("mystery_precious_blood_1", f"Circumcision of Infant Jesus; the first drops of the Precious Blood shed in obedience to the Law. {STYLE_SUFFIX}"),
+    ("mystery_precious_blood_2", f"Agony in Gethsemane; Christ sweating blood in prayer beneath ancient olive trees. {STYLE_SUFFIX}"),
+    ("mystery_precious_blood_3", f"Scourging at the Pillar; Christ bound to a marble column drenched in Precious Blood. {STYLE_SUFFIX}"),
+    ("mystery_precious_blood_4", f"Crowning with Thorns; sharp thorns pierced into Christ's brow with blood streaming down. {STYLE_SUFFIX}"),
+    ("mystery_precious_blood_5", f"Carrying of the Cross; Jesus leaving a crimson trail of blood along the Via Dolorosa. {STYLE_SUFFIX}"),
+    ("mystery_precious_blood_6", f"Crucifixion of Christ; hands and feet pierced with iron nails shedding redemptive blood. {STYLE_SUFFIX}"),
+    ("mystery_precious_blood_7", f"Piercing of the Sacred Side; soldier's lance opening the torrent of blood and water. {STYLE_SUFFIX}"),
+
+    # Franciscan Crown
+    ("mystery_franciscan_1", f"The Annunciation; Mary's sublime joy as Gabriel announces the Incarnation of the Word. {STYLE_SUFFIX}"),
+    ("mystery_franciscan_2", f"The Visitation; Mary's heart overflowing with joy as she proclaims the Magnificat to Elizabeth. {STYLE_SUFFIX}"),
+    ("mystery_franciscan_3", f"The Nativity; Mary gazing in joyful adoration upon the newborn Prince of Peace in Bethlehem. {STYLE_SUFFIX}"),
+    ("mystery_franciscan_4", f"The Adoration of the Magi; Mary rejoicing as three kings offer gold, frankincense, and myrrh. {STYLE_SUFFIX}"),
+    ("mystery_franciscan_5", f"The Finding in the Temple; Mary's sorrow turned into radiant joy upon finding Jesus teaching. {STYLE_SUFFIX}"),
+    ("mystery_franciscan_6", f"The Resurrection; the Risen Christ appearing in dazzling light to His Blessed Mother. {STYLE_SUFFIX}"),
+    ("mystery_franciscan_7", f"Assumption and Coronation; Mary crowned in glory as Queen of Heaven by the Holy Trinity. {STYLE_SUFFIX}"),
+
+    # Holy Souls
+    ("mystery_holy_souls_1", f"Holy souls in purifying light yearning with ardent love for the Beatific Vision of God. {STYLE_SUFFIX}"),
+    ("mystery_holy_souls_2", f"The purifying fire of divine love refining souls in hope, assisted by suffrages of the Church. {STYLE_SUFFIX}"),
+    ("mystery_holy_souls_3", f"Guardian angels descending to console and refresh the holy souls with heavenly dew. {STYLE_SUFFIX}"),
+    ("mystery_holy_souls_4", f"The Blessed Virgin Mary stretching her mantle of mercy over souls in purgatory. {STYLE_SUFFIX}"),
+    ("mystery_holy_souls_5", f"Liberated souls entering the golden gates of heaven escorted by Saint Michael the Archangel. {STYLE_SUFFIX}"),
+
+    # Holy Wounds
+    ("mystery_holy_wounds_1", f"The Sacred Wound of the Left Foot of Christ, radiating ruby light of forgiveness. {STYLE_SUFFIX}"),
+    ("mystery_holy_wounds_2", f"The Sacred Wound of the Right Foot of Christ, radiating healing grace and strength. {STYLE_SUFFIX}"),
+    ("mystery_holy_wounds_3", f"The Sacred Wound of the Left Hand of Christ, pierced by iron nail, encircled by golden rays. {STYLE_SUFFIX}"),
+    ("mystery_holy_wounds_4", f"The Sacred Wound of the Right Hand of Christ, radiating blessing and priestly holiness. {STYLE_SUFFIX}"),
+    ("mystery_holy_wounds_5", f"The Sacred Wound of the Pierced Side and Heart of Jesus, fountain of eternal mercy. {STYLE_SUFFIX}"),
+
+    # Saint Anne
+    ("mystery_saint_anne_1", f"Saint Anne and Saint Joachim standing in holy matrimony blessed with unshakeable faith. {STYLE_SUFFIX}"),
+    ("mystery_saint_anne_2", f"Saint Anne cradling the newborn Immaculate Mary, dawn of redemption. {STYLE_SUFFIX}"),
+    ("mystery_saint_anne_3", f"Saint Anne teaching young Mary from sacred scripture with the Child Jesus nearby. {STYLE_SUFFIX}"),
 ]
 
 def generate_with_nano_banana(api_key: str, model_name: str, prompt: str) -> bytes:
@@ -120,12 +198,14 @@ def main():
     print(f"Destination: {dest_dir.resolve()}\n")
 
     for idx, (filename, prompt) in enumerate(MYSTERIES, 1):
-        out_path = dest_dir / f"{filename}.png"
-        if out_path.exists() and out_path.stat().st_size > 10000:
-            print(f"[{idx}/20] {filename}.png already exists. Skipping.")
+        out_png = dest_dir / f"{filename}.png"
+        out_jpg = dest_dir / f"{filename}.jpg"
+        if (out_png.exists() and out_png.stat().st_size > 10000) or (out_jpg.exists() and out_jpg.stat().st_size > 10000):
+            print(f"[{idx}/{len(MYSTERIES)}] {filename} already exists. Skipping.")
             continue
 
-        print(f"[{idx}/20] Generating {filename}.png with Nano Banana...")
+        print(f"[{idx}/{len(MYSTERIES)}] Generating {filename}.png with Nano Banana...")
+        out_path = out_png
         generated = False
         last_error = None
 
