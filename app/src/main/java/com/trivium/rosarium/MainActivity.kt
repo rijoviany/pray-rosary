@@ -1,4 +1,4 @@
-﻿package com.trivium.rosarium
+package com.trivium.rosarium
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -6,7 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import com.trivium.rosarium.ui.screens.PrayerScreen
+import com.trivium.rosarium.ui.screens.MainScreen
 import com.trivium.rosarium.ui.theme.RosariumTheme
 import com.trivium.rosarium.ui.viewmodel.RosaryViewModel
 
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RosariumTheme {
-                PrayerScreen(viewModel = viewModel)
+                MainScreen(viewModel = viewModel)
             }
         }
     }

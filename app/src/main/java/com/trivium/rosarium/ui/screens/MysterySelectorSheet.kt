@@ -1,5 +1,6 @@
 package com.trivium.rosarium.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,12 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.data.model.MysteryCatalog
 import com.trivium.rosarium.data.model.MysterySet
+import com.trivium.rosarium.ui.components.PrayerIcons
 import com.trivium.rosarium.ui.theme.BackgroundSurface
 import com.trivium.rosarium.ui.theme.MedievalGold
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
@@ -185,16 +188,23 @@ private fun MysterySetCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Gemstone bead color indicator dot
+            // Circular Navy Medallion with Custom Icon
             Box(
                 modifier = Modifier
-                    .size(15.dp)
+                    .size(38.dp)
                     .clip(CircleShape)
-                    .background(set.primaryBeadColor)
-                    .border(1.2.dp, set.specularBeadColor, CircleShape)
-            )
+                    .background(Color(0xFF0F2642))
+                    .border(1.2.dp, MedievalGoldBright.copy(alpha = 0.5f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = PrayerIcons.getMysterySetIcon(set.id)),
+                    contentDescription = set.name,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
             Text(
                 text = set.name,

@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -66,6 +68,8 @@ fun TopMedievalBar(
     currentMysteryTitle: String,
     onMenuClick: () -> Unit,
     onTitleClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null,
+    onScriptureClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -74,10 +78,12 @@ fun TopMedievalBar(
             .padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left: Hamburg Menu circular button
+        // Left: Back Arrow or Hamburg Menu
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clickable(role = Role.Button, onClick = onMenuClick)
+            modifier = Modifier.clickable(role = Role.Button, onClick = {
+                if (onBackClick != null) onBackClick() else onMenuClick()
+            })
         ) {
             Box(
                 modifier = Modifier
@@ -88,15 +94,15 @@ fun TopMedievalBar(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
+                    imageVector = if (onBackClick != null) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Menu,
+                    contentDescription = if (onBackClick != null) "Home" else "Menu",
                     tint = MedievalGoldBright,
                     modifier = Modifier.size(20.dp)
                 )
             }
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "Menu",
+                text = if (onBackClick != null) "Home" else "Menu",
                 color = ParchmentLight.copy(alpha = 0.9f),
                 fontSize = 11.5.sp,
                 fontFamily = FontFamily.Serif
@@ -138,8 +144,38 @@ fun TopMedievalBar(
             )
         }
 
-        // Right: Symmetric spacer matching left Menu button width for perfect centering
-        Spacer(modifier = Modifier.width(42.dp))
+        // Right: Scripture / Intentions button or symmetric spacer
+        if (onScriptureClick != null) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable(role = Role.Button, onClick = onScriptureClick)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .clip(CircleShape)
+                        .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
+                        .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MenuBook,
+                        contentDescription = "Scripture",
+                        tint = MedievalGoldBright,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Read",
+                    color = ParchmentLight.copy(alpha = 0.9f),
+                    fontSize = 11.5.sp,
+                    fontFamily = FontFamily.Serif
+                )
+            }
+        } else {
+            Spacer(modifier = Modifier.width(42.dp))
+        }
     }
 }
 

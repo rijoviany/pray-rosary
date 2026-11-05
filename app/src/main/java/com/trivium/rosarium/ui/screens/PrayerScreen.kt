@@ -52,6 +52,7 @@ import com.trivium.rosarium.ui.viewmodel.RosaryViewModel
 @Composable
 fun PrayerScreen(
     viewModel: RosaryViewModel,
+    onNavigateBack: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.rosaryState.collectAsState()
@@ -66,6 +67,7 @@ fun PrayerScreen(
     var showNovenasSheet by remember { mutableStateOf(false) }
     var focusedNovenaId by remember { mutableStateOf<String?>(null) }
     var showSettingsSheet by remember { mutableStateOf(false) }
+    var showPrayersSheet by remember { mutableStateOf(false) }
 
     // Screen-space vertical coordinates for pixel-perfect snap-up animation
     var centerSocketWindowY by remember { mutableFloatStateOf(0f) }
@@ -109,12 +111,14 @@ fun PrayerScreen(
                 .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Navigation Bar (Hamburg Menu, Mystery Selector)
+            // Top Navigation Bar (Hamburg Menu, Mystery Selector, Scripture)
             TopMedievalBar(
                 mysterySetName = state.currentMysterySet.name,
                 currentMysteryTitle = "${state.decadeIndex + 1}. ${state.currentMystery?.title ?: ""}",
                 onMenuClick = { showSettingsSheet = true },
-                onTitleClick = { showMysterySelector = true }
+                onTitleClick = { showMysterySelector = true },
+                onBackClick = onNavigateBack,
+                onScriptureClick = { showIntentionsSheet = true }
             )
 
             val currentSet = state.currentMysterySet
@@ -289,10 +293,19 @@ fun PrayerScreen(
                 },
                 onOpenReadIntentions = { showIntentionsSheet = true },
                 onOpenProgress = { showProgressSheet = true },
+                onOpenPrayers = { showPrayersSheet = true },
                 currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
                 totalBeadCount = totalBeadCount,
                 onUpdateSettings = { viewModel.updateSettings(it) },
                 onDismiss = { showSettingsSheet = false }
+            )
+        }
+
+        if (showPrayersSheet) {
+            val prayers = viewModel.getPrayers(settings.language)
+            PrayersSheet(
+                prayers = prayers,
+                onDismiss = { showPrayersSheet = false }
             )
         }
     }

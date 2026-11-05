@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -54,16 +55,19 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.trivium.rosarium.R
 import com.trivium.rosarium.data.model.MysteryCatalog
 import com.trivium.rosarium.data.model.MysterySet
 import com.trivium.rosarium.data.model.Novena
 import com.trivium.rosarium.data.model.NovenaProgress
 import com.trivium.rosarium.data.model.SettingsState
+import com.trivium.rosarium.ui.components.PrayerIcons
 import com.trivium.rosarium.ui.theme.BackgroundSurface
 import com.trivium.rosarium.ui.theme.MedievalGold
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
@@ -86,6 +90,7 @@ fun SettingsSheet(
     onSelectNovena: (Novena) -> Unit,
     onOpenReadIntentions: () -> Unit,
     onOpenProgress: () -> Unit,
+    onOpenPrayers: () -> Unit = {},
     currentBeadCount: Int = 0,
     totalBeadCount: Int = 53,
     onUpdateSettings: (SettingsState) -> Unit,
@@ -127,6 +132,36 @@ fun SettingsSheet(
                 fontFamily = FontFamily.Serif,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+
+            // ==========================================
+            // 0. PRAYERS & INVOCATIONS
+            // ==========================================
+            DirectNavigationRow(
+                title = "Prayers & Invocations",
+                subtitle = "Our Father, Hail Mary, Litany & Sacred Invocations",
+                badgeText = "16 Prayers",
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF0F2642)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_our_father),
+                            contentDescription = "Prayers",
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                },
+                onClick = {
+                    onOpenPrayers()
+                    onDismiss()
+                }
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             // ==========================================
             // 1. ROSARIES & CHAPLETS (LIST)
@@ -188,6 +223,7 @@ fun SettingsSheet(
                             badgeText = "${set.effectiveBeadsPerDecade} Beads",
                             dotColor = set.primaryBeadColor,
                             dotHighlight = set.specularBeadColor,
+                            iconRes = PrayerIcons.getMysterySetIcon(set.id),
                             isSelected = set.id == currentMysterySetId,
                             onClick = {
                                 onSelectMysterySet(set)
@@ -215,6 +251,7 @@ fun SettingsSheet(
                             badgeText = "10 Beads",
                             dotColor = set.primaryBeadColor,
                             dotHighlight = set.specularBeadColor,
+                            iconRes = PrayerIcons.getMysterySetIcon(set.id),
                             isSelected = set.id == currentMysterySetId,
                             onClick = {
                                 onSelectMysterySet(set)
@@ -288,6 +325,7 @@ fun SettingsSheet(
                             badgeText = badge,
                             dotColor = novena.themeColor,
                             dotHighlight = MedievalGoldBright,
+                            iconRes = PrayerIcons.getNovenaIcon(novena.id),
                             isSelected = false,
                             isDone = isDone,
                             onClick = {
@@ -732,6 +770,7 @@ private fun SubMenuItem(
     badgeText: String,
     dotColor: Color,
     dotHighlight: Color,
+    iconRes: Int? = null,
     isSelected: Boolean = false,
     isDone: Boolean = false,
     onClick: () -> Unit
@@ -739,25 +778,42 @@ private fun SubMenuItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .defaultMinSize(minHeight = 52.dp)
+            .clip(RoundedCornerShape(12.dp))
             .border(
                 width = if (isSelected) 1.2.dp else 0.8.dp,
                 color = if (isSelected) MedievalGoldBright else MedievalGoldDark.copy(alpha = 0.35f),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             )
             .background(if (isSelected) Color(0xFF2B2016) else Color(0xFF1B140F))
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(14.dp)
-                .clip(CircleShape)
-                .background(dotColor)
-                .border(1.2.dp, dotHighlight, CircleShape)
-        )
+        if (iconRes != null) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF0F2642))
+                    .border(1.2.dp, MedievalGoldBright.copy(alpha = 0.5f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = title,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(14.dp)
+                    .clip(CircleShape)
+                    .background(dotColor)
+                    .border(1.2.dp, dotHighlight, CircleShape)
+            )
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
 

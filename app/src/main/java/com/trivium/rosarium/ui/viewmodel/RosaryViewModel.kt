@@ -108,6 +108,10 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         return rosaryRepository.getMysteryCatalog(_settingsState.value.language)
     }
 
+    fun getPrayers(language: String = _settingsState.value.language): List<Prayer> {
+        return rosaryRepository.getPrayers(language).values.toList()
+    }
+
     fun getTodayMysterySetId(): String {
         return rosaryRepository.getTodayMysterySetId()
     }

@@ -3,35 +3,46 @@ package com.trivium.rosarium.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -43,8 +54,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,14 +66,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.data.model.Novena
 import com.trivium.rosarium.data.model.NovenaProgress
-import com.trivium.rosarium.ui.theme.BackgroundSurface
-import com.trivium.rosarium.ui.theme.MedievalGold
-import com.trivium.rosarium.ui.theme.MedievalGoldBright
-import com.trivium.rosarium.ui.theme.MedievalGoldDark
-import com.trivium.rosarium.ui.theme.OxbloodRed
-import com.trivium.rosarium.ui.theme.ParchmentBase
-import com.trivium.rosarium.ui.theme.ParchmentDark
-import com.trivium.rosarium.ui.theme.ParchmentLight
+import com.trivium.rosarium.ui.components.PrayerIcons
+
+private val NavyHeader = Color(0xFF0D2036)
+private val NavyMedallion = Color(0xFF0F2642)
+private val ParchmentBg = Color(0xFFF7F3EA)
+private val CardIvory = Color(0xFFFFFFFF)
+private val GoldAccent = Color(0xFFC5A059)
+private val GoldBright = Color(0xFFE5BE42)
+private val CharcoalText = Color(0xFF1E2836)
+private val MutedText = Color(0xFF6B7A8D)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,558 +89,509 @@ fun NovenasSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedNovenaId by remember(initialNovenaId) {
-        mutableStateOf(initialNovenaId ?: novenas.firstOrNull()?.id ?: "holy_spirit")
+        mutableStateOf(initialNovenaId)
     }
-    val currentNovena = novenas.find { it.id == selectedNovenaId } ?: novenas.first()
-    val progress = novenaProgressMap[currentNovena.id] ?: NovenaProgress(novenaId = currentNovena.id, currentDay = 1)
-
-    // Inspected day on timeline
-    var inspectedDayNumber by remember(currentNovena.id) {
-        mutableIntStateOf(progress.currentDay.coerceIn(1, 9))
-    }
-    val inspectedDay = currentNovena.days.getOrNull(inspectedDayNumber - 1) ?: currentNovena.days.first()
-    val isInspectedDayCompleted = progress.isDayCompleted(inspectedDayNumber)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = BackgroundSurface,
+        containerColor = ParchmentBg,
         scrimColor = Color.Black.copy(alpha = 0.75f),
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
-        Column(
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (selectedNovenaId == null) {
+                // Screen 5: 9-Day Novenas Menu List
+                NovenasListView(
+                    novenas = novenas,
+                    novenaProgressMap = novenaProgressMap,
+                    onSelectNovena = { selectedNovenaId = it.id },
+                    onClose = onDismiss
+                )
+            } else {
+                val currentNovena = novenas.find { it.id == selectedNovenaId } ?: novenas.first()
+                NovenaDetailView(
+                    novena = currentNovena,
+                    progress = novenaProgressMap[currentNovena.id] ?: NovenaProgress(novenaId = currentNovena.id, currentDay = 1),
+                    onMarkDayComplete = { day -> onMarkDayComplete(currentNovena.id, day) },
+                    onResetNovena = { onResetNovena(currentNovena.id) },
+                    onBack = { selectedNovenaId = null }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun NovenasListView(
+    novenas: List<Novena>,
+    novenaProgressMap: Map<String, NovenaProgress>,
+    onSelectNovena: (Novena) -> Unit,
+    onClose: () -> Unit
+) {
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchActive by remember { mutableStateOf(false) }
+
+    val filteredNovenas = novenas.filter { novena ->
+        searchQuery.isBlank() ||
+                novena.title.contains(searchQuery, ignoreCase = true) ||
+                novena.subtitle.contains(searchQuery, ignoreCase = true) ||
+                novena.description.contains(searchQuery, ignoreCase = true)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ParchmentBg)
+    ) {
+        // Deep Navy Header Bar
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 14.dp)
+                .background(NavyHeader)
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Header
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Approved Catholic Novenas",
-                        color = MedievalGoldBright,
-                        fontSize = 20.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Nine days of persistent prayer, meditation & petition",
-                        color = ParchmentDark,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Serif
-                    )
-                }
+            IconButton(onClick = onClose) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White
+                )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Text(
+                text = "9-Day Novenas",
+                color = Color.White,
+                fontSize = 19.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+            )
 
-            // Novena Selector Carousel (Scrollable Pills)
-            Row(
+            IconButton(onClick = { isSearchActive = !isSearchActive }) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = Color.White
+                )
+            }
+        }
+
+        if (isSearchActive) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search novenas...", color = MutedText, fontSize = 14.sp) },
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                novenas.forEach { novena ->
-                    val isSelected = novena.id == currentNovena.id
-                    val novenaProgress = novenaProgressMap[novena.id]
-                    val isNovenaDone = novenaProgress?.isCompleted == true
-                    val activeDay = novenaProgress?.currentDay ?: 1
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = CardIvory,
+                    unfocusedContainerColor = CardIvory,
+                    focusedBorderColor = GoldAccent,
+                    unfocusedBorderColor = Color(0xFFDDD4C5)
+                )
+            )
+        }
 
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // List of Novenas Cards with Circular Navy Medallions
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(filteredNovenas) { novena ->
+                val iconRes = PrayerIcons.getNovenaIcon(novena.id)
+                val progress = novenaProgressMap[novena.id]
+                val isDone = progress?.isCompleted == true
+                val badgeText = when {
+                    isDone -> "Complete"
+                    progress != null && progress.completedDays.isNotEmpty() -> "Day ${progress.currentDay}/9"
+                    else -> "9 Days"
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(CardIvory)
+                        .clickable { onSelectNovena(novena) }
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Deep Navy Circular Medallion with Custom Icon
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .border(
-                                width = if (isSelected) 1.5.dp else 1.dp,
-                                color = if (isSelected) MedievalGoldBright else ParchmentDark.copy(alpha = 0.35f),
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .background(
-                                if (isSelected) Color(0xFF2B2017) else Color(0xFF16110D)
-                            )
-                            .clickable {
-                                selectedNovenaId = novena.id
-                                val targetDay = (novenaProgressMap[novena.id]?.currentDay ?: 1).coerceIn(1, 9)
-                                inspectedDayNumber = targetDay
-                            }
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                            .size(46.dp)
+                            .clip(CircleShape)
+                            .background(NavyMedallion)
+                            .border(1.2.dp, GoldAccent.copy(alpha = 0.5f), CircleShape),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(novena.themeColor)
-                            )
-                            Spacer(modifier = Modifier.width(7.dp))
-                            Text(
-                                text = novena.title.removePrefix("Novena to ").removePrefix("Novena of the "),
-                                color = if (isSelected) MedievalGoldBright else ParchmentLight,
-                                fontSize = 12.5.sp,
-                                fontFamily = FontFamily.Serif,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            if (isNovenaDone) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = "Completed",
-                                    tint = MedievalGoldBright,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            } else {
-                                Text(
-                                    text = "D$activeDay",
-                                    color = if (isSelected) MedievalGold else ParchmentDark,
-                                    fontSize = 11.sp,
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
+                        Image(
+                            painter = painterResource(id = iconRes),
+                            contentDescription = novena.title,
+                            modifier = Modifier.size(28.dp)
+                        )
                     }
-                }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.width(14.dp))
 
-            // Active Novena Summary Card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .border(1.dp, MedievalGold.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
-                    .background(Color(0xFF1C1510))
-                    .padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top
-                ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = currentNovena.title,
-                            color = MedievalGoldBright,
-                            fontSize = 17.sp,
+                            text = novena.title,
+                            color = CharcoalText,
+                            fontSize = 15.sp,
                             fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = currentNovena.subtitle,
-                            color = ParchmentDark,
+                            text = novena.subtitle,
+                            color = MutedText,
                             fontSize = 12.sp,
-                            fontFamily = FontFamily.Serif,
-                            fontStyle = FontStyle.Italic
+                            fontFamily = FontFamily.Serif
                         )
                     }
 
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(OxbloodRed.copy(alpha = 0.85f))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .background(if (isDone) Color(0xFFE8F5E9) else Color(0xFFF9F5EC))
+                            .border(
+                                1.dp,
+                                if (isDone) Color(0xFF81C784) else GoldAccent.copy(alpha = 0.4f),
+                                RoundedCornerShape(6.dp)
+                            )
+                            .padding(horizontal = 7.dp, vertical = 3.dp)
                     ) {
                         Text(
-                            text = currentNovena.feastDay,
-                            color = ParchmentLight,
-                            fontSize = 10.5.sp,
+                            text = badgeText,
+                            color = if (isDone) Color(0xFF2E7D32) else GoldAccent,
+                            fontSize = 11.sp,
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = currentNovena.description,
-                    color = ParchmentBase.copy(alpha = 0.9f),
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Serif,
-                    lineHeight = 16.sp
-                )
+                    Spacer(modifier = Modifier.width(6.dp))
 
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Progress Bar & Percentage
-                val completedCount = progress.completedDays.size
-                val percentText = "${((completedCount / 9f) * 100).toInt()}%"
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (progress.isCompleted) "Novena Completed • 9 of 9 Days" else "Day ${progress.currentDay} of 9 • $completedCount completed",
-                        color = MedievalGoldBright,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = percentText,
-                        color = MedievalGoldBright,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Open",
+                        tint = GoldAccent,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(6.dp))
-                LinearProgressIndicator(
-                    progress = { progress.percentComplete },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(3.dp)),
-                    color = MedievalGoldBright,
-                    trackColor = Color(0xFF2E2218)
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun NovenaDetailView(
+    novena: Novena,
+    progress: NovenaProgress,
+    onMarkDayComplete: (Int) -> Unit,
+    onResetNovena: () -> Unit,
+    onBack: () -> Unit
+) {
+    val iconRes = PrayerIcons.getNovenaIcon(novena.id)
+    var inspectedDayNumber by remember(novena.id) {
+        mutableIntStateOf(progress.currentDay.coerceIn(1, 9))
+    }
+    val inspectedDay = novena.days.getOrNull(inspectedDayNumber - 1) ?: novena.days.first()
+    val isInspectedDayCompleted = progress.isDayCompleted(inspectedDayNumber)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(ParchmentBg)
+    ) {
+        // Deep Navy Header Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(NavyHeader)
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
-
-            // 9-Day Interactive Timeline Stepper
             Text(
-                text = "Nine-Day Journey",
-                color = ParchmentLight,
-                fontSize = 14.sp,
+                text = novena.title,
+                color = Color.White,
+                fontSize = 18.sp,
                 fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
+            IconButton(onClick = onResetNovena) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Reset Novena",
+                    tint = Color.White
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 18.dp, vertical = 14.dp)
+        ) {
+            // Summary Card
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .shadow(2.dp, RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(CardIvory)
+                    .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+                    .padding(16.dp)
             ) {
-                (1..9).forEach { dayNum ->
-                    val isDone = progress.isDayCompleted(dayNum)
-                    val isActiveToday = progress.currentDay == dayNum && !progress.isCompleted
-                    val isInspected = inspectedDayNumber == dayNum
-
-                    val bgColor by animateColorAsState(
-                        targetValue = when {
-                            isInspected -> MedievalGoldBright
-                            isDone -> MedievalGold.copy(alpha = 0.85f)
-                            isActiveToday -> Color(0xFF3B2513)
-                            else -> Color(0xFF16110D)
-                        },
-                        animationSpec = tween(200),
-                        label = "timelineBg"
-                    )
-
-                    val textColor = when {
-                        isInspected -> Color(0xFF120C06)
-                        isDone -> Color(0xFF120C06)
-                        isActiveToday -> MedievalGoldBright
-                        else -> ParchmentDark
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(NavyMedallion)
+                            .border(1.5.dp, GoldAccent, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = iconRes),
+                            contentDescription = novena.title,
+                            modifier = Modifier.size(34.dp)
+                        )
                     }
 
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .clickable { inspectedDayNumber = dayNum }
-                            .padding(horizontal = 2.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .border(
-                                    width = if (isInspected || isActiveToday) 1.8.dp else 1.dp,
-                                    color = if (isInspected || isActiveToday) MedievalGoldBright else ParchmentDark.copy(alpha = 0.4f),
-                                    shape = CircleShape
-                                )
-                                .background(bgColor),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isDone && !isInspected) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Day $dayNum Completed",
-                                    tint = Color(0xFF120C06),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            } else {
-                                Text(
-                                    text = dayNum.toString(),
-                                    color = textColor,
-                                    fontSize = 13.sp,
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
+                    Spacer(modifier = Modifier.width(14.dp))
 
-                        Spacer(modifier = Modifier.height(3.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "D$dayNum",
-                            color = if (isInspected) MedievalGoldBright else ParchmentDark.copy(alpha = 0.7f),
-                            fontSize = 9.5.sp,
+                            text = novena.subtitle,
+                            color = CharcoalText,
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = novena.feastDay,
+                            color = GoldAccent,
+                            fontSize = 12.sp,
                             fontFamily = FontFamily.Serif
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Inspected Day Parchment Card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .border(1.2.dp, MedievalGoldDark, RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Color(0xFF221A13), Color(0xFF1A130E))
-                        )
-                    )
-                    .padding(18.dp)
+            // 9 Days Timeline Selector
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Day header and completion badge
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(MedievalGold.copy(alpha = 0.2f))
-                            .border(1.dp, MedievalGold.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
-                    ) {
-                        Text(
-                            text = "DAY $inspectedDayNumber OF 9",
-                            color = MedievalGoldBright,
-                            fontSize = 11.5.sp,
-                            fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.6.sp
-                        )
+                (1..9).forEach { dayNum ->
+                    val isDone = progress.isDayCompleted(dayNum)
+                    val isInspected = dayNum == inspectedDayNumber
+
+                    val boxColor = when {
+                        isInspected -> NavyHeader
+                        isDone -> Color(0xFF2E7D32)
+                        else -> CardIvory
                     }
 
-                    if (isInspectedDayCompleted) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Completed",
-                                tint = MedievalGoldBright,
-                                modifier = Modifier.size(15.dp)
+                    val textColor = when {
+                        isInspected -> Color.White
+                        isDone -> Color.White
+                        else -> CharcoalText
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(boxColor)
+                            .border(
+                                1.dp,
+                                if (isInspected) GoldAccent else Color(0xFFE2D9CB),
+                                CircleShape
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            .clickable { inspectedDayNumber = dayNum },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isDone && !isInspected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        } else {
                             Text(
-                                text = "Completed",
-                                color = MedievalGoldBright,
-                                fontSize = 11.5.sp,
+                                text = "$dayNum",
+                                color = textColor,
+                                fontSize = 13.sp,
                                 fontFamily = FontFamily.Serif,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Theme
+            // Day Title & Theme
+            Text(
+                text = "Day $inspectedDayNumber: ${inspectedDay.theme}",
+                color = NavyHeader,
+                fontSize = 18.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (inspectedDay.scriptureText.isNotBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = inspectedDay.theme,
-                    color = ParchmentLight,
-                    fontSize = 18.sp,
+                    text = "\"${inspectedDay.scriptureText}\" — ${inspectedDay.scriptureReference}",
+                    color = MutedText,
+                    fontSize = 13.sp,
                     fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold
+                    fontStyle = FontStyle.Italic
                 )
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-                // Scripture
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF140F0B))
-                        .padding(12.dp)
-                ) {
+            // Intention & Meditation Box
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(1.dp, RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFCF9F3))
+                    .border(1.dp, Color(0xFFE5DEC8), RoundedCornerShape(12.dp))
+                    .padding(14.dp)
+            ) {
+                Column {
                     Text(
-                        text = "\"${inspectedDay.scriptureText}\"",
-                        color = ParchmentBase,
-                        fontSize = 12.5.sp,
+                        text = "INTENTION & MEDITATION",
+                        color = GoldAccent,
+                        fontSize = 11.sp,
                         fontFamily = FontFamily.Serif,
-                        fontStyle = FontStyle.Italic,
-                        lineHeight = 17.sp
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "— ${inspectedDay.scriptureReference}",
-                        color = MedievalGoldBright,
-                        fontSize = 11.sp,
+                        text = inspectedDay.intention,
+                        color = CharcoalText,
+                        fontSize = 14.sp,
                         fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.fillMaxWidth()
+                        fontWeight = FontWeight.SemiBold
                     )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Intention
-                Text(
-                    text = "INTENTION FOR TODAY:",
-                    color = MedievalGold,
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.8.sp
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = inspectedDay.intention,
-                    color = ParchmentLight,
-                    fontSize = 13.sp,
-                    fontFamily = FontFamily.Serif,
-                    lineHeight = 18.sp
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Meditation
-                Text(
-                    text = "MEDITATION:",
-                    color = MedievalGold,
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.8.sp
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = inspectedDay.meditation,
-                    color = ParchmentBase.copy(alpha = 0.9f),
-                    fontSize = 12.5.sp,
-                    fontFamily = FontFamily.Serif,
-                    lineHeight = 17.5.sp
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Cross divider
-                Text(
-                    text = "☩  ☩  ☩",
-                    color = MedievalGold.copy(alpha = 0.6f),
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Daily Prayer
-                Text(
-                    text = "DAILY NOVENA PRAYER:",
-                    color = MedievalGold,
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.8.sp
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                inspectedDay.prayer.forEach { line ->
-                    Text(
-                        text = line,
-                        color = ParchmentLight,
-                        fontSize = 13.sp,
-                        fontFamily = FontFamily.Serif,
-                        lineHeight = 18.sp,
-                        modifier = Modifier.padding(vertical = 2.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(18.dp))
-
-                // Mark Complete / Advance Action Button
-                ElevatedButton(
-                    onClick = {
-                        onMarkDayComplete(currentNovena.id, inspectedDayNumber)
-                        if (inspectedDayNumber < 9) {
-                            inspectedDayNumber += 1
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.elevatedButtonColors(
-                        containerColor = if (isInspectedDayCompleted) Color(0xFF2C2016) else MedievalGoldBright,
-                        contentColor = if (isInspectedDayCompleted) MedievalGoldBright else Color(0xFF140F0A)
-                    )
-                ) {
-                    Icon(
-                        imageVector = if (isInspectedDayCompleted) Icons.Default.Check else Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = if (isInspectedDayCompleted) "Mark Day $inspectedDayNumber Complete Again" else "Mark Day $inspectedDayNumber as Complete",
-                        fontSize = 13.5.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold
-                    )
+                    if (inspectedDay.meditation.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = inspectedDay.meditation,
+                            color = CharcoalText,
+                            fontSize = 13.5.sp,
+                            fontFamily = FontFamily.Serif,
+                            lineHeight = 20.sp
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Completion Celebration / Reset Option
-            AnimatedVisibility(visible = progress.isCompleted) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0xFF2E2014))
-                        .border(1.dp, MedievalGoldBright.copy(alpha = 0.7f), RoundedCornerShape(10.dp))
-                        .padding(14.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+            // Daily Novena Prayer
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(2.dp, RoundedCornerShape(14.dp))
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(CardIvory)
+                    .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(14.dp))
+                    .padding(16.dp)
+            ) {
+                Column {
                     Text(
-                        text = "Deo Gratias!",
-                        color = MedievalGoldBright,
-                        fontSize = 18.sp,
+                        text = "DAY $inspectedDayNumber NOVENA PRAYER",
+                        color = GoldAccent,
+                        fontSize = 11.5.sp,
                         fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.6.sp
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "You have faithfully completed the 9 days of this novena. May the Lord grant your petitions in accordance with His divine Will.",
-                        color = ParchmentLight,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Serif,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedButton(
-                        onClick = {
-                            onResetNovena(currentNovena.id)
-                            inspectedDayNumber = 1
-                        },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MedievalGoldBright)
-                    ) {
-                        Icon(imageVector = Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "Pray This Novena Again", fontSize = 12.sp, fontFamily = FontFamily.Serif)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    inspectedDay.prayer.forEach { line ->
+                        Text(
+                            text = line,
+                            color = CharcoalText,
+                            fontSize = 14.5.sp,
+                            fontFamily = FontFamily.Serif,
+                            lineHeight = 22.sp,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Mark Day Complete Button
+            ElevatedButton(
+                onClick = { onMarkDayComplete(inspectedDayNumber) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = if (isInspectedDayCompleted) Color(0xFF2E7D32) else NavyHeader,
+                    contentColor = Color.White
+                )
+            ) {
+                Icon(
+                    imageVector = if (isInspectedDayCompleted) Icons.Default.CheckCircle else Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (isInspectedDayCompleted) "Day $inspectedDayNumber Completed" else "Mark Day $inspectedDayNumber Complete",
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
