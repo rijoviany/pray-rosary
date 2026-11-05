@@ -25,8 +25,12 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -38,12 +42,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.R
+import com.trivium.rosarium.data.model.FamilyGroup
 import com.trivium.rosarium.data.model.MysterySet
 
 private val NavyHeader = Color(0xFF0D2036)
@@ -57,12 +63,14 @@ private val MutedText = Color(0xFF6B7A8D)
 @Composable
 fun HomeScreen(
     todayMysterySet: MysterySet,
+    family: FamilyGroup?,
     onNavigateToPray: () -> Unit,
     onNavigateToPrayers: () -> Unit,
     onNavigateToChaplets: () -> Unit,
     onNavigateToNovenas: () -> Unit,
     onNavigateToScripture: () -> Unit,
     onNavigateToProgress: () -> Unit,
+    onOpenFamily: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -297,7 +305,110 @@ fun HomeScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // 5. Family Prayer Circle Card (Dedicated Share & Invite Hub)
+        FamilyQuickCard(
+            family = family,
+            onOpenFamily = onOpenFamily,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun FamilyQuickCard(
+    family: FamilyGroup?,
+    onOpenFamily: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Box(
+        modifier = modifier
+            .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .background(CardIvory)
+            .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+            .clickable(onClick = onOpenFamily)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icon
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFF9F5EC))
+                    .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_novena_saint_joseph),
+                    contentDescription = "Family Circle",
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = family?.name ?: "Family Prayer Circle",
+                        color = CharcoalText,
+                        fontSize = 15.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = if (family != null) {
+                        "🕊️ ${family.members.size} members • ${family.totalRosaries} rosaries prayed"
+                    } else {
+                        "Invite your family to pray together"
+                    },
+                    color = MutedText,
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily.Serif
+                )
+            }
+
+            if (family != null) {
+                // Quick Share button
+                IconButton(
+                    onClick = {
+                        shareFamilyInvite(context, family)
+                    },
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(GoldAccent.copy(alpha = 0.2f))
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Invite to Family",
+                        tint = NavyHeader,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            } else {
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Join or Create Family",
+                    tint = GoldAccent,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
     }
 }
 

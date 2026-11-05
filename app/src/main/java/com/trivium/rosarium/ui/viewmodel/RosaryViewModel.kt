@@ -5,14 +5,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.trivium.rosarium.audio.RosaryAudioHelper
 import com.trivium.rosarium.data.model.DecadeStep
+import com.trivium.rosarium.data.model.FamilyGroup
 import com.trivium.rosarium.data.model.MysteryCatalog
 import com.trivium.rosarium.data.model.MysterySet
 import com.trivium.rosarium.data.model.Novena
 import com.trivium.rosarium.data.model.NovenaProgress
+import com.trivium.rosarium.data.model.PendingInvite
 import com.trivium.rosarium.data.model.Prayer
 import com.trivium.rosarium.data.model.PrayerStats
 import com.trivium.rosarium.data.model.RosaryState
 import com.trivium.rosarium.data.model.SettingsState
+import com.trivium.rosarium.data.repository.FamilyRepository
 import com.trivium.rosarium.data.repository.NovenaRepository
 import com.trivium.rosarium.data.repository.PreferencesRepository
 import com.trivium.rosarium.data.repository.RosaryRepository
@@ -31,7 +34,11 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     private val rosaryRepository = RosaryRepository(application)
     private val preferencesRepository = PreferencesRepository(application)
     private val novenaRepository = NovenaRepository()
+    val familyRepository = FamilyRepository(application)
     val audioHelper = RosaryAudioHelper(application)
+
+    val familyState: StateFlow<FamilyGroup?> = familyRepository.currentFamily
+    val pendingInviteState: StateFlow<PendingInvite?> = familyRepository.pendingInvite
 
     val allNovenas: List<Novena> = novenaRepository.getAllNovenas()
 
@@ -401,6 +408,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
             // Full Rosary completed! Conclude with Hail Holy Queen
             viewModelScope.launch {
                 preferencesRepository.recordRosaryCompleted()
+                familyRepository.recordRosaryForFamily()
             }
             _rosaryState.update {
                 it.copy(
@@ -470,6 +478,54 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 beadCount = state.completedHailMarysInDecade
             )
         }
+    }
+
+    // --- Family / Prayer Circle Management ---
+
+    fun createFamily(familyName: String, creatorName: String) {
+        viewModelScope.launch {
+            familyRepository.createFamily(familyName, creatorName)
+        }
+    }
+
+    fun joinFamilyByCode(inviteCode: String, memberName: String = "", onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val result = familyRepository.joinFamilyByCode(inviteCode, memberName)
+            onResult(result.isSuccess)
+        }
+    }
+
+    fun leaveFamily() {
+        viewModelScope.launch {
+            familyRepository.leaveFamily()
+        }
+    }
+
+    fun updateFamilyIntention(intention: String) {
+        viewModelScope.launch {
+            familyRepository.updateFamilyIntention(intention)
+        }
+    }
+
+    fun handleIncomingInviteCode(inviteCode: String) {
+        if (inviteCode.isBlank()) return
+        viewModelScope.launch {
+            val resolved = familyRepository.resolveInvite(inviteCode)
+            if (resolved != null) {
+                familyRepository.setPendingInvite(resolved)
+            }
+        }
+    }
+
+    fun acceptPendingInvite(memberName: String = "") {
+        val pending = pendingInviteState.value ?: return
+        viewModelScope.launch {
+            familyRepository.joinFamilyByCode(pending.inviteCode, memberName)
+        }
+    }
+
+    fun declinePendingInvite() {
+        familyRepository.setPendingInvite(null)
     }
 
     override fun onCleared() {

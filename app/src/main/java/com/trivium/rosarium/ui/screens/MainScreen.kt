@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.R
+import com.trivium.rosarium.ui.components.InviteReceivedDialog
 import com.trivium.rosarium.ui.viewmodel.RosaryViewModel
 
 enum class RosariumTab {
@@ -65,6 +66,8 @@ fun MainScreen(
     val settings by viewModel.settingsState.collectAsState()
     val stats by viewModel.statsState.collectAsState()
     val novenaProgressMap by viewModel.novenaProgressMap.collectAsState()
+    val family by viewModel.familyState.collectAsState()
+    val pendingInvite by viewModel.pendingInviteState.collectAsState()
 
     var currentTab by remember { mutableStateOf(RosariumTab.HOME) }
 
@@ -76,6 +79,7 @@ fun MainScreen(
     var focusedNovenaId by remember { mutableStateOf<String?>(null) }
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showPrayersSheet by remember { mutableStateOf(false) }
+    var showFamilySheet by remember { mutableStateOf(false) }
     var initialPrayerId by remember { mutableStateOf<String?>(null) }
 
     val todaySet = remember(settings.language) {
@@ -112,6 +116,7 @@ fun MainScreen(
                     RosariumTab.HOME -> {
                         HomeScreen(
                             todayMysterySet = todaySet,
+                            family = family,
                             onNavigateToPray = {
                                 viewModel.selectMysterySet(todaySet)
                                 currentTab = RosariumTab.PRAY
@@ -130,6 +135,9 @@ fun MainScreen(
                             },
                             onNavigateToProgress = {
                                 showProgressSheet = true
+                            },
+                            onOpenFamily = {
+                                showFamilySheet = true
                             },
                             onOpenSettings = {
                                 showSettingsSheet = true
@@ -156,15 +164,17 @@ fun MainScreen(
                     }
 
                     RosariumTab.MORE -> {
-                        // Quick More view allowing access to Settings, Novenas, and Progress
+                        // Quick More view allowing access to Settings, Novenas, Family, and Progress
                         HomeScreen(
                             todayMysterySet = todaySet,
+                            family = family,
                             onNavigateToPray = { currentTab = RosariumTab.PRAY },
                             onNavigateToPrayers = { currentTab = RosariumTab.LIBRARY },
                             onNavigateToChaplets = { showMysterySelector = true },
                             onNavigateToNovenas = { showNovenasSheet = true },
                             onNavigateToScripture = { showIntentionsSheet = true },
                             onNavigateToProgress = { showProgressSheet = true },
+                            onOpenFamily = { showFamilySheet = true },
                             onOpenSettings = { showSettingsSheet = true }
                         )
                     }
@@ -257,10 +267,33 @@ fun MainScreen(
                     onOpenPrayers = {
                         currentTab = RosariumTab.LIBRARY
                     },
+                    onOpenFamily = {
+                        showFamilySheet = true
+                    },
                     currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
                     totalBeadCount = totalBeadCount,
                     onUpdateSettings = { viewModel.updateSettings(it) },
                     onDismiss = { showSettingsSheet = false }
+                )
+            }
+
+            if (showFamilySheet) {
+                FamilySheet(
+                    family = family,
+                    onCreateFamily = { name, creator -> viewModel.createFamily(name, creator) },
+                    onJoinFamily = { code, name -> viewModel.joinFamilyByCode(code, name) },
+                    onLeaveFamily = { viewModel.leaveFamily() },
+                    onUpdateIntention = { viewModel.updateFamilyIntention(it) },
+                    onDismiss = { showFamilySheet = false }
+                )
+            }
+
+            // Incoming Family Invitation Prompt (from Deep Link / Shared Link / Invite Code)
+            pendingInvite?.let { invite ->
+                InviteReceivedDialog(
+                    pendingInvite = invite,
+                    onJoin = { memberName -> viewModel.acceptPendingInvite(memberName) },
+                    onDecline = { viewModel.declinePendingInvite() }
                 )
             }
         }

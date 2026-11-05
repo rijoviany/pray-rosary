@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "109876543210",
+    "project_id": "journs",
+    "storage_bucket": "journs.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:109876543210:android:abcdef0123456789",
+        "android_client_info": {
+          "package_name": "com.trivium.rosarium"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhJmRLcFtSOKTYAz21PsC-0xn_awo9rnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

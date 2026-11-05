@@ -21,3 +21,10 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+# Preserve Firebase / Firestore data models
+-keepclassmembers class com.trivium.rosarium.data.model.** {
+    <init>(...);
+    *;
+}
+-keep class com.trivium.rosarium.data.model.** { *; }

@@ -1,6 +1,8 @@
 package com.trivium.rosarium
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,10 +24,36 @@ class MainActivity : ComponentActivity() {
         // Edge-to-edge transparent system bars
         enableEdgeToEdge()
 
+        // Handle initial incoming invite deep link
+        handleIncomingIntent(intent)
+
         setContent {
             RosariumTheme {
                 MainScreen(viewModel = viewModel)
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIncomingIntent(intent)
+    }
+
+    private fun handleIncomingIntent(intent: Intent?) {
+        val uri: Uri? = intent?.data
+        if (uri != null) {
+            // Check for ?code=... in deep links (e.g. https://journs.web.app/invite?code=8f7b2c9a or rosarium://invite?code=8f7b2c9a)
+            val code = uri.getQueryParameter("code")
+                ?: uri.lastPathSegment?.takeIf { it != "invite" }
+            if (!code.isNullOrBlank()) {
+                viewModel.handleIncomingInviteCode(code)
+                return
+            }
+        }
+        val directCode = intent?.getStringExtra("invite_code")
+        if (!directCode.isNullOrBlank()) {
+            viewModel.handleIncomingInviteCode(directCode)
         }
     }
 }

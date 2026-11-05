@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -91,6 +92,7 @@ fun SettingsSheet(
     onOpenReadIntentions: () -> Unit,
     onOpenProgress: () -> Unit,
     onOpenPrayers: () -> Unit = {},
+    onOpenFamily: () -> Unit = {},
     currentBeadCount: Int = 0,
     totalBeadCount: Int = 53,
     onUpdateSettings: (SettingsState) -> Unit,
@@ -380,6 +382,29 @@ fun SettingsSheet(
                 onClick = {
                     onDismiss()
                     onOpenProgress()
+                }
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // ==========================================
+            // 4b. FAMILY PRAYER CIRCLE >
+            // ==========================================
+            DirectNavigationRow(
+                title = "Family Prayer Circle",
+                subtitle = "Invite family via WhatsApp & unite in daily prayer",
+                badgeText = "Family",
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Group,
+                        contentDescription = null,
+                        tint = MedievalGoldBright,
+                        modifier = Modifier.size(20.dp)
+                    )
+                },
+                onClick = {
+                    onDismiss()
+                    onOpenFamily()
                 }
             )
 
