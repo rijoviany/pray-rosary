@@ -447,12 +447,12 @@ fun DraggableBead(
                 }
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
-                    text = "DRAG DOWN",
-                    color = MedievalGoldBright,
-                    fontSize = 10.5.sp,
+                    text = "Drag Down to Pray",
+                    color = Color(0xFF1E2836),
+                    fontSize = 13.sp,
                     fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 1.5.sp
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.4.sp
                 )
             }
         } else if (currentIsPrayingActive && currentIsReadyToRelease) {

@@ -325,7 +325,7 @@ fun RosariumBottomNavBar(
 
         BottomNavDrawableItem(
             label = "Pray",
-            drawableRes = R.drawable.ic_joyful_mysteries,
+            drawableRes = R.drawable.ic_rosary_loop,
             isSelected = selectedTab == RosariumTab.PRAY,
             onClick = { onSelectTab(RosariumTab.PRAY) }
         )

@@ -6,10 +6,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -155,154 +158,71 @@ fun MysteryMedallion(
     val imageName = currentMystery?.imageAsset ?: "mystery_joyful_1"
     val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
 
-    // Dynamically scale medallion size when user selects larger font sizes to preserve generous drag room
-    val medallionSizeDp = when {
-        fontScale >= 1.25f -> 124.dp
-        fontScale >= 1.10f -> 146.dp
-        else -> 172.dp
+    val archWidth = when {
+        fontScale >= 1.25f -> 160.dp
+        fontScale >= 1.10f -> 185.dp
+        else -> 210.dp
     }
-    val artworkSizeDp = medallionSizeDp * 0.88f
+    val archHeight = archWidth * 1.18f
+    val topCurveRadius = archWidth / 2
+    val archShape = RoundedCornerShape(
+        topStart = topCurveRadius,
+        topEnd = topCurveRadius,
+        bottomStart = 16.dp,
+        bottomEnd = 16.dp
+    )
 
     Box(
-        modifier = modifier.size(medallionSizeDp),
+        modifier = modifier
+            .size(width = archWidth, height = archHeight)
+            .shadow(10.dp, archShape)
+            .clip(archShape)
+            .background(Color(0xFF0F2642))
+            .border(
+                width = 2.dp,
+                brush = Brush.verticalGradient(
+                    listOf(MedievalGoldBright, MedievalGold, MedievalGoldDark)
+                ),
+                shape = archShape
+            ),
         contentAlignment = Alignment.Center
     ) {
-        // 1. Artwork inside circular crop with drop shadow
+        Crossfade(
+            targetState = Pair(resId, currentMystery?.imageAsset),
+            animationSpec = tween(durationMillis = 400),
+            label = "ArchCrossfade"
+        ) { (resolvedResId, _) ->
+            if (resolvedResId != 0) {
+                Image(
+                    painter = painterResource(id = resolvedResId),
+                    contentDescription = currentMystery?.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                ProceduralSacredFresco(
+                    step = currentStep,
+                    isHoldPraying = isHoldPraying
+                )
+            }
+        }
+
+        // Inner golden specular rim
         Box(
             modifier = Modifier
-                .size(artworkSizeDp)
-                .shadow(10.dp, CircleShape)
-                .clip(CircleShape)
-        ) {
-            Crossfade(
-                targetState = Pair(resId, currentMystery?.imageAsset),
-                animationSpec = tween(durationMillis = 500),
-                label = "MedallionCrossfade"
-            ) { (resolvedResId, _) ->
-                if (resolvedResId != 0) {
-                    Image(
-                        painter = painterResource(id = resolvedResId),
-                        contentDescription = currentMystery?.title,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                .fillMaxSize()
+                .padding(3.dp)
+                .border(
+                    width = 1.dp,
+                    color = MedievalGoldBright.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(
+                        topStart = topCurveRadius - 3.dp,
+                        topEnd = topCurveRadius - 3.dp,
+                        bottomStart = 13.dp,
+                        bottomEnd = 13.dp
                     )
-                } else {
-                    ProceduralSacredFresco(
-                        step = currentStep,
-                        isHoldPraying = isHoldPraying
-                    )
-                }
-            }
-
-            // Subtle inner vignette over artwork
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.35f)
-                            )
-                        )
-                    )
-            )
-        }
-
-        // 2. Ornate Baroque / Gothic Carved Gold Leaf Frame
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val cx = size.width / 2f
-            val cy = size.height / 2f
-            val outerRadius = (minOf(size.width, size.height) / 2f) - 5.dp.toPx()
-            val innerRadius = outerRadius - 3.dp.toPx()
-
-            // Outer drop shadow
-            drawCircle(
-                color = Color.Black.copy(alpha = 0.5f),
-                radius = outerRadius + 2.dp.toPx(),
-                center = Offset(cx + 1.dp.toPx(), cy + 2.dp.toPx()),
-                style = Stroke(width = 2.5.dp.toPx())
-            )
-
-            // Carved gold ring bevel gradient
-            val goldBrush = Brush.linearGradient(
-                colors = listOf(
-                    MedievalGoldBright,
-                    MedievalGoldDark,
-                    MedievalGold,
-                    MedievalGoldBright,
-                    MedievalGoldDark
-                ),
-                start = Offset(cx - outerRadius, cy - outerRadius),
-                end = Offset(cx + outerRadius, cy + outerRadius)
-            )
-
-            drawCircle(
-                brush = goldBrush,
-                radius = outerRadius,
-                center = Offset(cx, cy),
-                style = Stroke(width = 3.8.dp.toPx())
-            )
-
-            // Inner specular rim
-            drawCircle(
-                color = MedievalGoldBright.copy(alpha = 0.85f),
-                radius = innerRadius,
-                center = Offset(cx, cy),
-                style = Stroke(width = 1.1.dp.toPx())
-            )
-
-            // Outer beaded rim (filigree pearls along perimeter)
-            val numBeads = 32
-            val beadRingRadius = outerRadius + 3.dp.toPx()
-            for (i in 0 until numBeads) {
-                val angle = (i * 2.0 * Math.PI / numBeads).toFloat()
-                val bx = cx + (beadRingRadius * kotlin.math.cos(angle))
-                val by = cy + (beadRingRadius * kotlin.math.sin(angle))
-                drawCircle(
-                    color = MedievalGoldDark,
-                    radius = 1.4.dp.toPx(),
-                    center = Offset(bx + 0.5f, by + 0.5f)
                 )
-                drawCircle(
-                    color = MedievalGoldBright,
-                    radius = 1.2.dp.toPx(),
-                    center = Offset(bx, by)
-                )
-            }
-
-            // Bottom Ornate Trefoil Cross / Fleur-de-lis
-            val bottomY = cy + outerRadius + 1.dp.toPx()
-            val crossSize = 8.dp.toPx()
-
-            val crossPath = Path().apply {
-                moveTo(cx, bottomY - 2.dp.toPx())
-                lineTo(cx, bottomY + crossSize)
-                moveTo(cx - crossSize * 0.5f, bottomY + crossSize * 0.35f)
-                lineTo(cx + crossSize * 0.5f, bottomY + crossSize * 0.35f)
-            }
-            drawPath(
-                path = crossPath,
-                color = MedievalGoldBright,
-                style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round)
-            )
-            // Ruby gem center on bottom cross
-            drawCircle(
-                color = Color(0xFFC62828),
-                radius = 1.8.dp.toPx(),
-                center = Offset(cx, bottomY + crossSize * 0.35f)
-            )
-
-            // Top Hanging Loop connecting to crucifix above
-            val topY = cy - outerRadius
-            drawOval(
-                brush = goldBrush,
-                topLeft = Offset(cx - 3.dp.toPx(), topY - 6.dp.toPx()),
-                size = Size(6.dp.toPx(), 7.dp.toPx()),
-                style = Stroke(width = 1.3.dp.toPx())
-            )
-        }
+        )
     }
 }
 

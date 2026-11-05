@@ -321,7 +321,7 @@ private fun PrayerDetailView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(ParchmentBackground)
+            .background(NavyHeader)
     ) {
         // Deep Navy Header Bar
         Row(
@@ -359,18 +359,21 @@ private fun PrayerDetailView(
             }
         }
 
-        // Arched Card with Stanzas and Centered Medallion
+        // Cathedral Vaulted Parchment Body
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .shadow(4.dp, RoundedCornerShape(20.dp))
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xFFFFFDF9), Color(0xFFF3ECE0))
+                        colors = listOf(Color(0xFFFFFDF9), Color(0xFFF7F3EA))
                     )
+                )
+                .border(
+                    width = 1.dp,
+                    color = Color(0xFFE2D9CB),
+                    shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
                 )
         ) {
             Column(
@@ -380,53 +383,45 @@ private fun PrayerDetailView(
                     .padding(horizontal = 22.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Top Golden Medallion
+                // Top Golden Sunburst Medallion
                 Box(
                     modifier = Modifier
-                        .size(80.dp)
+                        .size(96.dp)
                         .clip(CircleShape)
                         .background(
                             Brush.radialGradient(
-                                colors = listOf(Color(0xFFFFEFA7), Color(0xFFD4AF37), Color(0xFF8A6C18))
+                                colors = listOf(Color(0xFFFFFAEB), Color(0xFFFFDE82), Color(0xFFD4AF37), Color(0xFF9E7719))
                             )
                         )
                         .border(2.dp, GoldBright, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(68.dp)
-                            .clip(CircleShape)
-                            .background(NavyMedallion),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = iconRes),
-                            contentDescription = prayer.title,
-                            modifier = Modifier.size(42.dp)
-                        )
-                    }
+                    Image(
+                        painter = painterResource(id = iconRes),
+                        contentDescription = prayer.title,
+                        modifier = Modifier.size(64.dp)
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 // Prayer Title
                 Text(
                     text = prayer.title,
                     color = CharcoalText,
-                    fontSize = (22 * fontScale).sp,
+                    fontSize = (24 * fontScale).sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 // Prayer Verses / Phrases
                 prayer.phrases.forEach { phrase ->
                     Text(
                         text = phrase,
-                        color = Color(0xFF263240),
+                        color = Color(0xFF1E2836),
                         fontSize = (16.5f * fontScale).sp,
                         fontFamily = FontFamily.Serif,
                         lineHeight = (26 * fontScale).sp,
@@ -437,14 +432,14 @@ private fun PrayerDetailView(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(64.dp))
+                Spacer(modifier = Modifier.height(84.dp))
             }
 
             // Floating Bottom Controls Pill (Speaker, Large Play Button, Text Size)
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
+                    .padding(bottom = 20.dp)
                     .shadow(8.dp, RoundedCornerShape(32.dp))
                     .clip(RoundedCornerShape(32.dp))
                     .background(Color(0xFFFDFBF7))
@@ -466,7 +461,7 @@ private fun PrayerDetailView(
                 // Centered Golden Play Button
                 Box(
                     modifier = Modifier
-                        .size(52.dp)
+                        .size(54.dp)
                         .clip(CircleShape)
                         .background(
                             Brush.linearGradient(
@@ -500,7 +495,7 @@ private fun PrayerDetailView(
                     Text(
                         text = "Aᴬ",
                         color = CharcoalText,
-                        fontSize = 18.sp,
+                        fontSize = 17.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold
                     )

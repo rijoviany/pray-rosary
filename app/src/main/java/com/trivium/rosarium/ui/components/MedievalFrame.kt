@@ -20,8 +20,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -75,106 +77,70 @@ fun TopMedievalBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 6.dp),
+            .background(Color(0xFF0D2036))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Left: Back Arrow or Hamburg Menu
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clickable(role = Role.Button, onClick = {
-                if (onBackClick != null) onBackClick() else onMenuClick()
-            })
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
-                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = if (onBackClick != null) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Menu,
-                    contentDescription = if (onBackClick != null) "Home" else "Menu",
-                    tint = MedievalGoldBright,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = if (onBackClick != null) "Home" else "Menu",
-                color = ParchmentLight.copy(alpha = 0.9f),
-                fontSize = 11.5.sp,
-                fontFamily = FontFamily.Serif
+        // Left: Back Arrow (or Menu)
+        IconButton(onClick = {
+            if (onBackClick != null) onBackClick() else onMenuClick()
+        }) {
+            Icon(
+                imageVector = if (onBackClick != null) Icons.AutoMirrored.Filled.ArrowBack else Icons.Default.Menu,
+                contentDescription = if (onBackClick != null) "Back" else "Menu",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
             )
         }
 
-        // Center: Mystery Titles (clickable dropdown selector)
+        // Center: Mystery Dropdown Selector
         Column(
             modifier = Modifier
                 .weight(1f)
                 .clickable(role = Role.Button, onClick = onTitleClick)
-                .padding(horizontal = 12.dp),
+                .padding(horizontal = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = mysterySetName,
-                    color = ParchmentLight,
-                    fontSize = 17.5.sp,
+                    color = Color.White,
+                    fontSize = 17.sp,
                     fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.4.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.3.sp,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "▾",
-                    color = MedievalGoldBright,
-                    fontSize = 13.sp
+                Icon(
+                    imageVector = Icons.Default.ExpandMore,
+                    contentDescription = "Select Mystery",
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(1.dp))
             Text(
                 text = currentMysteryTitle,
-                color = ParchmentBase.copy(alpha = 0.85f),
-                fontSize = 13.sp,
+                color = Color.White.copy(alpha = 0.85f),
+                fontSize = 12.5.sp,
                 fontFamily = FontFamily.Serif,
                 textAlign = TextAlign.Center
             )
         }
 
-        // Right: Scripture / Intentions button or symmetric spacer
+        // Right: Scripture / Book Icon
         if (onScriptureClick != null) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.clickable(role = Role.Button, onClick = onScriptureClick)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
-                        .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                        contentDescription = "Scripture",
-                        tint = MedievalGoldBright,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "Read",
-                    color = ParchmentLight.copy(alpha = 0.9f),
-                    fontSize = 11.5.sp,
-                    fontFamily = FontFamily.Serif
+            IconButton(onClick = onScriptureClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                    contentDescription = "Scripture",
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
                 )
             }
         } else {
-            Spacer(modifier = Modifier.width(42.dp))
+            Spacer(modifier = Modifier.width(48.dp))
         }
     }
 }

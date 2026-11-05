@@ -197,7 +197,7 @@ fun HomeScreen(
             ) {
                 QuickActionCard(
                     title = "Prayers",
-                    drawableRes = R.drawable.ic_our_father,
+                    drawableRes = R.drawable.ic_praying_hands,
                     isPrimary = false,
                     onClick = onNavigateToPrayers,
                     modifier = Modifier.weight(1f)
@@ -205,7 +205,7 @@ fun HomeScreen(
 
                 QuickActionCard(
                     title = "Rosary",
-                    drawableRes = R.drawable.ic_joyful_mysteries,
+                    drawableRes = R.drawable.ic_rosary_loop,
                     isPrimary = true,
                     onClick = onNavigateToPray,
                     modifier = Modifier.weight(1f)
@@ -213,7 +213,7 @@ fun HomeScreen(
 
                 QuickActionCard(
                     title = "Chaplets",
-                    drawableRes = R.drawable.ic_sacred_heart_chaplet,
+                    drawableRes = R.drawable.ic_chaplet_heart,
                     isPrimary = false,
                     onClick = onNavigateToChaplets,
                     modifier = Modifier.weight(1f)
@@ -227,7 +227,7 @@ fun HomeScreen(
             ) {
                 QuickActionCard(
                     title = "Novenas",
-                    drawableRes = R.drawable.ic_novena_saint_jude,
+                    drawableRes = R.drawable.ic_novena_calendar,
                     isPrimary = false,
                     onClick = onNavigateToNovenas,
                     modifier = Modifier.weight(1f)

@@ -6,15 +6,23 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -144,13 +152,52 @@ fun PrayerScreen(
 
             Spacer(modifier = Modifier.height(2.dp))
 
-            // Centerpiece Mystery Medallion: Ornate carved gold bezel framing the mystery artwork
-            MysteryMedallion(
-                currentMystery = state.currentMystery,
-                currentStep = state.currentStep,
-                isHoldPraying = state.isPrayingActive,
-                fontScale = settings.fontScale
-            )
+            // Centerpiece Mystery Medallion with Left & Right Decade Navigation Arrows
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(
+                    onClick = {
+                        val prev = (state.decadeIndex - 1).coerceAtLeast(0)
+                        viewModel.selectDecade(prev)
+                    },
+                    enabled = state.decadeIndex > 0
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ChevronLeft,
+                        contentDescription = "Previous Decade",
+                        tint = if (state.decadeIndex > 0) Color.White.copy(alpha = 0.85f) else Color.White.copy(alpha = 0.2f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                MysteryMedallion(
+                    currentMystery = state.currentMystery,
+                    currentStep = state.currentStep,
+                    isHoldPraying = state.isPrayingActive,
+                    fontScale = settings.fontScale
+                )
+
+                val maxDecade = (state.currentMysterySet.mysteries.size - 1).coerceAtLeast(0)
+                IconButton(
+                    onClick = {
+                        val next = (state.decadeIndex + 1).coerceAtMost(maxDecade)
+                        viewModel.selectDecade(next)
+                    },
+                    enabled = state.decadeIndex < maxDecade
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = "Next Decade",
+                        tint = if (state.decadeIndex < maxDecade) Color.White.copy(alpha = 0.85f) else Color.White.copy(alpha = 0.2f),
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(2.dp))
 

@@ -164,15 +164,14 @@ fun ProgressSheet(
                     )
 
                     StatCardDrawableItem(
-                        drawableRes = R.drawable.ic_joyful_mysteries,
+                        drawableRes = R.drawable.ic_rosary_loop,
                         value = "${stats.totalRosaries.coerceAtLeast(1)}",
                         label = "Rosaries",
                         modifier = Modifier.weight(1f)
                     )
 
-                    StatCardItem(
-                        icon = Icons.Default.CalendarMonth,
-                        iconTint = GoldAccent,
+                    StatCardDrawableItem(
+                        drawableRes = R.drawable.ic_novena_calendar,
                         value = "7",
                         label = "Novenas",
                         modifier = Modifier.weight(1f)
