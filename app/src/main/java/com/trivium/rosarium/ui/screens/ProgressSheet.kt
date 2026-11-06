@@ -65,6 +65,7 @@ private val MutedText = Color(0xFF6B7A8D)
 fun ProgressSheet(
     state: RosaryState,
     stats: PrayerStats,
+    isDark: Boolean = false,
     onResetRosary: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -72,17 +73,26 @@ fun ProgressSheet(
     var activeTab by remember { mutableStateOf("Overview") }
     val streak = stats.calculateStreak().coerceAtLeast(1)
 
+    val bgColor = if (isDark) Color(0xFF09121D) else ParchmentBg
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+    val filterBorder = if (isDark) Color(0xFF233B57) else Color(0xFFDDD4C5)
+    val accentNavy = if (isDark) Color(0xFF1E3A5F) else NavyHeader
+    val iconAccent = if (isDark) GoldAccent else GoldAccent
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = ParchmentBg,
+        containerColor = bgColor,
         scrimColor = Color.Black.copy(alpha = 0.75f),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(ParchmentBg)
+                .background(bgColor)
         ) {
             // 1. Deep Navy Header Bar
             Row(
@@ -127,10 +137,10 @@ fun ProgressSheet(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(20.dp))
-                                .background(if (isSelected) NavyHeader else CardIvory)
+                                .background(if (isSelected) NavyHeader else cardBg)
                                 .border(
                                     width = 1.dp,
-                                    color = if (isSelected) NavyHeader else Color(0xFFDDD4C5),
+                                    color = if (isSelected) NavyHeader else filterBorder,
                                     shape = RoundedCornerShape(20.dp)
                                 )
                                 .clickable { activeTab = tab }
@@ -139,7 +149,7 @@ fun ProgressSheet(
                         ) {
                             Text(
                                 text = tab,
-                                color = if (isSelected) Color.White else CharcoalText,
+                                color = if (isSelected) Color.White else titleColor,
                                 fontSize = 13.5.sp,
                                 fontFamily = FontFamily.Serif,
                                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
@@ -160,6 +170,7 @@ fun ProgressSheet(
                         iconTint = Color(0xFFE65100),
                         value = "$streak",
                         label = "Day Streak",
+                        isDark = isDark,
                         modifier = Modifier.weight(1f)
                     )
 
@@ -167,6 +178,7 @@ fun ProgressSheet(
                         drawableRes = R.drawable.ic_rosary_loop,
                         value = "${stats.totalRosaries.coerceAtLeast(1)}",
                         label = "Rosaries",
+                        isDark = isDark,
                         modifier = Modifier.weight(1f)
                     )
 
@@ -174,6 +186,7 @@ fun ProgressSheet(
                         drawableRes = R.drawable.ic_novena_calendar,
                         value = "7",
                         label = "Novenas",
+                        isDark = isDark,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -186,8 +199,8 @@ fun ProgressSheet(
                         .fillMaxWidth()
                         .shadow(2.dp, RoundedCornerShape(16.dp))
                         .clip(RoundedCornerShape(16.dp))
-                        .background(CardIvory)
-                        .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+                        .background(cardBg)
+                        .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
                         .padding(16.dp)
                 ) {
                     Column {
@@ -198,7 +211,7 @@ fun ProgressSheet(
                         ) {
                             Text(
                                 text = "Monthly Prayer Activity",
-                                color = CharcoalText,
+                                color = titleColor,
                                 fontSize = 15.sp,
                                 fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold
@@ -208,12 +221,12 @@ fun ProgressSheet(
                                 Icon(
                                     imageVector = Icons.Default.ChevronLeft,
                                     contentDescription = "Previous Month",
-                                    tint = MutedText,
+                                    tint = subColor,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Text(
                                     text = "Nov 2026",
-                                    color = CharcoalText,
+                                    color = titleColor,
                                     fontSize = 12.5.sp,
                                     fontFamily = FontFamily.Serif,
                                     fontWeight = FontWeight.Medium,
@@ -222,7 +235,7 @@ fun ProgressSheet(
                                 Icon(
                                     imageVector = Icons.Default.ChevronRight,
                                     contentDescription = "Next Month",
-                                    tint = MutedText,
+                                    tint = subColor,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -244,8 +257,8 @@ fun ProgressSheet(
                         .fillMaxWidth()
                         .shadow(2.dp, RoundedCornerShape(16.dp))
                         .clip(RoundedCornerShape(16.dp))
-                        .background(CardIvory)
-                        .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+                        .background(cardBg)
+                        .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
                         .padding(16.dp)
                 ) {
                     Column {
@@ -257,8 +270,8 @@ fun ProgressSheet(
                                 modifier = Modifier
                                     .size(38.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFF9F5EC))
-                                    .border(1.dp, GoldAccent.copy(alpha = 0.5f), CircleShape),
+                                    .background(if (isDark) Color(0xFF0D1926) else Color(0xFFF9F5EC))
+                                    .border(1.dp, if (isDark) Color(0xFF233B57) else GoldAccent.copy(alpha = 0.5f), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -274,13 +287,13 @@ fun ProgressSheet(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "My Goal",
-                                    color = MutedText,
+                                    color = subColor,
                                     fontSize = 11.5.sp,
                                     fontFamily = FontFamily.Serif
                                 )
                                 Text(
                                     text = "Pray the Rosary daily",
-                                    color = CharcoalText,
+                                    color = titleColor,
                                     fontSize = 14.5.sp,
                                     fontFamily = FontFamily.Serif,
                                     fontWeight = FontWeight.SemiBold
@@ -289,7 +302,7 @@ fun ProgressSheet(
 
                             Text(
                                 text = "24 / 30 days",
-                                color = NavyHeader,
+                                color = if (isDark) GoldAccent else NavyHeader,
                                 fontSize = 13.5.sp,
                                 fontFamily = FontFamily.Serif,
                                 fontWeight = FontWeight.Bold
@@ -304,8 +317,8 @@ fun ProgressSheet(
                                 .fillMaxWidth()
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp)),
-                            color = NavyHeader,
-                            trackColor = Color(0xFFE2D9CB)
+                            color = if (isDark) GoldAccent else NavyHeader,
+                            trackColor = if (isDark) Color(0xFF1B2C40) else Color(0xFFE2D9CB)
                         )
                     }
                 }
@@ -322,14 +335,20 @@ private fun StatCardItem(
     iconTint: Color,
     value: String,
     label: String,
+    isDark: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+
     Box(
         modifier = modifier
             .shadow(2.dp, RoundedCornerShape(14.dp))
             .clip(RoundedCornerShape(14.dp))
-            .background(CardIvory)
-            .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(14.dp))
+            .background(cardBg)
+            .border(1.dp, cardBorder, RoundedCornerShape(14.dp))
             .padding(vertical = 12.dp, horizontal = 8.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -346,14 +365,14 @@ private fun StatCardItem(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
-                color = CharcoalText,
+                color = titleColor,
                 fontSize = 18.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = label,
-                color = MutedText,
+                color = subColor,
                 fontSize = 11.sp,
                 fontFamily = FontFamily.Serif
             )
@@ -366,14 +385,20 @@ private fun StatCardDrawableItem(
     drawableRes: Int,
     value: String,
     label: String,
+    isDark: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+
     Box(
         modifier = modifier
             .shadow(2.dp, RoundedCornerShape(14.dp))
             .clip(RoundedCornerShape(14.dp))
-            .background(CardIvory)
-            .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(14.dp))
+            .background(cardBg)
+            .border(1.dp, cardBorder, RoundedCornerShape(14.dp))
             .padding(vertical = 12.dp, horizontal = 8.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -389,14 +414,14 @@ private fun StatCardDrawableItem(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
-                color = CharcoalText,
+                color = titleColor,
                 fontSize = 18.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = label,
-                color = MutedText,
+                color = subColor,
                 fontSize = 11.sp,
                 fontFamily = FontFamily.Serif
             )

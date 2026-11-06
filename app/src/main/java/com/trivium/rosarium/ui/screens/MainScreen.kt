@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.R
 import com.trivium.rosarium.ui.components.InviteReceivedDialog
+import com.trivium.rosarium.ui.components.QuickAccessPrayersSheet
+import com.trivium.rosarium.ui.theme.MedievalGoldBright
 import com.trivium.rosarium.ui.viewmodel.RosaryViewModel
 
 enum class RosariumTab {
@@ -72,6 +74,7 @@ fun MainScreen(
     var currentTab by remember { mutableStateOf(RosariumTab.HOME) }
 
     // Sheets & Dialogs state
+    var showQuickAccessPrayersSheet by remember { mutableStateOf(false) }
     var showMysterySelector by remember { mutableStateOf(false) }
     var showProgressSheet by remember { mutableStateOf(false) }
     var showIntentionsSheet by remember { mutableStateOf(false) }
@@ -98,7 +101,14 @@ fun MainScreen(
             if (currentTab != RosariumTab.PRAY) {
                 RosariumBottomNavBar(
                     selectedTab = currentTab,
-                    onSelectTab = { currentTab = it }
+                    isDark = settings.isDarkMode,
+                    onSelectTab = { tab ->
+                        if (tab == RosariumTab.MORE) {
+                            showSettingsSheet = true
+                        } else {
+                            currentTab = tab
+                        }
+                    }
                 )
             }
         }
@@ -117,6 +127,10 @@ fun MainScreen(
                         HomeScreen(
                             todayMysterySet = todaySet,
                             family = family,
+                            isDark = settings.isDarkMode,
+                            onOpenQuickPrayers = {
+                                showQuickAccessPrayersSheet = true
+                            },
                             onNavigateToPray = {
                                 viewModel.selectMysterySet(todaySet)
                                 currentTab = RosariumTab.PRAY
@@ -159,6 +173,7 @@ fun MainScreen(
                         PrayersScreenContent(
                             prayers = prayersList,
                             initialPrayerId = initialPrayerId,
+                            isDark = settings.isDarkMode,
                             onBack = { currentTab = RosariumTab.HOME }
                         )
                     }
@@ -168,6 +183,8 @@ fun MainScreen(
                         HomeScreen(
                             todayMysterySet = todaySet,
                             family = family,
+                            isDark = settings.isDarkMode,
+                            onOpenQuickPrayers = { showQuickAccessPrayersSheet = true },
                             onNavigateToPray = { currentTab = RosariumTab.PRAY },
                             onNavigateToPrayers = { currentTab = RosariumTab.LIBRARY },
                             onNavigateToChaplets = { showMysterySelector = true },
@@ -179,6 +196,20 @@ fun MainScreen(
                         )
                     }
                 }
+            }
+
+            // Quick Access Prayers Drawer (Hamburger Menu Item 2)
+            if (showQuickAccessPrayersSheet) {
+                QuickAccessPrayersSheet(
+                    prayers = prayersList,
+                    onSelectPrayer = { prayer ->
+                        initialPrayerId = prayer.id
+                        currentTab = RosariumTab.LIBRARY
+                        showQuickAccessPrayersSheet = false
+                    },
+                    onDismiss = { showQuickAccessPrayersSheet = false },
+                    isDark = settings.isDarkMode
+                )
             }
 
             // Sheets & Modals
@@ -206,6 +237,7 @@ fun MainScreen(
                     novenas = viewModel.allNovenas,
                     novenaProgressMap = novenaProgressMap,
                     initialNovenaId = focusedNovenaId,
+                    isDark = settings.isDarkMode,
                     onMarkDayComplete = { novenaId, day -> viewModel.markNovenaDayCompleted(novenaId, day) },
                     onResetNovena = { novenaId -> viewModel.resetNovena(novenaId) },
                     onDismiss = {
@@ -226,6 +258,7 @@ fun MainScreen(
                 ProgressSheet(
                     state = state,
                     stats = stats,
+                    isDark = settings.isDarkMode,
                     onResetRosary = { viewModel.resetRosary() },
                     onDismiss = { showProgressSheet = false }
                 )
@@ -235,6 +268,7 @@ fun MainScreen(
                 PrayersSheet(
                     prayers = prayersList,
                     initialPrayerId = initialPrayerId,
+                    isDark = settings.isDarkMode,
                     onDismiss = {
                         showPrayersSheet = false
                         initialPrayerId = null
@@ -303,14 +337,21 @@ fun MainScreen(
 @Composable
 fun RosariumBottomNavBar(
     selectedTab: RosariumTab,
+    isDark: Boolean = false,
     onSelectTab: (RosariumTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val barBg = if (isDark) Color(0xFF09121D) else ParchmentBar
+    val borderColor = if (isDark) Color(0xFF1E2E40) else BorderColor
+    val activeColor = if (isDark) MedievalGoldBright else NavyActive
+    val activeBg = if (isDark) Color(0xFF162B40) else NavyActive
+    val mutedColor = if (isDark) Color(0xFF8A9FB5) else MutedSlate
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(ParchmentBar)
-            .border(width = 1.dp, color = BorderColor)
+            .background(barBg)
+            .border(width = 1.dp, color = borderColor)
             .navigationBarsPadding()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceAround,
@@ -320,6 +361,9 @@ fun RosariumBottomNavBar(
             label = "Home",
             icon = Icons.Default.Home,
             isSelected = selectedTab == RosariumTab.HOME,
+            activeBg = activeBg,
+            activeColor = activeColor,
+            mutedColor = mutedColor,
             onClick = { onSelectTab(RosariumTab.HOME) }
         )
 
@@ -327,6 +371,9 @@ fun RosariumBottomNavBar(
             label = "Pray",
             drawableRes = R.drawable.ic_rosary_loop,
             isSelected = selectedTab == RosariumTab.PRAY,
+            activeBg = activeBg,
+            activeColor = activeColor,
+            mutedColor = mutedColor,
             onClick = { onSelectTab(RosariumTab.PRAY) }
         )
 
@@ -334,6 +381,9 @@ fun RosariumBottomNavBar(
             label = "Library",
             icon = Icons.AutoMirrored.Filled.MenuBook,
             isSelected = selectedTab == RosariumTab.LIBRARY,
+            activeBg = activeBg,
+            activeColor = activeColor,
+            mutedColor = mutedColor,
             onClick = { onSelectTab(RosariumTab.LIBRARY) }
         )
 
@@ -341,6 +391,9 @@ fun RosariumBottomNavBar(
             label = "More",
             icon = Icons.Default.GridView,
             isSelected = selectedTab == RosariumTab.MORE,
+            activeBg = activeBg,
+            activeColor = activeColor,
+            mutedColor = mutedColor,
             onClick = { onSelectTab(RosariumTab.MORE) }
         )
     }
@@ -351,6 +404,9 @@ private fun BottomNavItem(
     label: String,
     icon: ImageVector,
     isSelected: Boolean,
+    activeBg: Color,
+    activeColor: Color,
+    mutedColor: Color,
     onClick: () -> Unit
 ) {
     Column(
@@ -363,7 +419,7 @@ private fun BottomNavItem(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(NavyActive)
+                    .background(activeBg)
                     .padding(horizontal = 14.dp, vertical = 3.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -378,7 +434,7 @@ private fun BottomNavItem(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = MutedSlate,
+                tint = mutedColor,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -387,7 +443,7 @@ private fun BottomNavItem(
 
         Text(
             text = label,
-            color = if (isSelected) NavyActive else MutedSlate,
+            color = if (isSelected) activeColor else mutedColor,
             fontSize = 11.sp,
             fontFamily = FontFamily.Serif,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
@@ -400,6 +456,9 @@ private fun BottomNavDrawableItem(
     label: String,
     drawableRes: Int,
     isSelected: Boolean,
+    activeBg: Color,
+    activeColor: Color,
+    mutedColor: Color,
     onClick: () -> Unit
 ) {
     Column(
@@ -412,7 +471,7 @@ private fun BottomNavDrawableItem(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
-                    .background(NavyActive)
+                    .background(activeBg)
                     .padding(horizontal = 14.dp, vertical = 3.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -434,7 +493,7 @@ private fun BottomNavDrawableItem(
 
         Text(
             text = label,
-            color = if (isSelected) NavyActive else MutedSlate,
+            color = if (isSelected) activeColor else mutedColor,
             fontSize = 11.sp,
             fontFamily = FontFamily.Serif,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium

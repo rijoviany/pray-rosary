@@ -72,12 +72,22 @@ fun HomeScreen(
     onNavigateToProgress: () -> Unit,
     onOpenFamily: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenQuickPrayers: () -> Unit = {},
+    isDark: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val bgColor = if (isDark) Color(0xFF09121D) else ParchmentBg
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+    val topIconTint = if (isDark) GoldBright else NavyHeader
+    val iconAccent = if (isDark) GoldBright else GoldAccent
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(ParchmentBg)
+            .background(bgColor)
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -88,11 +98,11 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onOpenSettings) {
+            IconButton(onClick = onOpenQuickPrayers) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
-                    tint = NavyHeader,
+                    contentDescription = "Quick Access Prayers Menu",
+                    tint = topIconTint,
                     modifier = Modifier.size(26.dp)
                 )
             }
@@ -102,7 +112,7 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = "Notifications",
-                        tint = NavyHeader,
+                        tint = topIconTint,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -126,11 +136,17 @@ fun HomeScreen(
                 .shadow(elevation = 3.dp, shape = RoundedCornerShape(20.dp))
                 .clip(RoundedCornerShape(20.dp))
                 .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(Color(0xFFFCF9F2), Color(0xFFF3ECE0))
-                    )
+                    if (isDark) {
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF132235), Color(0xFF0D1926))
+                        )
+                    } else {
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFCF9F2), Color(0xFFF3ECE0))
+                        )
+                    }
                 )
-                .border(1.dp, Color(0xFFE5DEC8), RoundedCornerShape(20.dp))
+                .border(1.dp, if (isDark) Color(0xFF233B57) else Color(0xFFE5DEC8), RoundedCornerShape(20.dp))
                 .padding(horizontal = 14.dp, vertical = 14.dp)
         ) {
             Row(
@@ -156,14 +172,14 @@ fun HomeScreen(
                     // Golden Latin Cross Symbol
                     Text(
                         text = "✟",
-                        color = GoldAccent,
+                        color = iconAccent,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
                         text = "Rosarium",
-                        color = NavyHeader,
+                        color = if (isDark) Color(0xFFF7F3EA) else NavyHeader,
                         fontSize = 28.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold,
@@ -174,7 +190,7 @@ fun HomeScreen(
 
                     Text(
                         text = "Pray • Meditate • Grow",
-                        color = MutedText,
+                        color = subColor,
                         fontSize = 13.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Medium
@@ -199,6 +215,7 @@ fun HomeScreen(
                     title = "Prayers",
                     drawableRes = R.drawable.ic_praying_hands,
                     isPrimary = false,
+                    isDark = isDark,
                     onClick = onNavigateToPrayers,
                     modifier = Modifier.weight(1f)
                 )
@@ -207,6 +224,7 @@ fun HomeScreen(
                     title = "Rosary",
                     drawableRes = R.drawable.ic_rosary_loop,
                     isPrimary = true,
+                    isDark = isDark,
                     onClick = onNavigateToPray,
                     modifier = Modifier.weight(1f)
                 )
@@ -215,6 +233,7 @@ fun HomeScreen(
                     title = "Chaplets",
                     drawableRes = R.drawable.ic_chaplet_heart,
                     isPrimary = false,
+                    isDark = isDark,
                     onClick = onNavigateToChaplets,
                     modifier = Modifier.weight(1f)
                 )
@@ -229,6 +248,7 @@ fun HomeScreen(
                     title = "Novenas",
                     drawableRes = R.drawable.ic_novena_calendar,
                     isPrimary = false,
+                    isDark = isDark,
                     onClick = onNavigateToNovenas,
                     modifier = Modifier.weight(1f)
                 )
@@ -236,6 +256,7 @@ fun HomeScreen(
                 QuickActionVectorCard(
                     title = "Scripture",
                     icon = Icons.AutoMirrored.Filled.MenuBook,
+                    isDark = isDark,
                     onClick = onNavigateToScripture,
                     modifier = Modifier.weight(1f)
                 )
@@ -243,6 +264,7 @@ fun HomeScreen(
                 QuickActionVectorCard(
                     title = "Progress",
                     icon = Icons.Default.BarChart,
+                    isDark = isDark,
                     onClick = onNavigateToProgress,
                     modifier = Modifier.weight(1f)
                 )
@@ -257,8 +279,8 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
                 .clip(RoundedCornerShape(16.dp))
-                .background(CardIvory)
-                .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+                .background(cardBg)
+                .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
                 .clickable(onClick = onNavigateToPray)
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -267,14 +289,14 @@ fun HomeScreen(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF9F5EC))
-                    .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
+                    .background(if (isDark) Color(0xFF0D1926) else Color(0xFFF9F5EC))
+                    .border(1.dp, if (isDark) Color(0xFF233B57) else iconAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
                     contentDescription = null,
-                    tint = GoldAccent,
+                    tint = iconAccent,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -284,14 +306,14 @@ fun HomeScreen(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Today's Rosary",
-                    color = CharcoalText,
+                    color = titleColor,
                     fontSize = 16.sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = todayMysterySet.name,
-                    color = MutedText,
+                    color = subColor,
                     fontSize = 13.sp,
                     fontFamily = FontFamily.Serif
                 )
@@ -300,7 +322,7 @@ fun HomeScreen(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Start",
-                tint = GoldAccent,
+                tint = iconAccent,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -310,6 +332,7 @@ fun HomeScreen(
         // 5. Family Prayer Circle Card (Dedicated Share & Invite Hub)
         FamilyQuickCard(
             family = family,
+            isDark = isDark,
             onOpenFamily = onOpenFamily,
             modifier = Modifier.fillMaxWidth()
         )
@@ -321,17 +344,23 @@ fun HomeScreen(
 @Composable
 private fun FamilyQuickCard(
     family: FamilyGroup?,
+    isDark: Boolean = false,
     onOpenFamily: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+    val iconAccent = if (isDark) GoldBright else GoldAccent
 
     Box(
         modifier = modifier
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(CardIvory)
-            .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+            .background(cardBg)
+            .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
             .clickable(onClick = onOpenFamily)
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
@@ -344,8 +373,8 @@ private fun FamilyQuickCard(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF9F5EC))
-                    .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
+                    .background(if (isDark) Color(0xFF0D1926) else Color(0xFFF9F5EC))
+                    .border(1.dp, if (isDark) Color(0xFF233B57) else iconAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -361,7 +390,7 @@ private fun FamilyQuickCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = family?.name ?: "Family Prayer Circle",
-                        color = CharcoalText,
+                        color = titleColor,
                         fontSize = 15.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold
@@ -376,7 +405,7 @@ private fun FamilyQuickCard(
                     } else {
                         "Invite your family to pray together"
                     },
-                    color = MutedText,
+                    color = subColor,
                     fontSize = 12.sp,
                     fontFamily = FontFamily.Serif
                 )
@@ -391,12 +420,12 @@ private fun FamilyQuickCard(
                     modifier = Modifier
                         .size(34.dp)
                         .clip(CircleShape)
-                        .background(GoldAccent.copy(alpha = 0.2f))
+                        .background(iconAccent.copy(alpha = 0.2f))
                 ) {
                     Icon(
                         imageVector = Icons.Default.Share,
                         contentDescription = "Invite to Family",
-                        tint = NavyHeader,
+                        tint = if (isDark) GoldBright else NavyHeader,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -404,7 +433,7 @@ private fun FamilyQuickCard(
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = "Join or Create Family",
-                    tint = GoldAccent,
+                    tint = iconAccent,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -417,18 +446,35 @@ private fun QuickActionCard(
     title: String,
     drawableRes: Int,
     isPrimary: Boolean,
+    isDark: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cardBg = when {
+        isPrimary -> NavyHeader
+        isDark -> Color(0xFF132235)
+        else -> CardIvory
+    }
+    val cardBorder = when {
+        isPrimary -> if (isDark) GoldBright else GoldAccent
+        isDark -> Color(0xFF233B57)
+        else -> Color(0xFFE2D9CB)
+    }
+    val textColor = when {
+        isPrimary -> Color.White
+        isDark -> Color(0xFFF7F3EA)
+        else -> CharcoalText
+    }
+
     Box(
         modifier = modifier
             .height(98.dp)
             .shadow(elevation = if (isPrimary) 4.dp else 2.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(if (isPrimary) NavyHeader else CardIvory)
+            .background(cardBg)
             .border(
                 width = 1.dp,
-                color = if (isPrimary) GoldAccent else Color(0xFFE2D9CB),
+                color = cardBorder,
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable(onClick = onClick)
@@ -449,7 +495,7 @@ private fun QuickActionCard(
 
             Text(
                 text = title,
-                color = if (isPrimary) Color.White else CharcoalText,
+                color = textColor,
                 fontSize = 13.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = if (isPrimary) FontWeight.Bold else FontWeight.SemiBold
@@ -462,16 +508,22 @@ private fun QuickActionCard(
 private fun QuickActionVectorCard(
     title: String,
     icon: ImageVector,
+    isDark: Boolean = false,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val textColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val iconAccent = if (isDark) GoldBright else GoldAccent
+
     Box(
         modifier = modifier
             .height(98.dp)
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(CardIvory)
-            .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+            .background(cardBg)
+            .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
             .padding(vertical = 12.dp, horizontal = 8.dp),
         contentAlignment = Alignment.Center
@@ -483,7 +535,7 @@ private fun QuickActionVectorCard(
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = GoldAccent,
+                tint = iconAccent,
                 modifier = Modifier.size(34.dp)
             )
 
@@ -491,7 +543,7 @@ private fun QuickActionVectorCard(
 
             Text(
                 text = title,
-                color = CharcoalText,
+                color = textColor,
                 fontSize = 13.sp,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold

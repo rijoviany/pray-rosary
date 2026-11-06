@@ -95,22 +95,18 @@ class RosaryAudioHelper(private val context: Context) {
         vibrator?.let { v ->
             if (!v.hasVibrator()) return@let
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (v.hasAmplitudeControl()) {
-                        val timings = longArrayOf(0, 35, 30, 35)
-                        val amplitudes = intArrayOf(0, 210, 0, 190)
-                        v.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
-                    } else {
-                        v.vibrate(VibrationEffect.createOneShot(45, VibrationEffect.DEFAULT_AMPLITUDE))
-                    }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    v.vibrate(VibrationEffect.createOneShot(35, VibrationEffect.DEFAULT_AMPLITUDE))
                 } else {
                     @Suppress("DEPRECATION")
-                    v.vibrate(longArrayOf(0, 35, 30, 35), -1)
+                    v.vibrate(35)
                 }
             } catch (e: Exception) {
                 try {
                     @Suppress("DEPRECATION")
-                    v.vibrate(40)
+                    v.vibrate(35)
                 } catch (_: Exception) {}
             }
         }

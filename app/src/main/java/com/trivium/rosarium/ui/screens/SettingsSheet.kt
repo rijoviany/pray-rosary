@@ -511,6 +511,14 @@ fun SettingsSheet(
                 onCheckedChange = { onUpdateSettings(settings.copy(tapToPrayEnabled = it)) }
             )
 
+            // Theme: Light / Dark Mode
+            SettingToggleItem(
+                title = "Dark Mode",
+                subtitle = "Cathedral Nocturne dark aesthetic",
+                checked = settings.isDarkMode,
+                onCheckedChange = { onUpdateSettings(settings.copy(isDarkMode = it)) }
+            )
+
             // Audio & Haptics
             SettingToggleItem(
                 title = "Sound Effects",

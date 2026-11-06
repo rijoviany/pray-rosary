@@ -11,3 +11,4 @@ build/
 local.properties
 jdk17/
 *.class
+.kotlin/

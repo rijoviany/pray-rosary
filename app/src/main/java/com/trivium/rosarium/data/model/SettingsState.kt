@@ -2,6 +2,7 @@ package com.trivium.rosarium.data.model
 
 data class SettingsState(
     val language: String = "en", // "en" or "ml"
+    val isDarkMode: Boolean = false,
     val tapToPrayEnabled: Boolean = false,
     val soundEffectsEnabled: Boolean = true,
     val ambientChantEnabled: Boolean = false,

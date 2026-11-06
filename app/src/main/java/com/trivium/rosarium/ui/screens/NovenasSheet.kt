@@ -83,6 +83,7 @@ fun NovenasSheet(
     novenas: List<Novena>,
     novenaProgressMap: Map<String, NovenaProgress>,
     initialNovenaId: String? = null,
+    isDark: Boolean = false,
     onMarkDayComplete: (String, Int) -> Unit,
     onResetNovena: (String) -> Unit,
     onDismiss: () -> Unit
@@ -91,11 +92,12 @@ fun NovenasSheet(
     var selectedNovenaId by remember(initialNovenaId) {
         mutableStateOf(initialNovenaId)
     }
+    val sheetBg = if (isDark) Color(0xFF09121D) else ParchmentBg
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = ParchmentBg,
+        containerColor = sheetBg,
         scrimColor = Color.Black.copy(alpha = 0.75f),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
@@ -105,6 +107,7 @@ fun NovenasSheet(
                 NovenasListView(
                     novenas = novenas,
                     novenaProgressMap = novenaProgressMap,
+                    isDark = isDark,
                     onSelectNovena = { selectedNovenaId = it.id },
                     onClose = onDismiss
                 )
@@ -113,6 +116,7 @@ fun NovenasSheet(
                 NovenaDetailView(
                     novena = currentNovena,
                     progress = novenaProgressMap[currentNovena.id] ?: NovenaProgress(novenaId = currentNovena.id, currentDay = 1),
+                    isDark = isDark,
                     onMarkDayComplete = { day -> onMarkDayComplete(currentNovena.id, day) },
                     onResetNovena = { onResetNovena(currentNovena.id) },
                     onBack = { selectedNovenaId = null }
@@ -126,11 +130,19 @@ fun NovenasSheet(
 private fun NovenasListView(
     novenas: List<Novena>,
     novenaProgressMap: Map<String, NovenaProgress>,
+    isDark: Boolean = false,
     onSelectNovena: (Novena) -> Unit,
     onClose: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
+
+    val bgColor = if (isDark) Color(0xFF09121D) else ParchmentBg
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+    val iconAccent = if (isDark) GoldBright else GoldAccent
 
     val filteredNovenas = novenas.filter { novena ->
         searchQuery.isBlank() ||
@@ -223,7 +235,8 @@ private fun NovenasListView(
                         .fillMaxWidth()
                         .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
                         .clip(RoundedCornerShape(16.dp))
-                        .background(CardIvory)
+                        .background(cardBg)
+                        .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
                         .clickable { onSelectNovena(novena) }
                         .padding(horizontal = 14.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -234,7 +247,7 @@ private fun NovenasListView(
                             .size(46.dp)
                             .clip(CircleShape)
                             .background(NavyMedallion)
-                            .border(1.2.dp, GoldAccent.copy(alpha = 0.5f), CircleShape),
+                            .border(1.2.dp, iconAccent.copy(alpha = 0.5f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -249,14 +262,14 @@ private fun NovenasListView(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = novena.title,
-                            color = CharcoalText,
+                            color = titleColor,
                             fontSize = 15.sp,
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = novena.subtitle,
-                            color = MutedText,
+                            color = subColor,
                             fontSize = 12.sp,
                             fontFamily = FontFamily.Serif
                         )
@@ -265,17 +278,17 @@ private fun NovenasListView(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(if (isDone) Color(0xFFE8F5E9) else Color(0xFFF9F5EC))
+                            .background(if (isDone) (if (isDark) Color(0xFF1B382B) else Color(0xFFE8F5E9)) else (if (isDark) Color(0xFF142438) else Color(0xFFF9F5EC)))
                             .border(
                                 1.dp,
-                                if (isDone) Color(0xFF81C784) else GoldAccent.copy(alpha = 0.4f),
+                                if (isDone) Color(0xFF81C784) else iconAccent.copy(alpha = 0.4f),
                                 RoundedCornerShape(6.dp)
                             )
                             .padding(horizontal = 7.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = badgeText,
-                            color = if (isDone) Color(0xFF2E7D32) else GoldAccent,
+                            color = if (isDone) Color(0xFF81C784) else iconAccent,
                             fontSize = 11.sp,
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.SemiBold
@@ -287,7 +300,7 @@ private fun NovenasListView(
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = "Open",
-                        tint = GoldAccent,
+                        tint = iconAccent,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -304,6 +317,7 @@ private fun NovenasListView(
 private fun NovenaDetailView(
     novena: Novena,
     progress: NovenaProgress,
+    isDark: Boolean = false,
     onMarkDayComplete: (Int) -> Unit,
     onResetNovena: () -> Unit,
     onBack: () -> Unit
@@ -315,10 +329,17 @@ private fun NovenaDetailView(
     val inspectedDay = novena.days.getOrNull(inspectedDayNumber - 1) ?: novena.days.first()
     val isInspectedDayCompleted = progress.isDayCompleted(inspectedDayNumber)
 
+    val bodyBg = if (isDark) Color(0xFF09121D) else ParchmentBg
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+    val iconAccent = if (isDark) GoldBright else GoldAccent
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(ParchmentBg)
+            .background(bodyBg)
     ) {
         // Deep Navy Header Bar
         Row(
@@ -368,8 +389,8 @@ private fun NovenaDetailView(
                     .fillMaxWidth()
                     .shadow(2.dp, RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
-                    .background(CardIvory)
-                    .border(1.dp, Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+                    .background(cardBg)
+                    .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
                     .padding(16.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -378,7 +399,7 @@ private fun NovenaDetailView(
                             .size(52.dp)
                             .clip(CircleShape)
                             .background(NavyMedallion)
-                            .border(1.5.dp, GoldAccent, CircleShape),
+                            .border(1.5.dp, iconAccent, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -393,7 +414,7 @@ private fun NovenaDetailView(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = novena.subtitle,
-                            color = CharcoalText,
+                            color = titleColor,
                             fontSize = 14.sp,
                             fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.SemiBold

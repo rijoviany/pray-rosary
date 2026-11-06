@@ -29,6 +29,7 @@ class PreferencesRepository(private val context: Context) {
         val KEY_SAVED_BEAD_COUNT = intPreferencesKey("saved_bead_count")
 
         val KEY_LANGUAGE = stringPreferencesKey("language")
+        val KEY_DARK_MODE = booleanPreferencesKey("dark_mode")
         val KEY_TAP_TO_PRAY = booleanPreferencesKey("tap_to_pray")
         val KEY_SOUND_EFFECTS = booleanPreferencesKey("sound_effects")
         val KEY_AMBIENT_CHANT = booleanPreferencesKey("ambient_chant")
@@ -48,6 +49,7 @@ class PreferencesRepository(private val context: Context) {
     val settingsFlow: Flow<SettingsState> = context.dataStore.data.map { prefs ->
         SettingsState(
             language = prefs[PreferencesKeys.KEY_LANGUAGE] ?: "en",
+            isDarkMode = prefs[PreferencesKeys.KEY_DARK_MODE] ?: false,
             tapToPrayEnabled = prefs[PreferencesKeys.KEY_TAP_TO_PRAY] ?: false,
             soundEffectsEnabled = prefs[PreferencesKeys.KEY_SOUND_EFFECTS] ?: true,
             ambientChantEnabled = prefs[PreferencesKeys.KEY_AMBIENT_CHANT] ?: false,
@@ -175,6 +177,7 @@ class PreferencesRepository(private val context: Context) {
     suspend fun updateSettings(settings: SettingsState) {
         context.dataStore.edit { prefs ->
             prefs[PreferencesKeys.KEY_LANGUAGE] = settings.language
+            prefs[PreferencesKeys.KEY_DARK_MODE] = settings.isDarkMode
             prefs[PreferencesKeys.KEY_TAP_TO_PRAY] = settings.tapToPrayEnabled
             prefs[PreferencesKeys.KEY_SOUND_EFFECTS] = settings.soundEffectsEnabled
             prefs[PreferencesKeys.KEY_AMBIENT_CHANT] = settings.ambientChantEnabled

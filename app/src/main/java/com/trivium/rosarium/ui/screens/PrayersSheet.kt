@@ -74,20 +74,23 @@ private val MutedText = Color(0xFF6B7A8D)
 fun PrayersSheet(
     prayers: List<Prayer>,
     initialPrayerId: String? = null,
+    isDark: Boolean = false,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val bgColor = if (isDark) Color(0xFF09121D) else ParchmentBackground
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = ParchmentBackground,
+        containerColor = bgColor,
         scrimColor = Color.Black.copy(alpha = 0.75f),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         PrayersScreenContent(
             prayers = prayers,
             initialPrayerId = initialPrayerId,
+            isDark = isDark,
             onBack = onDismiss
         )
     }
@@ -97,6 +100,7 @@ fun PrayersSheet(
 fun PrayersScreenContent(
     prayers: List<Prayer>,
     initialPrayerId: String? = null,
+    isDark: Boolean = false,
     onBack: () -> Unit
 ) {
     var selectedPrayer by remember(initialPrayerId) {
@@ -108,6 +112,7 @@ fun PrayersScreenContent(
             // Screen 2: Prayers & Invocations List
             PrayersListView(
                 prayers = prayers,
+                isDark = isDark,
                 onSelectPrayer = { selectedPrayer = it },
                 onClose = onBack
             )
@@ -115,6 +120,7 @@ fun PrayersScreenContent(
             // Screen 3: Prayer Detail View
             PrayerDetailView(
                 prayer = selectedPrayer!!,
+                isDark = isDark,
                 onBack = { selectedPrayer = null }
             )
         }
@@ -124,12 +130,21 @@ fun PrayersScreenContent(
 @Composable
 private fun PrayersListView(
     prayers: List<Prayer>,
+    isDark: Boolean = false,
     onSelectPrayer: (Prayer) -> Unit,
     onClose: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
     var activeFilter by remember { mutableStateOf("Core Prayers") }
+
+    val bgColor = if (isDark) Color(0xFF09121D) else ParchmentBackground
+    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
+    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
+    val filterBorder = if (isDark) Color(0xFF233B57) else Color(0xFFDDD4C5)
+    val iconAccent = if (isDark) GoldBright else GoldAccent
 
     val corePrayerKeys = setOf(
         "our_father", "hail_mary", "glory_be", "fatima", "hail_holy_queen",
@@ -153,7 +168,7 @@ private fun PrayersListView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(ParchmentBackground)
+            .background(bgColor)
     ) {
         // 1. Deep Navy Header Bar
         Row(
@@ -224,10 +239,10 @@ private fun PrayersListView(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(if (isSelected) NavyHeader else CardIvory)
+                        .background(if (isSelected) NavyHeader else cardBg)
                         .border(
                             width = 1.dp,
-                            color = if (isSelected) NavyHeader else Color(0xFFDDD4C5),
+                            color = if (isSelected) NavyHeader else filterBorder,
                             shape = RoundedCornerShape(20.dp)
                         )
                         .clickable { activeFilter = filter }
@@ -236,7 +251,7 @@ private fun PrayersListView(
                 ) {
                     Text(
                         text = filter,
-                        color = if (isSelected) Color.White else CharcoalText,
+                        color = if (isSelected) Color.White else titleColor,
                         fontSize = 13.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                         fontFamily = FontFamily.Serif
@@ -260,7 +275,8 @@ private fun PrayersListView(
                         .fillMaxWidth()
                         .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
                         .clip(RoundedCornerShape(16.dp))
-                        .background(CardIvory)
+                        .background(cardBg)
+                        .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
                         .clickable { onSelectPrayer(prayer) }
                         .padding(horizontal = 14.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -271,7 +287,7 @@ private fun PrayersListView(
                             .size(46.dp)
                             .clip(CircleShape)
                             .background(NavyMedallion)
-                            .border(1.2.dp, GoldAccent.copy(alpha = 0.5f), CircleShape),
+                            .border(1.2.dp, iconAccent.copy(alpha = 0.5f), CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
@@ -286,7 +302,7 @@ private fun PrayersListView(
                     // Prayer Title
                     Text(
                         text = prayer.title,
-                        color = CharcoalText,
+                        color = titleColor,
                         fontSize = 16.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.SemiBold,
@@ -297,7 +313,7 @@ private fun PrayersListView(
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = "Open",
-                        tint = GoldAccent,
+                        tint = iconAccent,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -313,10 +329,23 @@ private fun PrayersListView(
 @Composable
 private fun PrayerDetailView(
     prayer: Prayer,
+    isDark: Boolean = false,
     onBack: () -> Unit
 ) {
     var fontScale by remember { mutableFloatStateOf(1.0f) }
     val iconRes = PrayerIcons.getPrayerIcon(prayer.id)
+
+    val vaultColors = if (isDark) {
+        listOf(Color(0xFF132235), Color(0xFF09121D))
+    } else {
+        listOf(Color(0xFFFFFDF9), Color(0xFFF7F3EA))
+    }
+    val vaultBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
+    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
+    val phraseColor = if (isDark) Color(0xFFE5DEC8) else Color(0xFF1E2836)
+    val controlsPillBg = if (isDark) Color(0xFF15263A) else Color(0xFFFDFBF7)
+    val controlsPillBorder = if (isDark) Color(0xFF284160) else GoldAccent.copy(alpha = 0.5f)
+    val iconAccent = if (isDark) GoldBright else GoldAccent
 
     Column(
         modifier = Modifier
@@ -359,20 +388,18 @@ private fun PrayerDetailView(
             }
         }
 
-        // Cathedral Vaulted Parchment Body
+        // Cathedral Vaulted Body
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                 .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color(0xFFFFFDF9), Color(0xFFF7F3EA))
-                    )
+                    Brush.verticalGradient(colors = vaultColors)
                 )
                 .border(
                     width = 1.dp,
-                    color = Color(0xFFE2D9CB),
+                    color = vaultBorder,
                     shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
                 )
         ) {
@@ -408,7 +435,7 @@ private fun PrayerDetailView(
                 // Prayer Title
                 Text(
                     text = prayer.title,
-                    color = CharcoalText,
+                    color = titleColor,
                     fontSize = (24 * fontScale).sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
@@ -421,7 +448,7 @@ private fun PrayerDetailView(
                 prayer.phrases.forEach { phrase ->
                     Text(
                         text = phrase,
-                        color = Color(0xFF1E2836),
+                        color = phraseColor,
                         fontSize = (16.5f * fontScale).sp,
                         fontFamily = FontFamily.Serif,
                         lineHeight = (26 * fontScale).sp,
@@ -442,8 +469,8 @@ private fun PrayerDetailView(
                     .padding(bottom = 20.dp)
                     .shadow(8.dp, RoundedCornerShape(32.dp))
                     .clip(RoundedCornerShape(32.dp))
-                    .background(Color(0xFFFDFBF7))
-                    .border(1.2.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(32.dp))
+                    .background(controlsPillBg)
+                    .border(1.2.dp, controlsPillBorder, RoundedCornerShape(32.dp))
                     .padding(horizontal = 18.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(20.dp)

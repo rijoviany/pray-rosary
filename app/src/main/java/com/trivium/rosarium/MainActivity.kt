@@ -8,6 +8,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.trivium.rosarium.ui.screens.MainScreen
 import com.trivium.rosarium.ui.theme.RosariumTheme
 import com.trivium.rosarium.ui.viewmodel.RosaryViewModel
@@ -28,7 +30,8 @@ class MainActivity : ComponentActivity() {
         handleIncomingIntent(intent)
 
         setContent {
-            RosariumTheme {
+            val settings by viewModel.settingsState.collectAsState()
+            RosariumTheme(darkTheme = settings.isDarkMode) {
                 MainScreen(viewModel = viewModel)
             }
         }
