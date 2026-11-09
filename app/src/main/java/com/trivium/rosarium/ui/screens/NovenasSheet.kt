@@ -89,9 +89,6 @@ fun NovenasSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var selectedNovenaId by remember(initialNovenaId) {
-        mutableStateOf(initialNovenaId)
-    }
     val sheetBg = if (isDark) Color(0xFF09121D) else ParchmentBg
 
     ModalBottomSheet(
@@ -101,27 +98,52 @@ fun NovenasSheet(
         scrimColor = Color.Black.copy(alpha = 0.75f),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (selectedNovenaId == null) {
-                // Screen 5: 9-Day Novenas Menu List
-                NovenasListView(
-                    novenas = novenas,
-                    novenaProgressMap = novenaProgressMap,
-                    isDark = isDark,
-                    onSelectNovena = { selectedNovenaId = it.id },
-                    onClose = onDismiss
-                )
-            } else {
-                val currentNovena = novenas.find { it.id == selectedNovenaId } ?: novenas.first()
-                NovenaDetailView(
-                    novena = currentNovena,
-                    progress = novenaProgressMap[currentNovena.id] ?: NovenaProgress(novenaId = currentNovena.id, currentDay = 1),
-                    isDark = isDark,
-                    onMarkDayComplete = { day -> onMarkDayComplete(currentNovena.id, day) },
-                    onResetNovena = { onResetNovena(currentNovena.id) },
-                    onBack = { selectedNovenaId = null }
-                )
-            }
+        NovenasScreenContent(
+            novenas = novenas,
+            novenaProgressMap = novenaProgressMap,
+            initialNovenaId = initialNovenaId,
+            isDark = isDark,
+            onMarkDayComplete = onMarkDayComplete,
+            onResetNovena = onResetNovena,
+            onBack = onDismiss
+        )
+    }
+}
+
+@Composable
+fun NovenasScreenContent(
+    novenas: List<Novena>,
+    novenaProgressMap: Map<String, NovenaProgress>,
+    initialNovenaId: String? = null,
+    isDark: Boolean = false,
+    onMarkDayComplete: (String, Int) -> Unit,
+    onResetNovena: (String) -> Unit,
+    onBack: () -> Unit
+) {
+    var selectedNovenaId by remember(initialNovenaId) {
+        mutableStateOf(initialNovenaId)
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (selectedNovenaId == null) {
+            // Screen 5: 9-Day Novenas Menu List
+            NovenasListView(
+                novenas = novenas,
+                novenaProgressMap = novenaProgressMap,
+                isDark = isDark,
+                onSelectNovena = { selectedNovenaId = it.id },
+                onClose = onBack
+            )
+        } else {
+            val currentNovena = novenas.find { it.id == selectedNovenaId } ?: novenas.first()
+            NovenaDetailView(
+                novena = currentNovena,
+                progress = novenaProgressMap[currentNovena.id] ?: NovenaProgress(novenaId = currentNovena.id, currentDay = 1),
+                isDark = isDark,
+                onMarkDayComplete = { day -> onMarkDayComplete(currentNovena.id, day) },
+                onResetNovena = { onResetNovena(currentNovena.id) },
+                onBack = { selectedNovenaId = null }
+            )
         }
     }
 }

@@ -70,6 +70,33 @@ fun ProgressSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val bgColor = if (isDark) Color(0xFF09121D) else ParchmentBg
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = bgColor,
+        scrimColor = Color.Black.copy(alpha = 0.75f),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        ProgressScreenContent(
+            state = state,
+            stats = stats,
+            isDark = isDark,
+            onResetRosary = onResetRosary,
+            onBack = onDismiss
+        )
+    }
+}
+
+@Composable
+fun ProgressScreenContent(
+    state: RosaryState,
+    stats: PrayerStats,
+    isDark: Boolean = false,
+    onResetRosary: () -> Unit,
+    onBack: () -> Unit
+) {
     var activeTab by remember { mutableStateOf("Overview") }
     val streak = stats.calculateStreak().coerceAtLeast(1)
 
@@ -82,43 +109,36 @@ fun ProgressSheet(
     val accentNavy = if (isDark) Color(0xFF1E3A5F) else NavyHeader
     val iconAccent = if (isDark) GoldAccent else GoldAccent
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        containerColor = bgColor,
-        scrimColor = Color.Black.copy(alpha = 0.75f),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor)
     ) {
-        Column(
+        // 1. Deep Navy Header Bar
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .background(bgColor)
+                .fillMaxWidth()
+                .background(NavyHeader)
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. Deep Navy Header Bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(NavyHeader)
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
-                }
-
-                Text(
-                    text = "Prayer Progress",
-                    color = Color.White,
-                    fontSize = 19.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(start = 4.dp)
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White
                 )
             }
+
+            Text(
+                text = "Prayer Progress",
+                color = Color.White,
+                fontSize = 19.sp,
+                fontFamily = FontFamily.Serif,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
 
             Column(
                 modifier = Modifier
@@ -327,7 +347,6 @@ fun ProgressSheet(
             }
         }
     }
-}
 
 @Composable
 private fun StatCardItem(

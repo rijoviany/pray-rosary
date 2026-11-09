@@ -22,14 +22,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,14 +47,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.R
 import com.trivium.rosarium.ui.components.InviteReceivedDialog
+import com.trivium.rosarium.ui.components.QuickAccessDrawerContent
 import com.trivium.rosarium.ui.components.QuickAccessPrayersSheet
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
 import com.trivium.rosarium.ui.viewmodel.RosaryViewModel
+import kotlinx.coroutines.launch
 
 enum class RosariumTab {
     HOME,
     PRAY,
     LIBRARY,
+    NOVENAS,
+    PROGRESS,
     MORE
 }
 
@@ -72,6 +80,8 @@ fun MainScreen(
     val pendingInvite by viewModel.pendingInviteState.collectAsState()
 
     var currentTab by remember { mutableStateOf(RosariumTab.HOME) }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
 
     // Sheets & Dialogs state
     var showQuickAccessPrayersSheet by remember { mutableStateOf(false) }
@@ -94,123 +104,190 @@ fun MainScreen(
         viewModel.getPrayers(settings.language)
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        bottomBar = {
-            // Show bottom bar on all tabs except during focused prayer screen
-            if (currentTab != RosariumTab.PRAY) {
-                RosariumBottomNavBar(
-                    selectedTab = currentTab,
-                    isDark = settings.isDarkMode,
-                    onSelectTab = { tab ->
-                        if (tab == RosariumTab.MORE) {
-                            showSettingsSheet = true
-                        } else {
-                            currentTab = tab
-                        }
-                    }
-                )
-            }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = currentTab != RosariumTab.PRAY,
+        drawerContent = {
+            QuickAccessDrawerContent(
+                prayers = prayersList,
+                isDark = settings.isDarkMode,
+                onSelectPrayer = { prayer ->
+                    coroutineScope.launch { drawerState.close() }
+                    initialPrayerId = prayer.id
+                    currentTab = RosariumTab.LIBRARY
+                },
+                onClose = {
+                    coroutineScope.launch { drawerState.close() }
+                },
+                onToggleDarkMode = {
+                    viewModel.updateSettings(settings.copy(isDarkMode = it))
+                },
+                onOpenRosary = {
+                    coroutineScope.launch { drawerState.close() }
+                    viewModel.selectMysterySet(todaySet)
+                    currentTab = RosariumTab.PRAY
+                },
+                onOpenNovenas = {
+                    coroutineScope.launch { drawerState.close() }
+                    currentTab = RosariumTab.NOVENAS
+                },
+                onOpenProgress = {
+                    coroutineScope.launch { drawerState.close() }
+                    currentTab = RosariumTab.PROGRESS
+                },
+                onOpenSettings = {
+                    coroutineScope.launch { drawerState.close() }
+                    showSettingsSheet = true
+                }
+            )
         }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Crossfade(
-                targetState = currentTab,
-                label = "MainTabTransition"
-            ) { tab ->
-                when (tab) {
-                    RosariumTab.HOME -> {
-                        HomeScreen(
-                            todayMysterySet = todaySet,
-                            family = family,
-                            isDark = settings.isDarkMode,
-                            onOpenQuickPrayers = {
-                                showQuickAccessPrayersSheet = true
-                            },
-                            onNavigateToPray = {
-                                viewModel.selectMysterySet(todaySet)
-                                currentTab = RosariumTab.PRAY
-                            },
-                            onNavigateToPrayers = {
-                                currentTab = RosariumTab.LIBRARY
-                            },
-                            onNavigateToChaplets = {
-                                showMysterySelector = true
-                            },
-                            onNavigateToNovenas = {
-                                showNovenasSheet = true
-                            },
-                            onNavigateToScripture = {
-                                showIntentionsSheet = true
-                            },
-                            onNavigateToProgress = {
-                                showProgressSheet = true
-                            },
-                            onOpenFamily = {
-                                showFamilySheet = true
-                            },
-                            onOpenSettings = {
+    ) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            bottomBar = {
+                // Show bottom bar on all tabs except during focused prayer screen
+                if (currentTab != RosariumTab.PRAY) {
+                    RosariumBottomNavBar(
+                        selectedTab = currentTab,
+                        isDark = settings.isDarkMode,
+                        onSelectTab = { tab ->
+                            if (tab == RosariumTab.MORE) {
                                 showSettingsSheet = true
+                            } else {
+                                currentTab = tab
                             }
-                        )
-                    }
-
-                    RosariumTab.PRAY -> {
-                        PrayerScreen(
-                            viewModel = viewModel,
-                            onNavigateBack = {
-                                currentTab = RosariumTab.HOME
-                            }
-                        )
-                    }
-
-                    RosariumTab.LIBRARY -> {
-                        // Screen 2: Prayers & Invocations
-                        PrayersScreenContent(
-                            prayers = prayersList,
-                            initialPrayerId = initialPrayerId,
-                            isDark = settings.isDarkMode,
-                            onBack = { currentTab = RosariumTab.HOME }
-                        )
-                    }
-
-                    RosariumTab.MORE -> {
-                        // Quick More view allowing access to Settings, Novenas, Family, and Progress
-                        HomeScreen(
-                            todayMysterySet = todaySet,
-                            family = family,
-                            isDark = settings.isDarkMode,
-                            onOpenQuickPrayers = { showQuickAccessPrayersSheet = true },
-                            onNavigateToPray = { currentTab = RosariumTab.PRAY },
-                            onNavigateToPrayers = { currentTab = RosariumTab.LIBRARY },
-                            onNavigateToChaplets = { showMysterySelector = true },
-                            onNavigateToNovenas = { showNovenasSheet = true },
-                            onNavigateToScripture = { showIntentionsSheet = true },
-                            onNavigateToProgress = { showProgressSheet = true },
-                            onOpenFamily = { showFamilySheet = true },
-                            onOpenSettings = { showSettingsSheet = true }
-                        )
-                    }
+                        }
+                    )
                 }
             }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                Crossfade(
+                    targetState = currentTab,
+                    label = "MainTabTransition"
+                ) { tab ->
+                    when (tab) {
+                        RosariumTab.HOME -> {
+                            HomeScreen(
+                                todayMysterySet = todaySet,
+                                family = family,
+                                isDark = settings.isDarkMode,
+                                onOpenQuickPrayers = {
+                                    coroutineScope.launch {
+                                        drawerState.open()
+                                    }
+                                },
+                                onNavigateToPray = {
+                                    viewModel.selectMysterySet(todaySet)
+                                    currentTab = RosariumTab.PRAY
+                                },
+                                onNavigateToPrayers = {
+                                    currentTab = RosariumTab.LIBRARY
+                                },
+                                onNavigateToChaplets = {
+                                    showMysterySelector = true
+                                },
+                                onNavigateToNovenas = {
+                                    currentTab = RosariumTab.NOVENAS
+                                },
+                                onNavigateToScripture = {
+                                    showIntentionsSheet = true
+                                },
+                                onNavigateToProgress = {
+                                    currentTab = RosariumTab.PROGRESS
+                                },
+                                onOpenFamily = {
+                                    showFamilySheet = true
+                                },
+                                onOpenSettings = {
+                                    showSettingsSheet = true
+                                }
+                            )
+                        }
 
-            // Quick Access Prayers Drawer (Hamburger Menu Item 2)
-            if (showQuickAccessPrayersSheet) {
-                QuickAccessPrayersSheet(
-                    prayers = prayersList,
-                    onSelectPrayer = { prayer ->
-                        initialPrayerId = prayer.id
-                        currentTab = RosariumTab.LIBRARY
-                        showQuickAccessPrayersSheet = false
-                    },
-                    onDismiss = { showQuickAccessPrayersSheet = false },
-                    isDark = settings.isDarkMode
-                )
-            }
+                        RosariumTab.PRAY -> {
+                            PrayerScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = {
+                                    currentTab = RosariumTab.HOME
+                                }
+                            )
+                        }
+
+                        RosariumTab.LIBRARY -> {
+                            // Screen 2: Prayers & Invocations (and Screen 3: Prayer Detail)
+                            PrayersScreenContent(
+                                prayers = prayersList,
+                                initialPrayerId = initialPrayerId,
+                                isDark = settings.isDarkMode,
+                                onBack = { currentTab = RosariumTab.HOME }
+                            )
+                        }
+
+                        RosariumTab.NOVENAS -> {
+                            // Screen 5: 9-Day Novenas (Full Screen matching Screen 5 reference)
+                            NovenasScreenContent(
+                                novenas = viewModel.allNovenas,
+                                novenaProgressMap = novenaProgressMap,
+                                initialNovenaId = focusedNovenaId,
+                                isDark = settings.isDarkMode,
+                                onMarkDayComplete = { novenaId, day -> viewModel.markNovenaDayCompleted(novenaId, day) },
+                                onResetNovena = { novenaId -> viewModel.resetNovena(novenaId) },
+                                onBack = { currentTab = RosariumTab.HOME }
+                            )
+                        }
+
+                        RosariumTab.PROGRESS -> {
+                            // Screen 6: Prayer Progress (Full Screen matching Screen 6 reference)
+                            ProgressScreenContent(
+                                state = state,
+                                stats = stats,
+                                isDark = settings.isDarkMode,
+                                onResetRosary = { viewModel.resetRosary() },
+                                onBack = { currentTab = RosariumTab.HOME }
+                            )
+                        }
+
+                        RosariumTab.MORE -> {
+                            // Quick More view allowing access to Settings, Novenas, Family, and Progress
+                            HomeScreen(
+                                todayMysterySet = todaySet,
+                                family = family,
+                                isDark = settings.isDarkMode,
+                                onOpenQuickPrayers = { coroutineScope.launch { drawerState.open() } },
+                                onNavigateToPray = { currentTab = RosariumTab.PRAY },
+                                onNavigateToPrayers = { currentTab = RosariumTab.LIBRARY },
+                                onNavigateToChaplets = { showMysterySelector = true },
+                                onNavigateToNovenas = { currentTab = RosariumTab.NOVENAS },
+                                onNavigateToScripture = { showIntentionsSheet = true },
+                                onNavigateToProgress = { currentTab = RosariumTab.PROGRESS },
+                                onOpenFamily = { showFamilySheet = true },
+                                onOpenSettings = { showSettingsSheet = true }
+                            )
+                        }
+                    }
+                }
+
+                // Quick Access Prayers Drawer Fallback (if triggered explicitly)
+                if (showQuickAccessPrayersSheet) {
+                    QuickAccessPrayersSheet(
+                        prayers = prayersList,
+                        onSelectPrayer = { prayer ->
+                            initialPrayerId = prayer.id
+                            currentTab = RosariumTab.LIBRARY
+                            showQuickAccessPrayersSheet = false
+                        },
+                        onDismiss = { showQuickAccessPrayersSheet = false },
+                        isDark = settings.isDarkMode,
+                        onToggleDarkMode = {
+                            viewModel.updateSettings(settings.copy(isDarkMode = it))
+                        }
+                    )
+                }
 
             // Sheets & Modals
             if (showMysterySelector) {
@@ -333,6 +410,7 @@ fun MainScreen(
         }
     }
 }
+}
 
 @Composable
 fun RosariumBottomNavBar(
@@ -390,7 +468,7 @@ fun RosariumBottomNavBar(
         BottomNavItem(
             label = "More",
             icon = Icons.Default.GridView,
-            isSelected = selectedTab == RosariumTab.MORE,
+            isSelected = selectedTab == RosariumTab.MORE || selectedTab == RosariumTab.NOVENAS || selectedTab == RosariumTab.PROGRESS,
             activeBg = activeBg,
             activeColor = activeColor,
             mutedColor = mutedColor,

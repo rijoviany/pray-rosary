@@ -528,8 +528,8 @@ fun SettingsSheet(
             )
 
             SettingToggleItem(
-                title = "Haptic Pulses",
-                subtitle = "Tactile feedback on release and bounces",
+                title = "Bead Release Vibration",
+                subtitle = "Tiny tactile vibration when it is time to release the bead",
                 checked = settings.hapticFeedbackEnabled,
                 onCheckedChange = { onUpdateSettings(settings.copy(hapticFeedbackEnabled = it)) }
             )
