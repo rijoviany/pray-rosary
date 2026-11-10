@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.trivium.rosarium.R
 import com.trivium.rosarium.data.model.DecadeStep
 import com.trivium.rosarium.data.model.Mystery
 import com.trivium.rosarium.ui.theme.MedievalGold
@@ -39,105 +40,49 @@ import com.trivium.rosarium.ui.theme.PrayerThemes
 
 /**
  * Atmospheric Cathedral Sanctuary Background:
- * Deep monastic darkness, soaring gothic stone arches, and glowing altar candles.
+ * Authentic Romanesque Cathedral Arches with glowing golden cross and altar clouds.
+ * Seamlessly transitions between Light and Dark mode cathedral backgrounds.
  */
 @Composable
 fun MysteryBackground(
     currentMystery: Mystery?,
     currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     isHoldPraying: Boolean,
+    isDark: Boolean = true,
     modifier: Modifier = Modifier
 ) {
-    val currentTheme = PrayerThemes.forStep(currentStep)
+    Crossfade(
+        targetState = isDark,
+        animationSpec = tween(durationMillis = 400),
+        label = "PrayerCathedralBackgroundCrossfade",
+        modifier = modifier.fillMaxSize()
+    ) { dark ->
+        val bgResId = if (dark) R.drawable.prayer_bg_dark else R.drawable.prayer_bg_light
 
-    val animatedVignette by animateColorAsState(
-        targetValue = currentTheme.vignetteBase,
-        animationSpec = tween(750),
-        label = "vignetteColor"
-    )
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val w = size.width
-        val h = size.height
-
-        // 1. Deep Sanctuary stone background
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    Color(0xFF090705),
-                    Color(0xFF140F0A),
-                    Color(0xFF0A0705)
-                )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = bgResId),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-        )
 
-        // 2. Gothic Cathedral Arch outlines in background
-        val archColor = MedievalGoldDark.copy(alpha = 0.12f)
-        fun drawGothicArch(cx: Float, baseY: Float, width: Float, height: Float) {
-            val path = Path().apply {
-                moveTo(cx - width / 2f, baseY)
-                lineTo(cx - width / 2f, baseY - height * 0.65f)
-                cubicTo(
-                    cx - width / 2f, baseY - height * 0.95f,
-                    cx, baseY - height,
-                    cx, baseY - height
+            // Subtle atmospheric sacred glow overlay when holding bead to pray
+            if (isHoldPraying) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    if (dark) Color(0xFF09121D).copy(alpha = 0.35f) else Color(0xFFC5A059).copy(alpha = 0.20f)
+                                )
+                            )
+                        )
                 )
-                cubicTo(
-                    cx, baseY - height,
-                    cx + width / 2f, baseY - height * 0.95f,
-                    cx + width / 2f, baseY - height * 0.65f
-                )
-                lineTo(cx + width / 2f, baseY)
             }
-            drawPath(path, archColor, style = Stroke(width = 2.dp.toPx()))
         }
-
-        // Center Nave Arch
-        drawGothicArch(w / 2f, h * 0.85f, w * 0.78f, h * 0.72f)
-        // Left Column Arch
-        drawGothicArch(w * 0.10f, h * 0.95f, w * 0.40f, h * 0.60f)
-        // Right Column Arch
-        drawGothicArch(w * 0.90f, h * 0.95f, w * 0.40f, h * 0.60f)
-
-        // 3. Warm candle glows on left and right columns
-        fun drawCandleLight(x: Float, y: Float, radius: Float) {
-            val candleBrush = Brush.radialGradient(
-                colors = listOf(
-                    Color(0xFFFFD54F).copy(alpha = 0.40f),
-                    Color(0xFFFF8F00).copy(alpha = 0.18f),
-                    Color.Transparent
-                ),
-                center = Offset(x, y),
-                radius = radius
-            )
-            drawCircle(brush = candleBrush, radius = radius, center = Offset(x, y))
-
-            // Tiny candle flame center
-            drawCircle(
-                color = Color(0xFFFFF9C4),
-                radius = 2.dp.toPx(),
-                center = Offset(x, y)
-            )
-        }
-
-        // Side altar candles
-        drawCandleLight(w * 0.12f, h * 0.76f, 36.dp.toPx())
-        drawCandleLight(w * 0.18f, h * 0.78f, 30.dp.toPx())
-        drawCandleLight(w * 0.82f, h * 0.78f, 30.dp.toPx())
-        drawCandleLight(w * 0.88f, h * 0.76f, 36.dp.toPx())
-
-        // 4. Soft cinematic vignette
-        drawRect(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    animatedVignette.copy(alpha = 0.35f),
-                    Color.Black.copy(alpha = 0.75f)
-                ),
-                center = Offset(w / 2f, h * 0.45f),
-                radius = w * 0.95f
-            )
-        )
     }
 }
 

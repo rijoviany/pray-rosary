@@ -97,19 +97,23 @@ fun PrayerScreen(
         }
     }
 
+    val isDark = settings.isDarkMode
+    val screenBg = if (isDark) BackgroundVignette else Color(0xFFF7F3EA)
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundVignette)
+            .background(screenBg)
             .semantics {
                 contentDescription = "Rosarium Prayer Screen. ${state.currentMysterySet.name}, decade ${state.decadeIndex + 1} of 5."
             }
     ) {
-        // 1. Atmospheric Cathedral Sanctuary Background
+        // 1. Atmospheric Cathedral Sanctuary Background (Seamless Light / Dark Mode)
         MysteryBackground(
             currentMystery = state.currentMystery,
             currentStep = state.currentStep,
-            isHoldPraying = state.isPrayingActive
+            isHoldPraying = state.isPrayingActive,
+            isDark = isDark
         )
 
         // 2. Main Holy Rosary Column flowing from Top to Bottom
@@ -168,10 +172,12 @@ fun PrayerScreen(
                     },
                     enabled = state.decadeIndex > 0
                 ) {
+                    val activeTint = if (isDark) Color.White.copy(alpha = 0.85f) else Color(0xFF1E2836).copy(alpha = 0.85f)
+                    val inactiveTint = if (isDark) Color.White.copy(alpha = 0.2f) else Color(0xFF1E2836).copy(alpha = 0.2f)
                     Icon(
                         imageVector = Icons.Default.ChevronLeft,
                         contentDescription = "Previous Decade",
-                        tint = if (state.decadeIndex > 0) Color.White.copy(alpha = 0.85f) else Color.White.copy(alpha = 0.2f),
+                        tint = if (state.decadeIndex > 0) activeTint else inactiveTint,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -191,10 +197,12 @@ fun PrayerScreen(
                     },
                     enabled = state.decadeIndex < maxDecade
                 ) {
+                    val activeTint = if (isDark) Color.White.copy(alpha = 0.85f) else Color(0xFF1E2836).copy(alpha = 0.85f)
+                    val inactiveTint = if (isDark) Color.White.copy(alpha = 0.2f) else Color(0xFF1E2836).copy(alpha = 0.2f)
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = "Next Decade",
-                        tint = if (state.decadeIndex < maxDecade) Color.White.copy(alpha = 0.85f) else Color.White.copy(alpha = 0.2f),
+                        tint = if (state.decadeIndex < maxDecade) activeTint else inactiveTint,
                         modifier = Modifier.size(28.dp)
                     )
                 }
