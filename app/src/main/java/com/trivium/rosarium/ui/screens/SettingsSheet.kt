@@ -405,7 +405,19 @@ fun SettingsSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // App Version Footer
+            Text(
+                text = "Rosarium • v1.0.2.4 (Build 24)",
+                color = mutedText.copy(alpha = 0.7f),
+                fontSize = 12.sp,
+                fontFamily = FontFamily.Serif,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
