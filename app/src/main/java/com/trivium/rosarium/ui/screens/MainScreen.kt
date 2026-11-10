@@ -354,36 +354,10 @@ fun MainScreen(
             }
 
             if (showSettingsSheet) {
-                val totalGroups = state.currentMysterySet.mysteries.size.coerceAtLeast(1)
-                val beadsPerGroup = state.currentMysterySet.effectiveBeadsPerDecade
-                val currentBeadCount = (state.decadeIndex * beadsPerGroup) + state.completedHailMarysInDecade + (if (state.isOurFatherCompleted) 1 else 0)
-                val totalBeadCount = (totalGroups * beadsPerGroup) + totalGroups
-
                 SettingsSheet(
                     settings = settings,
-                    catalog = viewModel.getMysteryCatalog(),
-                    currentMysterySetId = state.currentMysterySet.id,
-                    onSelectMysterySet = {
-                        viewModel.selectMysterySet(it)
-                        currentTab = RosariumTab.PRAY
-                    },
-                    allNovenas = viewModel.allNovenas,
-                    novenaProgressMap = novenaProgressMap,
-                    onSelectNovena = { novena ->
-                        focusedNovenaId = novena.id
-                        showNovenasSheet = true
-                    },
-                    onOpenReadIntentions = { showIntentionsSheet = true },
-                    onOpenProgress = { showProgressSheet = true },
-                    onOpenPrayers = {
-                        currentTab = RosariumTab.LIBRARY
-                    },
-                    onOpenFamily = {
-                        showFamilySheet = true
-                    },
-                    currentBeadCount = currentBeadCount.coerceIn(1, totalBeadCount),
-                    totalBeadCount = totalBeadCount,
                     onUpdateSettings = { viewModel.updateSettings(it) },
+                    onOpenFamily = { showFamilySheet = true },
                     onDismiss = { showSettingsSheet = false }
                 )
             }
