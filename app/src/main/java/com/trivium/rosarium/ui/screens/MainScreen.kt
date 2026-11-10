@@ -368,7 +368,11 @@ fun MainScreen(
                         Toast.makeText(context, "Checking for updates...", Toast.LENGTH_SHORT).show()
                         viewModel.checkForUpdate { isAvailable, _ ->
                             if (!isAvailable) {
-                                Toast.makeText(context, "Rosarium is up to date (v1.0.2.4)", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Rosarium is up to date (v${com.trivium.rosarium.BuildConfig.VERSION_NAME})",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     },

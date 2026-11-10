@@ -417,7 +417,7 @@ fun SettingsSheet(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Rosarium • v1.0.2.4 (Build 24)",
+                    text = "Rosarium • v${com.trivium.rosarium.BuildConfig.VERSION_NAME} (Build ${com.trivium.rosarium.BuildConfig.VERSION_CODE})",
                     color = mutedText.copy(alpha = 0.75f),
                     fontSize = 12.sp,
                     fontFamily = FontFamily.Serif,
