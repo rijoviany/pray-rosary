@@ -272,13 +272,62 @@ fun SettingsSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             // ==========================================
-            // 4. LANGUAGE / भाषा / மொழி
+            // 4. LANGUAGE / LINGUA / भाषा
             // ==========================================
-            SectionHeader(title = "LANGUAGE / भाषा / மொழி", color = sectionHeaderColor)
+            SectionHeader(title = "LANGUAGE / LINGUA / भाषा", color = sectionHeaderColor)
 
             SettingsCard(cardBg = cardBg, cardBorder = cardBorder) {
-                val languages = listOf(
+                Text(
+                    text = "GLOBAL & VATICAN",
+                    color = MedievalGoldBright,
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.8.sp,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+
+                val globalLanguages = listOf(
+                    "la" to "Latina",
                     "en" to "English",
+                    "es" to "Español",
+                    "pt" to "Português",
+                    "fr" to "Français",
+                    "it" to "Italiano",
+                    "de" to "Deutsch",
+                    "pl" to "Polski",
+                    "tl" to "Tagalog"
+                )
+
+                LanguageGrid(
+                    languages = globalLanguages,
+                    selectedLanguage = settings.language,
+                    isDark = isDark,
+                    cardBorder = cardBorder,
+                    primaryText = primaryText,
+                    onSelectLanguage = { code -> onUpdateSettings(settings.copy(language = code)) }
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(0.5.dp)
+                        .background(cardBorder.copy(alpha = 0.6f))
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "INDIAN REGIONAL",
+                    color = MedievalGoldBright,
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.8.sp,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+
+                val indianLanguages = listOf(
                     "ml" to "മലയാളം",
                     "ta" to "தமிழ்",
                     "hi" to "हिन्दी",
@@ -289,52 +338,14 @@ fun SettingsSheet(
                     "gu" to "ગુજરાતી"
                 )
 
-                languages.chunked(3).forEach { rowLanguages ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        rowLanguages.forEach { (code, label) ->
-                            val isSelected = settings.language == code
-                            val itemBg = if (isSelected) {
-                                if (isDark) Color(0xFF162B40) else Color(0xFF0D2036)
-                            } else {
-                                if (isDark) Color(0xFF0D1825) else Color(0xFFF7F3EA)
-                            }
-                            val itemBorder = if (isSelected) MedievalGoldBright else cardBorder
-                            val itemTextColor = if (isSelected) MedievalGoldBright else primaryText
-
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(
-                                        width = if (isSelected) 1.5.dp else 1.dp,
-                                        color = itemBorder,
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
-                                    .background(itemBg)
-                                    .clickable { onUpdateSettings(settings.copy(language = code)) }
-                                    .padding(vertical = 10.dp, horizontal = 4.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = label,
-                                    color = itemTextColor,
-                                    fontSize = 13.sp,
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-                        repeat(3 - rowLanguages.size) {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
+                LanguageGrid(
+                    languages = indianLanguages,
+                    selectedLanguage = settings.language,
+                    isDark = isDark,
+                    cardBorder = cardBorder,
+                    primaryText = primaryText,
+                    onSelectLanguage = { code -> onUpdateSettings(settings.copy(language = code)) }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -470,5 +481,62 @@ private fun SettingToggleItem(
                 uncheckedTrackColor = primaryColor.copy(alpha = 0.15f)
             )
         )
+    }
+}
+
+@Composable
+private fun LanguageGrid(
+    languages: List<Pair<String, String>>,
+    selectedLanguage: String,
+    isDark: Boolean,
+    cardBorder: Color,
+    primaryText: Color,
+    onSelectLanguage: (String) -> Unit
+) {
+    languages.chunked(3).forEach { rowLanguages ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            rowLanguages.forEach { (code, label) ->
+                val isSelected = selectedLanguage == code
+                val itemBg = if (isSelected) {
+                    if (isDark) Color(0xFF162B40) else Color(0xFF0D2036)
+                } else {
+                    if (isDark) Color(0xFF0D1825) else Color(0xFFF7F3EA)
+                }
+                val itemBorder = if (isSelected) MedievalGoldBright else cardBorder
+                val itemTextColor = if (isSelected) MedievalGoldBright else primaryText
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(
+                            width = if (isSelected) 1.5.dp else 1.dp,
+                            color = itemBorder,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .background(itemBg)
+                        .clickable { onSelectLanguage(code) }
+                        .padding(vertical = 9.dp, horizontal = 4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = label,
+                        color = itemTextColor,
+                        fontSize = 12.5.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            repeat(3 - rowLanguages.size) {
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
     }
 }

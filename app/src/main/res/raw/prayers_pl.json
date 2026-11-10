@@ -1,0 +1,173 @@
+{
+  "our_father": {
+    "id": "our_father",
+    "title": "Ojcze nasz",
+    "phrases": [
+      "Ojcze nasz, któryś jest w niebie,",
+      "święć się imię Twoje;",
+      "przyjdź królestwo Twoje;",
+      "bądź wola Twoja,",
+      "jako w niebie tak i na ziemi.",
+      "Chleba naszego powszedniego daj nam dzisiaj;",
+      "i odpuść nam nasze winy,",
+      "jako i my odpuszczamy naszym winowajcom;",
+      "i nie wódź nas na pokuszenie,",
+      "ale nas zbaw ode złego. Amen."
+    ]
+  },
+  "hail_mary": {
+    "id": "hail_mary",
+    "title": "Zdrowaś Maryjo",
+    "phrases": [
+      "Zdrowaś Maryjo, łaski pełna,",
+      "Pan z Tobą,",
+      "błogosławionaś Ty między niewiastami,",
+      "i błogosławiony owoc żywota Twojego, Jezus.",
+      "Święta Maryjo, Matko Boża,",
+      "módl się za nami grzesznymi",
+      "teraz i w godzinę śmierci naszej.",
+      "Amen."
+    ]
+  },
+  "glory_be": {
+    "id": "glory_be",
+    "title": "Chwała Ojcu",
+    "phrases": [
+      "Chwała Ojcu i Synowi,",
+      "i Duchowi Świętemu,",
+      "jak była na początku, teraz i zawsze,",
+      "i na wieki wieków.",
+      "Amen."
+    ]
+  },
+  "fatima": {
+    "id": "fatima",
+    "title": "Modlitwa Fatimska",
+    "phrases": [
+      "O mój Jezu, przebacz nam nasze grzechy,",
+      "zachowaj nas od ognia piekielnego,",
+      "zaprowadź wszystkie dusze do nieba,",
+      "a szczególnie te, które najbardziej potrzebują",
+      "Twojego miłosierdzia. Amen."
+    ]
+  },
+  "hail_holy_queen": {
+    "id": "hail_holy_queen",
+    "title": "Witaj Królowo",
+    "phrases": [
+      "Witaj, Królowo, Matko miłosierdzia,",
+      "życie, słodyczy i nadziejo nasza, witaj!",
+      "Do Ciebie wołamy, wygnańcy, synowie Ewy;",
+      "do Ciebie wzdychamy, jęcząc i płacząc w tym łez padole.",
+      "Przeto, Orędowniczko nasza, one miłosierne oczy Twoje na nas zwróć,",
+      "a Jezusa, błogosławiony owoc żywota Twojego, po tym wygnaniu nam okaż.",
+      "O łaskawa, o litościwa, o słodka Panno Maryjo!",
+      "Módl się za nami, Święta Boża Rodzicielko, abyśmy się stali godnymi obietnic Chrystusowych."
+    ]
+  },
+  "eternal_father": {
+    "id": "eternal_father",
+    "title": "Ojcze Przedwieczny",
+    "phrases": [
+      "Ojcze Przedwieczny, ofiaruję Ci Ciało i Krew,",
+      "Duszę i Bóstwo najmilszego Syna Twojego,",
+      "a Pana naszego Jezusa Chrystusa,",
+      "na przebłaganie za grzechy nasze",
+      "i całego świata. Amen."
+    ]
+  },
+  "sorrowful_passion": {
+    "id": "sorrowful_passion",
+    "title": "Dla Jego bolesnej męki",
+    "phrases": [
+      "Dla Jego bolesnej męki,",
+      "miej miłosierdzie dla nas i całego świata."
+    ]
+  },
+  "holy_god": {
+    "id": "holy_god",
+    "title": "Święty Boże",
+    "phrases": [
+      "Święty Boże, Święty Mocny, Święty Nieśmiertelny,",
+      "zmiłuj się nad nami i nad całym światem. Amen."
+    ]
+  },
+  "hail_joseph": {
+    "id": "hail_joseph",
+    "title": "Hail Joseph",
+    "phrases": [
+      "Hail Joseph, Son of David, just and gentle,",
+      "the Church honors and invokes you;",
+      "blessed are you among men,",
+      "and blessed is Jesus, the fruit of Mary, your spouse.",
+      "Holy Joseph, guardian of the Redeemer,",
+      "pray for us sinners, now and at the hour of our death.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_large": {
+    "id": "sacred_heart_large",
+    "title": "Offering to the Sacred Heart",
+    "phrases": [
+      "O Most Sacred Heart of Jesus,",
+      "fount of all love and mercy,",
+      "have mercy on us",
+      "and make our hearts like unto Thine.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_small": {
+    "id": "sacred_heart_small",
+    "title": "Aspiration to the Sacred Heart",
+    "phrases": [
+      "Jesus, meek and humble of heart,",
+      "make my heart like unto Thine.",
+      "Amen."
+    ]
+  },
+  "requiem_aeternam": {
+    "id": "requiem_aeternam",
+    "title": "Wieczny odpoczynek",
+    "phrases": [
+      "Wieczny odpoczynek racz im dać, Panie,",
+      "a światłość wiekuista niechaj im świeci.",
+      "Niech odpoczywają w pokoju wiecznym. Amen."
+    ]
+  },
+  "holy_wounds_father": {
+    "id": "holy_wounds_father",
+    "title": "Offering of the Holy Wounds",
+    "phrases": [
+      "Eternal Father, I offer Thee the Wounds of Our Lord Jesus Christ,",
+      "to heal the wounds of our souls.",
+      "Amen."
+    ]
+  },
+  "holy_wounds_bead": {
+    "id": "holy_wounds_bead",
+    "title": "Invocation of the Holy Wounds",
+    "phrases": [
+      "My Jesus, pardon and mercy,",
+      "through the merits of Thy Holy Wounds.",
+      "Amen."
+    ]
+  },
+  "precious_blood_bead": {
+    "id": "precious_blood_bead",
+    "title": "Invocation of the Most Precious Blood",
+    "phrases": [
+      "Precious Blood of Jesus Christ,",
+      "save us and the whole world.",
+      "Amen."
+    ]
+  },
+  "saint_anne_bead": {
+    "id": "saint_anne_bead",
+    "title": "Invocation of Saint Anne",
+    "phrases": [
+      "Jesus, Mary, and Saint Anne,",
+      "grant me your holy protection and bless me.",
+      "Amen."
+    ]
+  }
+}

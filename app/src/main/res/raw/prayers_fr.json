@@ -1,0 +1,173 @@
+{
+  "our_father": {
+    "id": "our_father",
+    "title": "Notre Père",
+    "phrases": [
+      "Notre Père, qui es aux cieux,",
+      "que ton nom soit sanctifié,",
+      "que ton règne vienne,",
+      "que ta volonté soit faite",
+      "sur la terre comme au ciel.",
+      "Donne-nous aujourd'hui notre pain de ce jour.",
+      "Pardonne-nous nos offenses,",
+      "comme nous pardonnons aussi à ceux qui nous ont offensés.",
+      "Et ne nous laisse pas entrer en tentation,",
+      "mais délivre-nous du Mal. Amen."
+    ]
+  },
+  "hail_mary": {
+    "id": "hail_mary",
+    "title": "Je vous salue Marie",
+    "phrases": [
+      "Je vous salue, Marie pleine de grâce,",
+      "le Seigneur est avec vous.",
+      "Vous êtes bénie entre toutes les femmes,",
+      "et Jésus, le fruit de vos entrailles, est béni.",
+      "Sainte Marie, Mère de Dieu,",
+      "priez pour nous, pauvres pécheurs,",
+      "maintenant et à l'heure de notre mort.",
+      "Amen."
+    ]
+  },
+  "glory_be": {
+    "id": "glory_be",
+    "title": "Gloire au Père",
+    "phrases": [
+      "Gloire au Père, et au Fils,",
+      "et au Saint-Esprit.",
+      "Comme il était au commencement, maintenant et toujours,",
+      "et dans les siècles des siècles.",
+      "Amen."
+    ]
+  },
+  "fatima": {
+    "id": "fatima",
+    "title": "Prière de Fatima",
+    "phrases": [
+      "Ô mon Jésus, pardonne-nous nos péchés,",
+      "préserve-nous du feu de l'enfer,",
+      "et conduis au Ciel toutes les âmes,",
+      "surtout celles qui ont le plus besoin",
+      "de ta miséricorde. Amen."
+    ]
+  },
+  "hail_holy_queen": {
+    "id": "hail_holy_queen",
+    "title": "Salve Regina",
+    "phrases": [
+      "Salut, ô Reine, Mère de miséricorde,",
+      "notre vie, notre douceur et notre espérance, salut !",
+      "Enfants d'Ève, exilés, nous crions vers toi ;",
+      "vers toi nous soupirons, gémissant et pleurant dans cette vallée de larmes.",
+      "Ô toi, notre avocate, tourne vers nous tes regards miséricordieux,",
+      "et après cet exil, montre-nous Jésus, le fruit béni de tes entrailles.",
+      "Ô clémente, ô miséricordieuse, ô douce Vierge Marie !",
+      "Prie pour nous, sainte Mère de Dieu, afin que nous soyons rendus dignes des promesses du Christ."
+    ]
+  },
+  "eternal_father": {
+    "id": "eternal_father",
+    "title": "Père Éternel",
+    "phrases": [
+      "Père Éternel, je T'offre le Corps et le Sang,",
+      "l'Âme et la Divinité de ton Fils bien-aimé,",
+      "Notre Seigneur Jésus-Christ,",
+      "en réparation de nos péchés",
+      "et de ceux du monde entier. Amen."
+    ]
+  },
+  "sorrowful_passion": {
+    "id": "sorrowful_passion",
+    "title": "Par sa Douloureuse Passion",
+    "phrases": [
+      "Par sa douloureuse Passion,",
+      "sois miséricordieux pour nous et pour le monde entier."
+    ]
+  },
+  "holy_god": {
+    "id": "holy_god",
+    "title": "Dieu Saint",
+    "phrases": [
+      "Dieu Saint, Dieu Fort, Dieu Immortel,",
+      "prends pitié de nous et du monde entier. Amen."
+    ]
+  },
+  "hail_joseph": {
+    "id": "hail_joseph",
+    "title": "Hail Joseph",
+    "phrases": [
+      "Hail Joseph, Son of David, just and gentle,",
+      "the Church honors and invokes you;",
+      "blessed are you among men,",
+      "and blessed is Jesus, the fruit of Mary, your spouse.",
+      "Holy Joseph, guardian of the Redeemer,",
+      "pray for us sinners, now and at the hour of our death.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_large": {
+    "id": "sacred_heart_large",
+    "title": "Offering to the Sacred Heart",
+    "phrases": [
+      "O Most Sacred Heart of Jesus,",
+      "fount of all love and mercy,",
+      "have mercy on us",
+      "and make our hearts like unto Thine.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_small": {
+    "id": "sacred_heart_small",
+    "title": "Aspiration to the Sacred Heart",
+    "phrases": [
+      "Jesus, meek and humble of heart,",
+      "make my heart like unto Thine.",
+      "Amen."
+    ]
+  },
+  "requiem_aeternam": {
+    "id": "requiem_aeternam",
+    "title": "Donne-leur le repos éternel",
+    "phrases": [
+      "Donne-leur, Seigneur, le repos éternel,",
+      "et que brille sur eux la lumière perpétuelle.",
+      "Qu'ils reposent en paix. Amen."
+    ]
+  },
+  "holy_wounds_father": {
+    "id": "holy_wounds_father",
+    "title": "Offering of the Holy Wounds",
+    "phrases": [
+      "Eternal Father, I offer Thee the Wounds of Our Lord Jesus Christ,",
+      "to heal the wounds of our souls.",
+      "Amen."
+    ]
+  },
+  "holy_wounds_bead": {
+    "id": "holy_wounds_bead",
+    "title": "Invocation of the Holy Wounds",
+    "phrases": [
+      "My Jesus, pardon and mercy,",
+      "through the merits of Thy Holy Wounds.",
+      "Amen."
+    ]
+  },
+  "precious_blood_bead": {
+    "id": "precious_blood_bead",
+    "title": "Invocation of the Most Precious Blood",
+    "phrases": [
+      "Precious Blood of Jesus Christ,",
+      "save us and the whole world.",
+      "Amen."
+    ]
+  },
+  "saint_anne_bead": {
+    "id": "saint_anne_bead",
+    "title": "Invocation of Saint Anne",
+    "phrases": [
+      "Jesus, Mary, and Saint Anne,",
+      "grant me your holy protection and bless me.",
+      "Amen."
+    ]
+  }
+}

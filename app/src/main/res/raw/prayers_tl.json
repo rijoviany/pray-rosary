@@ -1,0 +1,173 @@
+{
+  "our_father": {
+    "id": "our_father",
+    "title": "Ama Namin",
+    "phrases": [
+      "Ama namin, sumasalangit Ka,",
+      "sambahin ang ngalan Mo.",
+      "Mapasaamin ang kaharian Mo,",
+      "sundin ang loob Mo,",
+      "dito sa lupa para nang sa langit.",
+      "Bigyan Mo kami ngayon ng aming kakanin sa araw-araw;",
+      "at patawarin Mo kami sa aming mga sala,",
+      "para nang pagpapatawad namin sa nagkakasala sa amin;",
+      "at huwag Mo kaming ipahintulot sa tukso,",
+      "at iadya Mo kami sa lahat ng masama. Amen."
+    ]
+  },
+  "hail_mary": {
+    "id": "hail_mary",
+    "title": "Aba Ginoong Maria",
+    "phrases": [
+      "Aba Ginoong Maria, napupuno ka ng grasya,",
+      "ang Panginoong Diyos ay sumasaiyo.",
+      "Bukod kang pinagpala sa babaeng lahat,",
+      "at pinagpala naman ang iyong Anak na si Hesus.",
+      "Santa Maria, Ina ng Diyos,",
+      "ipanalangin mo kaming makasalanan,",
+      "ngayon at sa oras ng aming kamatayan.",
+      "Amen."
+    ]
+  },
+  "glory_be": {
+    "id": "glory_be",
+    "title": "Luwalhati sa Ama",
+    "phrases": [
+      "Luwalhati sa Ama, at sa Anak,",
+      "at sa Espiritu Santo.",
+      "Kapara noong unang-una, ngayon at magpakailanman,",
+      "at magpasawalang hanggan.",
+      "Amen."
+    ]
+  },
+  "fatima": {
+    "id": "fatima",
+    "title": "Panalangin ng Fatima",
+    "phrases": [
+      "O Hesus ko, patawarin Mo ang aming mga sala,",
+      "iligtas Mo kami sa apoy ng impiyerno,",
+      "hanguin Mo ang mga kaluluwa sa purgatoryo,",
+      "lalong-lalo na yaong mga walang umaalaala",
+      "sa Iyong awa. Amen."
+    ]
+  },
+  "hail_holy_queen": {
+    "id": "hail_holy_queen",
+    "title": "Aba Po Santa Mariang Hari",
+    "phrases": [
+      "Aba Po Santa Mariang Hari, Ina ng Awa,",
+      "ikaw ang kabuhayan at katamisan, aba pinananaligan namin.",
+      "Ikaw nga po ang tinatawag namin, pinapanaw na taong anak ni Eba;",
+      "ikaw rin ang pinagbubuntuhang-hininga namin ng aming pagtangis dito sa lupang bayang kahapis-hapis.",
+      "Ay aba, pintakasi ka namin, ilingon mo sa amin ang mga mata mong maawain,",
+      "at saka matapos yaring pagpanaw sa amin, ipakita mo sa amin ang iyong Anak na si Hesus.",
+      "O magiliw, o maawain, o matamis na Birheng Maria!",
+      "Ipanalangin mo kami, O Santang Ina ng Diyos, nang kami ay maging dapat makinabang sa mga pangako ni Kristo."
+    ]
+  },
+  "eternal_father": {
+    "id": "eternal_father",
+    "title": "Walang Hanggang Ama",
+    "phrases": [
+      "Walang Hanggang Ama, iniaalay ko po sa Iyo ang Katawan at Dugo,",
+      "ang Kaluluwa at Pagka-Diyos ng Iyong Pinakamamahal na Anak,",
+      "na aming Panginoong Hesukristo,",
+      "para sa kapatawaran ng aming mga kasalanan",
+      "at sa buong daigdig. Amen."
+    ]
+  },
+  "sorrowful_passion": {
+    "id": "sorrowful_passion",
+    "title": "Alang-alang sa Kanyang Mahapding Pagpapakasakit",
+    "phrases": [
+      "Alang-alang sa Kanyang mahapding pagpapakasakit,",
+      "mahabag Ka sa amin at sa buong daigdig."
+    ]
+  },
+  "holy_god": {
+    "id": "holy_god",
+    "title": "Banal na Diyos",
+    "phrases": [
+      "Banal na Diyos, Banal na Makapangyarihan, Banal na Walang Hanggan,",
+      "mahabag po Kayo sa amin at sa buong daigdig. Amen."
+    ]
+  },
+  "hail_joseph": {
+    "id": "hail_joseph",
+    "title": "Hail Joseph",
+    "phrases": [
+      "Hail Joseph, Son of David, just and gentle,",
+      "the Church honors and invokes you;",
+      "blessed are you among men,",
+      "and blessed is Jesus, the fruit of Mary, your spouse.",
+      "Holy Joseph, guardian of the Redeemer,",
+      "pray for us sinners, now and at the hour of our death.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_large": {
+    "id": "sacred_heart_large",
+    "title": "Offering to the Sacred Heart",
+    "phrases": [
+      "O Most Sacred Heart of Jesus,",
+      "fount of all love and mercy,",
+      "have mercy on us",
+      "and make our hearts like unto Thine.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_small": {
+    "id": "sacred_heart_small",
+    "title": "Aspiration to the Sacred Heart",
+    "phrases": [
+      "Jesus, meek and humble of heart,",
+      "make my heart like unto Thine.",
+      "Amen."
+    ]
+  },
+  "requiem_aeternam": {
+    "id": "requiem_aeternam",
+    "title": "Kapayapaang Walang Hanggan",
+    "phrases": [
+      "Pagkalooban Mo po sila ng kapayapaang walang hanggan, Panginoon,",
+      "at sumikat nawa sa kanila ang liwanag na walang katapusan.",
+      "Mamahinga nawa sila sa kapayapaan. Amen."
+    ]
+  },
+  "holy_wounds_father": {
+    "id": "holy_wounds_father",
+    "title": "Offering of the Holy Wounds",
+    "phrases": [
+      "Eternal Father, I offer Thee the Wounds of Our Lord Jesus Christ,",
+      "to heal the wounds of our souls.",
+      "Amen."
+    ]
+  },
+  "holy_wounds_bead": {
+    "id": "holy_wounds_bead",
+    "title": "Invocation of the Holy Wounds",
+    "phrases": [
+      "My Jesus, pardon and mercy,",
+      "through the merits of Thy Holy Wounds.",
+      "Amen."
+    ]
+  },
+  "precious_blood_bead": {
+    "id": "precious_blood_bead",
+    "title": "Invocation of the Most Precious Blood",
+    "phrases": [
+      "Precious Blood of Jesus Christ,",
+      "save us and the whole world.",
+      "Amen."
+    ]
+  },
+  "saint_anne_bead": {
+    "id": "saint_anne_bead",
+    "title": "Invocation of Saint Anne",
+    "phrases": [
+      "Jesus, Mary, and Saint Anne,",
+      "grant me your holy protection and bless me.",
+      "Amen."
+    ]
+  }
+}

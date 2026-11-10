@@ -1,0 +1,172 @@
+{
+  "our_father": {
+    "id": "our_father",
+    "title": "Pater Noster",
+    "phrases": [
+      "Pater noster, qui es in caelis,",
+      "sanctificetur nomen tuum.",
+      "Adveniat regnum tuum.",
+      "Fiat voluntas tua,",
+      "sicut in caelo et in terra.",
+      "Panem nostrum cotidianum da nobis hodie,",
+      "et dimitte nobis debita nostra,",
+      "sicut et nos dimittimus debitoribus nostris.",
+      "Et ne nos inducas in tentationem,",
+      "sed libera nos a malo. Amen."
+    ]
+  },
+  "hail_mary": {
+    "id": "hail_mary",
+    "title": "Ave Maria",
+    "phrases": [
+      "Ave Maria, gratia plena,",
+      "Dominus tecum.",
+      "Benedicta tu in mulieribus,",
+      "et benedictus fructus ventris tui, Iesus.",
+      "Sancta Maria, Mater Dei,",
+      "ora pro nobis peccatoribus,",
+      "nunc et in hora mortis nostrae.",
+      "Amen."
+    ]
+  },
+  "glory_be": {
+    "id": "glory_be",
+    "title": "Gloria Patri",
+    "phrases": [
+      "Gloria Patri, et Filio,",
+      "et Spiritui Sancto.",
+      "Sicut erat in principio, et nunc, et semper,",
+      "et in saecula saeculorum.",
+      "Amen."
+    ]
+  },
+  "fatima": {
+    "id": "fatima",
+    "title": "Oratio Fatimae",
+    "phrases": [
+      "O mi Iesu, dimitte nobis debita nostra,",
+      "salva nos ab igne inferiori,",
+      "perduc in caelum omnes animas,",
+      "praesertim eas,",
+      "quae misericordiae tuae maxime indigent. Amen."
+    ]
+  },
+  "hail_holy_queen": {
+    "id": "hail_holy_queen",
+    "title": "Salve Regina",
+    "phrases": [
+      "Salve, Regina, Mater misericordiae,",
+      "vita, dulcedo, et spes nostra, salve.",
+      "Ad te clamamus exsules filii Hevae,",
+      "ad te suspiramus, gementes et flentes in hac lacrimarum valle.",
+      "Eia, ergo, advocata nostra, illos tuos misericordes oculos ad nos converte,",
+      "et Iesum, benedictum fructum ventris tui, nobis post hoc exsilium ostende.",
+      "O clemens, o pia, o dulcis Virgo Maria.",
+      "Ora pro nobis, Sancta Dei Genetrix, ut digni efficiamur promissionibus Christi."
+    ]
+  },
+  "eternal_father": {
+    "id": "eternal_father",
+    "title": "Pater Aeterne",
+    "phrases": [
+      "Pater Aeterne, offero Tibi Corpus et Sanguinem,",
+      "Animam et Divinitatem dilectissimi Filii Tui,",
+      "Domini nostri, Iesu Christi,",
+      "in propitiatione pro peccatis nostris",
+      "et totius mundi. Amen."
+    ]
+  },
+  "sorrowful_passion": {
+    "id": "sorrowful_passion",
+    "title": "Pro Dolorosa Eius Passione",
+    "phrases": [
+      "Pro dolorosa Eius passione,",
+      "miserere nobis et totius mundi."
+    ]
+  },
+  "holy_god": {
+    "id": "holy_god",
+    "title": "Sanctus Deus",
+    "phrases": [
+      "Sanctus Deus, Sanctus Fortis, Sanctus Immortalis,",
+      "miserere nobis et totius mundi. Amen."
+    ]
+  },
+  "hail_joseph": {
+    "id": "hail_joseph",
+    "title": "Ave Ioseph",
+    "phrases": [
+      "Ave Ioseph, fili David, vir iustissime,",
+      "Sancta Maria, Virgo Deipara, sponsa tua tecum.",
+      "Benedictus tu in omnibus hominibus,",
+      "et benedictus Filius tuus Iesus.",
+      "Sancte Ioseph, custos Sanctae Familiae,",
+      "ora pro nobis nunc et in hora mortis nostrae. Amen."
+    ]
+  },
+  "sacred_heart_large": {
+    "id": "sacred_heart_large",
+    "title": "Offering to the Sacred Heart",
+    "phrases": [
+      "O Most Sacred Heart of Jesus,",
+      "fount of all love and mercy,",
+      "have mercy on us",
+      "and make our hearts like unto Thine.",
+      "Amen."
+    ]
+  },
+  "sacred_heart_small": {
+    "id": "sacred_heart_small",
+    "title": "Aspiration to the Sacred Heart",
+    "phrases": [
+      "Jesus, meek and humble of heart,",
+      "make my heart like unto Thine.",
+      "Amen."
+    ]
+  },
+  "requiem_aeternam": {
+    "id": "requiem_aeternam",
+    "title": "Requiem Aeternam",
+    "phrases": [
+      "Requiem aeternam dona eis, Domine,",
+      "et lux perpetua luceat eis.",
+      "Requiescant in pace. Amen."
+    ]
+  },
+  "holy_wounds_father": {
+    "id": "holy_wounds_father",
+    "title": "Offering of the Holy Wounds",
+    "phrases": [
+      "Eternal Father, I offer Thee the Wounds of Our Lord Jesus Christ,",
+      "to heal the wounds of our souls.",
+      "Amen."
+    ]
+  },
+  "holy_wounds_bead": {
+    "id": "holy_wounds_bead",
+    "title": "Invocation of the Holy Wounds",
+    "phrases": [
+      "My Jesus, pardon and mercy,",
+      "through the merits of Thy Holy Wounds.",
+      "Amen."
+    ]
+  },
+  "precious_blood_bead": {
+    "id": "precious_blood_bead",
+    "title": "Invocation of the Most Precious Blood",
+    "phrases": [
+      "Precious Blood of Jesus Christ,",
+      "save us and the whole world.",
+      "Amen."
+    ]
+  },
+  "saint_anne_bead": {
+    "id": "saint_anne_bead",
+    "title": "Invocation of Saint Anne",
+    "phrases": [
+      "Jesus, Mary, and Saint Anne,",
+      "grant me your holy protection and bless me.",
+      "Amen."
+    ]
+  }
+}
