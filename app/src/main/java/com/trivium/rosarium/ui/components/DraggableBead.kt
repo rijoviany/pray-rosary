@@ -12,14 +12,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,10 +36,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -58,7 +64,10 @@ import com.trivium.rosarium.ui.theme.UltramarineLapis
 import com.trivium.rosarium.ui.theme.UltramarineSpecular
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Locale
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 /**
  * The core physical interaction of Rosarium:
@@ -80,6 +89,8 @@ fun DraggableBead(
     specularColor: Color = UltramarineSpecular,
     darkColor: Color = UltramarineDark,
     targetSnapOffsetPx: Float = -1000f,
+    prayerDurationMs: Long = 5_000L,
+    isDark: Boolean = false,
     onHoldStart: () -> Unit,
     onReleaseBead: () -> Unit,
     onPrayerFinished: () -> Unit,
@@ -244,8 +255,8 @@ fun DraggableBead(
             }
         }
 
-        // 2. The Active Bead with Gesture Detection (Generous 80x80 dp touch target)
-        val beadTouchSizeDp = 80.dp
+        // 2. The Active Bead with Gesture Detection (Generous touch target)
+        val beadTouchSizeDp = 88.dp
         val beadHalfSizePx = with(density) { (beadTouchSizeDp / 2).toPx() }
         val beadBoxY = (restingBeadCenterYPx - beadHalfSizePx + beadYOffsetPx).roundToInt()
 
@@ -346,7 +357,7 @@ fun DraggableBead(
             contentAlignment = Alignment.Center
         ) {
             // Bead Visual with prayer-specific liturgical color and aura
-            Canvas(modifier = Modifier.size(68.dp)) {
+            Canvas(modifier = Modifier.size(88.dp)) {
                 val cx = size.width / 2f
                 val cy = size.height / 2f
 
@@ -365,7 +376,7 @@ fun DraggableBead(
                 val activeThemeGlow = if (currentStep == DecadeStep.HAIL_MARY) primaryColor else prayerTheme.auraGlow
                 val activeSecondary = if (currentStep == DecadeStep.HAIL_MARY) specularColor else prayerTheme.secondaryAccent
 
-                // Pulsing glow if active
+                // 1. Pulsing ambient sacred glow around the bead if active
                 if (currentIsPrayingActive) {
                     val glowBrush = Brush.radialGradient(
                         colors = if (currentIsReadyToRelease) {
@@ -387,7 +398,7 @@ fun DraggableBead(
                     drawCircle(brush = glowBrush, radius = radius * 2.3f, center = Offset(cx, cy))
                 }
 
-                // Draw prayer-specific 3D bead
+                // 2. Draw prayer-specific 3D sacred bead
                 drawPrayerBead(
                     step = currentStep,
                     cx = cx,
@@ -400,7 +411,7 @@ fun DraggableBead(
                     darkColor = darkColor
                 )
 
-                // Ornate bottom filigree cap in theme accent
+                // 3. Ornate bottom filigree cap in theme accent
                 val filigreePath = Path().apply {
                     moveTo(cx - 9.dp.toPx(), cy + radius * 0.82f)
                     quadraticTo(cx, cy + radius * 1.30f, cx + 9.dp.toPx(), cy + radius * 0.82f)
@@ -410,6 +421,68 @@ fun DraggableBead(
                     color = if (currentIsReadyToRelease) MedievalGoldBright else activeSecondary,
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.2.dp.toPx())
                 )
+
+                // 4. Circular Progress Bar showing time left to release the bead
+                if ((currentIsPrayingActive || beadYOffsetPx > 15f) && !currentIsSnappingUp) {
+                    val ringRadiusPx = 34.dp.toPx()
+
+                    // Subtle background track
+                    drawCircle(
+                        color = if (isDark) Color(0xFF233B57).copy(alpha = 0.65f) else MedievalGoldDark.copy(alpha = 0.35f),
+                        radius = ringRadiusPx,
+                        center = Offset(cx, cy),
+                        style = Stroke(width = 3.dp.toPx())
+                    )
+
+                    // Active sweeping progress arc
+                    val sweepAngle = (360f * prayerProgress).coerceIn(0f, 360f)
+                    if (sweepAngle > 0f) {
+                        // Ambient luminous halo
+                        drawArc(
+                            color = if (currentIsReadyToRelease) MedievalGoldBright.copy(alpha = 0.65f) else GoldGlow.copy(alpha = 0.45f),
+                            startAngle = -90f,
+                            sweepAngle = sweepAngle,
+                            useCenter = false,
+                            topLeft = Offset(cx - ringRadiusPx, cy - ringRadiusPx),
+                            size = Size(ringRadiusPx * 2f, ringRadiusPx * 2f),
+                            style = Stroke(width = 6.5.dp.toPx(), cap = StrokeCap.Round)
+                        )
+
+                        // Golden progress arc
+                        drawArc(
+                            brush = Brush.sweepGradient(
+                                colors = listOf(
+                                    MedievalGold,
+                                    MedievalGoldBright,
+                                    if (currentIsReadyToRelease) Color.White else MedievalGoldBright
+                                ),
+                                center = Offset(cx, cy)
+                            ),
+                            startAngle = -90f,
+                            sweepAngle = sweepAngle,
+                            useCenter = false,
+                            topLeft = Offset(cx - ringRadiusPx, cy - ringRadiusPx),
+                            size = Size(ringRadiusPx * 2f, ringRadiusPx * 2f),
+                            style = Stroke(width = 3.6.dp.toPx(), cap = StrokeCap.Round)
+                        )
+
+                        // Leading-edge jewel indicator dot
+                        val currentAngleRad = Math.toRadians((-90f + sweepAngle).toDouble())
+                        val tipX = cx + (ringRadiusPx * cos(currentAngleRad)).toFloat()
+                        val tipY = cy + (ringRadiusPx * sin(currentAngleRad)).toFloat()
+
+                        drawCircle(
+                            color = Color.White,
+                            radius = 2.8.dp.toPx(),
+                            center = Offset(tipX, tipY)
+                        )
+                        drawCircle(
+                            color = MedievalGoldBright,
+                            radius = 1.8.dp.toPx(),
+                            center = Offset(tipX, tipY)
+                        )
+                    }
+                }
             }
         }
 
@@ -418,7 +491,7 @@ fun DraggableBead(
         val indicatorY = (restingBeadCenterYPx + indicatorBaseOffsetPx + beadYOffsetPx + arrowFloatPx).roundToInt()
 
         if (!currentIsPrayingActive && beadYOffsetPx < 12f) {
-            // Resting state: DOWN arrow & "DRAG DOWN"
+            // Resting state: DOWN arrow & "Drag Down to Pray"
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.offset {
@@ -448,15 +521,75 @@ fun DraggableBead(
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = "Drag Down to Pray",
-                    color = Color(0xFF1E2836),
+                    color = if (isDark) Color(0xFFF7F3EA) else Color(0xFF1E2836),
                     fontSize = 13.sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.4.sp
                 )
             }
+        } else if (currentIsPrayingActive && !currentIsReadyToRelease) {
+            // Actively holding & praying: Circular countdown indicator & time left
+            val remainingMs = (prayerDurationMs * (1f - prayerProgress)).coerceAtLeast(0f)
+            val remainingSec = remainingMs / 1000f
+            val remainingText = String.format(Locale.US, "%.1fs", remainingSec)
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.offset {
+                    IntOffset(x = 0, y = indicatorY)
+                }
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier.size(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            val r = size.minDimension / 2f - 1.5.dp.toPx()
+                            val c = Offset(size.width / 2f, size.height / 2f)
+                            drawCircle(
+                                color = MedievalGoldDark.copy(alpha = 0.35f),
+                                radius = r,
+                                center = c,
+                                style = Stroke(width = 1.8.dp.toPx())
+                            )
+                            drawArc(
+                                color = MedievalGoldBright,
+                                startAngle = -90f,
+                                sweepAngle = (360f * prayerProgress).coerceIn(0f, 360f),
+                                useCenter = false,
+                                topLeft = Offset(c.x - r, c.y - r),
+                                size = Size(r * 2f, r * 2f),
+                                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Release in $remainingText",
+                        color = MedievalGoldBright,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.6.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Keep holding bead",
+                    color = if (isDark) Color(0xFFD4C8B4) else Color(0xFF1E2836).copy(alpha = 0.75f),
+                    fontSize = 10.5.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Normal,
+                    letterSpacing = 0.3.sp
+                )
+            }
         } else if (currentIsPrayingActive && currentIsReadyToRelease) {
-            // Completed 5s hold: UP arrow & "RELEASE"
+            // Completed hold: UP arrow & "RELEASE"
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.offset {
@@ -487,7 +620,7 @@ fun DraggableBead(
                 Text(
                     text = "RELEASE",
                     color = MedievalGoldBright,
-                    fontSize = 11.5.sp,
+                    fontSize = 12.sp,
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.8.sp

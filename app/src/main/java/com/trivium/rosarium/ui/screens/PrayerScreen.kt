@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.data.model.DecadeStep
+import com.trivium.rosarium.physics.PhysicsConstants
 import com.trivium.rosarium.ui.components.BeadChain
 import com.trivium.rosarium.ui.components.DraggableBead
 import com.trivium.rosarium.ui.components.MysteryBackground
@@ -219,6 +220,15 @@ fun PrayerScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
                 key(state.decadeIndex, state.currentStep, state.completedHailMarysInDecade) {
+                    val baseSpeedSeconds = settings.prayerDurationSeconds
+                    val currentPrayerDurationMs = when (state.currentStep) {
+                        DecadeStep.OUR_FATHER -> maxOf(PhysicsConstants.MIN_OUR_FATHER_DURATION_MS, baseSpeedSeconds * 2000L)
+                        DecadeStep.HAIL_MARY -> maxOf(PhysicsConstants.MIN_HAIL_MARY_DURATION_MS, baseSpeedSeconds * 1000L)
+                        DecadeStep.GLORY_BE -> PhysicsConstants.GLORY_BE_DURATION_MS
+                        DecadeStep.FATIMA -> maxOf(6_000L, (baseSpeedSeconds * 1200L))
+                        else -> maxOf(8_000L, baseSpeedSeconds * 1500L)
+                    }
+
                     DraggableBead(
                         isWhiteBead = state.isWhiteBeadActive,
                         completedBeadIndex = state.completedHailMarysInDecade,
@@ -229,6 +239,8 @@ fun PrayerScreen(
                         isReadyToRelease = state.isReadyToRelease,
                         isTapToPrayEnabled = settings.tapToPrayEnabled,
                         prayerProgress = state.prayerProgress,
+                        prayerDurationMs = currentPrayerDurationMs,
+                        isDark = settings.isDarkMode,
                         isSnappingUp = state.isSpringSnapping,
                         currentStep = state.currentStep,
                         targetSnapOffsetPx = targetSnapOffsetPx,
