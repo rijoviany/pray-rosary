@@ -91,7 +91,7 @@ fun HomeScreen(
             .background(bgColor)
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 12.dp)
+            .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 16.dp)
     ) {
         // 1. Top Bar with Hamburger & Notification Bell
         Row(

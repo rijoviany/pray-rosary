@@ -15,12 +15,16 @@ class RosaryAudioHelper(private val context: Context) {
     private val soundIds = mutableMapOf<String, Int>()
     private var isLoaded = false
 
-    private val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
-        vibratorManager?.defaultVibrator
-    } else {
-        @Suppress("DEPRECATION")
-        context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    private val vibrator: Vibrator? = try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+            vibratorManager?.defaultVibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        }
+    } catch (_: Exception) {
+        null
     }
 
     init {
@@ -75,61 +79,102 @@ class RosaryAudioHelper(private val context: Context) {
     }
 
     fun performHapticTick() {
-        vibrator?.let { v ->
+        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
+        try {
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .build()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK))
+                v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK), audioAttributes)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(30, 180), audioAttributes)
             } else {
                 @Suppress("DEPRECATION")
-                v.vibrate(15)
+                v.vibrate(30)
             }
+        } catch (_: Exception) {
+            try {
+                @Suppress("DEPRECATION")
+                v.vibrate(30)
+            } catch (_: Exception) {}
         }
     }
 
     /**
-     * Subtle, crisp, tiny vibration specifically when the bead has completed its prayer duration
+     * Tactile, distinct vibration specifically when the bead has completed its prayer duration
      * and is ready to be released by the user.
-     * Uses an explicit 45ms one-shot pulse at default amplitude to guarantee physical motor actuation
-     * across all Android OEMs (Pixel, Samsung, Xiaomi, Motorola, etc.).
+     * Uses USAGE_ASSISTANCE_SONIFICATION to bypass OEM background suppression, and a double pulse
+     * (70ms pulse, 50ms gap, 70ms pulse) at max amplitude (255) so it is guaranteed to actuate both
+     * high-end LRA motors and standard ERM rotational motors.
      */
     fun performReleaseReadyHaptic() {
-        vibrator?.let { v ->
-            if (!v.hasVibrator()) return@let
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    v.vibrate(VibrationEffect.createOneShot(45, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    @Suppress("DEPRECATION")
-                    v.vibrate(45)
-                }
-            } catch (e: Exception) {
-                try {
-                    @Suppress("DEPRECATION")
-                    v.vibrate(45)
-                } catch (_: Exception) {}
+        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
+        try {
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .build()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val timings = longArrayOf(0, 70, 50, 70)
+                val amplitudes = intArrayOf(0, 255, 0, 255)
+                val effect = VibrationEffect.createWaveform(timings, amplitudes, -1)
+                v.vibrate(effect, audioAttributes)
+            } else {
+                @Suppress("DEPRECATION")
+                v.vibrate(longArrayOf(0, 70, 50, 70), -1)
             }
+        } catch (e: Exception) {
+            try {
+                @Suppress("DEPRECATION")
+                v.vibrate(100)
+            } catch (_: Exception) {}
         }
     }
 
     fun performHapticPulse() {
-        vibrator?.let { v ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                v.vibrate(VibrationEffect.createOneShot(25, 80))
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(25)
-            }
-        }
-    }
+        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
+        try {
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .build()
 
-    fun performImpactClack(decayLevel: Float = 1.0f) {
-        vibrator?.let { v ->
-            val amplitude = (255 * decayLevel.coerceIn(0.1f, 1.0f)).toInt()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                v.vibrate(VibrationEffect.createOneShot(35, amplitude))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(35, 200), audioAttributes)
             } else {
                 @Suppress("DEPRECATION")
                 v.vibrate(35)
             }
+        } catch (_: Exception) {
+            try {
+                @Suppress("DEPRECATION")
+                v.vibrate(35)
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun performImpactClack(decayLevel: Float = 1.0f) {
+        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
+        val amplitude = (255 * decayLevel.coerceIn(0.2f, 1.0f)).toInt()
+        try {
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .build()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(45, amplitude), audioAttributes)
+            } else {
+                @Suppress("DEPRECATION")
+                v.vibrate(45)
+            }
+        } catch (_: Exception) {
+            try {
+                @Suppress("DEPRECATION")
+                v.vibrate(45)
+            } catch (_: Exception) {}
         }
     }
 

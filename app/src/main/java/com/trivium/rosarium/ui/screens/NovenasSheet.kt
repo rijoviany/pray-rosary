@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -183,7 +184,8 @@ private fun NovenasListView(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(NavyHeader)
-                .padding(horizontal = 8.dp, vertical = 12.dp),
+                .statusBarsPadding()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onClose) {
@@ -368,7 +370,8 @@ private fun NovenaDetailView(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(NavyHeader)
-                .padding(horizontal = 8.dp, vertical = 12.dp),
+                .statusBarsPadding()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {

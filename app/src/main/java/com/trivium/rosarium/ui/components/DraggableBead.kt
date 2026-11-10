@@ -142,11 +142,13 @@ fun DraggableBead(
     LaunchedEffect(isReadyToRelease) {
         if (isReadyToRelease && currentIsPrayingActive) {
             try {
+                view.isHapticFeedbackEnabled = true
+                val flags = HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING or HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                    view.performHapticFeedback(HapticFeedbackConstants.CONFIRM, flags)
                 } else {
                     @Suppress("DEPRECATION")
-                    view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, flags)
                 }
             } catch (_: Exception) {}
         }
@@ -529,7 +531,7 @@ fun DraggableBead(
                 )
             }
         } else if (currentIsPrayingActive && !currentIsReadyToRelease) {
-            // Actively holding & praying: Circular countdown indicator & time left
+            // Actively holding & praying: Live countdown and instructions
             val remainingMs = (prayerDurationMs * (1f - prayerProgress)).coerceAtLeast(0f)
             val remainingSec = remainingMs / 1000f
             val remainingText = String.format(Locale.US, "%.1fs", remainingSec)
@@ -540,52 +542,21 @@ fun DraggableBead(
                     IntOffset(x = 0, y = indicatorY)
                 }
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Box(
-                        modifier = Modifier.size(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Canvas(modifier = Modifier.fillMaxSize()) {
-                            val r = size.minDimension / 2f - 1.5.dp.toPx()
-                            val c = Offset(size.width / 2f, size.height / 2f)
-                            drawCircle(
-                                color = MedievalGoldDark.copy(alpha = 0.35f),
-                                radius = r,
-                                center = c,
-                                style = Stroke(width = 1.8.dp.toPx())
-                            )
-                            drawArc(
-                                color = MedievalGoldBright,
-                                startAngle = -90f,
-                                sweepAngle = (360f * prayerProgress).coerceIn(0f, 360f),
-                                useCenter = false,
-                                topLeft = Offset(c.x - r, c.y - r),
-                                size = Size(r * 2f, r * 2f),
-                                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Release in $remainingText",
-                        color = MedievalGoldBright,
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.6.sp
-                    )
-                }
+                Text(
+                    text = "Release in $remainingText",
+                    color = MedievalGoldBright,
+                    fontSize = 12.5.sp,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.6.sp
+                )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "Keep holding bead",
                     color = if (isDark) Color(0xFFD4C8B4) else Color(0xFF1E2836).copy(alpha = 0.75f),
                     fontSize = 10.5.sp,
                     fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Normal,
-                    letterSpacing = 0.3.sp
+                    fontWeight = FontWeight.Normal
                 )
             }
         } else if (currentIsPrayingActive && currentIsReadyToRelease) {
