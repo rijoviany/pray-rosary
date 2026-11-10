@@ -14,8 +14,8 @@ android {
         applicationId = "com.trivium.rosarium"
         minSdk = 26
         targetSdk = 36
-        versionCode = 26
-        versionName = "1.0.2.6"
+        versionCode = 27
+        versionName = "1.0.2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

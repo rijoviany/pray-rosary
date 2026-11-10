@@ -145,6 +145,7 @@ fun PrayerScreen(
                 isOurFatherCompleted = state.isOurFatherCompleted,
                 justCompletedIndex = state.justCompletedBeadIndex,
                 isHoldPraying = state.isPrayingActive,
+                isSnappingUp = state.isSpringSnapping,
                 totalBeadsInDecade = beadsPerGroup,
                 primaryColor = primaryColor,
                 specularColor = specularColor,

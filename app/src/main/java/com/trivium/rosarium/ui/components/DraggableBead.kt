@@ -158,6 +158,12 @@ fun DraggableBead(
     LaunchedEffect(isSnappingUp) {
         if (isSnappingUp) {
             try {
+                // If an existing bead is occupying the top center socket,
+                // pause briefly so the top bead glides out of the socket before this bead launches
+                if (!isWhiteBead || completedBeadIndex > 0) {
+                    delay(130L)
+                }
+
                 // Play tension release wobble during upward flight
                 launch {
                     rotationWobble.animateTo(
@@ -174,10 +180,10 @@ fun DraggableBead(
                 val targetOffset = if (targetSnapOffsetPx < -80f) targetSnapOffsetPx else with(density) { -410.dp.toPx() }
                 val bounceOvershootPx = with(density) { 7.dp.toPx() }
 
-                // 1. High-speed upward elastic flight reaching the central empty slot
+                // 1. High-speed upward elastic flight reaching the vacated central socket
                 dragOffsetY.animateTo(
                     targetValue = targetOffset,
-                    animationSpec = tween(280, easing = FastOutSlowInEasing)
+                    animationSpec = tween(260, easing = FastOutSlowInEasing)
                 )
 
                 // 2. Initial impact clack sound & haptic
