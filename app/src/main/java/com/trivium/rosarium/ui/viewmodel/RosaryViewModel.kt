@@ -20,6 +20,8 @@ import com.trivium.rosarium.data.repository.NovenaRepository
 import com.trivium.rosarium.data.repository.PreferencesRepository
 import com.trivium.rosarium.data.repository.RosaryRepository
 import com.trivium.rosarium.physics.PhysicsConstants
+import com.trivium.rosarium.update.InAppUpdateManager
+import com.trivium.rosarium.update.UpdateStatus
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +38,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     private val novenaRepository = NovenaRepository()
     val familyRepository = FamilyRepository(application)
     val audioHelper = RosaryAudioHelper(application)
+    val updateManager = InAppUpdateManager(application)
 
+    val updateStatus: StateFlow<UpdateStatus> = updateManager.updateStatus
     val familyState: StateFlow<FamilyGroup?> = familyRepository.currentFamily
     val pendingInviteState: StateFlow<PendingInvite?> = familyRepository.pendingInvite
 
@@ -109,6 +113,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 }
             }
         }
+
+        // Check for updates on startup
+        updateManager.checkForUpdate()
     }
 
     fun getMysteryCatalog(): MysteryCatalog {
@@ -528,8 +535,29 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         familyRepository.setPendingInvite(null)
     }
 
+    // In-App Updates
+    fun checkForUpdate(onResult: (Boolean, com.google.android.play.core.appupdate.AppUpdateInfo?) -> Unit = { _, _ -> }) {
+        updateManager.checkForUpdate(onResult)
+    }
+
+    fun dismissUpdatePrompt() {
+        updateManager.dismissPrompt()
+    }
+
+    fun startUpdate(
+        activity: android.app.Activity,
+        launcher: androidx.activity.result.ActivityResultLauncher<androidx.activity.result.IntentSenderRequest>? = null
+    ) {
+        updateManager.startUpdate(activity, launcher)
+    }
+
+    fun completeFlexibleUpdate() {
+        updateManager.completeFlexibleUpdate()
+    }
+
     override fun onCleared() {
         super.onCleared()
         audioHelper.release()
+        updateManager.unregister()
     }
 }

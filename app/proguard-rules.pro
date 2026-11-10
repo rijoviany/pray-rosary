@@ -28,3 +28,7 @@
     *;
 }
 -keep class com.trivium.rosarium.data.model.** { *; }
+
+# Google Play In-App Updates
+-keep class com.google.android.play.core.appupdate.** { *; }
+-keep class com.google.android.play.core.install.** { *; }

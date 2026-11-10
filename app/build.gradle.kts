@@ -83,5 +83,9 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
 
+    // Google Play In-App Updates
+    implementation(libs.play.app.update)
+    implementation(libs.play.app.update.ktx)
+
     debugImplementation(libs.androidx.ui.tooling)
 }

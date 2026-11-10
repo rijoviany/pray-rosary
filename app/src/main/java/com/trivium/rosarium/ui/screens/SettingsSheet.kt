@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -57,6 +58,7 @@ fun SettingsSheet(
     settings: SettingsState,
     onUpdateSettings: (SettingsState) -> Unit,
     onOpenFamily: () -> Unit = {},
+    onCheckForUpdate: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -407,15 +409,48 @@ fun SettingsSheet(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // App Version Footer
-            Text(
-                text = "Rosarium • v1.0.2.4 (Build 24)",
-                color = mutedText.copy(alpha = 0.7f),
-                fontSize = 12.sp,
-                fontFamily = FontFamily.Serif,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // App Version Footer & Check for Updates
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Rosarium • v1.0.2.4 (Build 24)",
+                    color = mutedText.copy(alpha = 0.75f),
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily.Serif,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .border(1.dp, MedievalGold.copy(alpha = 0.45f), RoundedCornerShape(20.dp))
+                        .background(if (isDark) Color(0xFF132338) else Color(0xFFEFE8DB))
+                        .clickable { onCheckForUpdate() }
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Check for updates",
+                        tint = MedievalGoldBright,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = "Check for Updates",
+                        color = primaryText,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
         }

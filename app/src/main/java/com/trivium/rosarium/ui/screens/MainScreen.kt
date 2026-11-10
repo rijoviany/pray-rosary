@@ -1,5 +1,6 @@
 package com.trivium.rosarium.ui.screens
 
+import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +51,7 @@ import com.trivium.rosarium.R
 import com.trivium.rosarium.ui.components.InviteReceivedDialog
 import com.trivium.rosarium.ui.components.QuickAccessDrawerContent
 import com.trivium.rosarium.ui.components.QuickAccessPrayersSheet
+import com.trivium.rosarium.ui.components.UpdatePromptDialog
 import com.trivium.rosarium.ui.theme.MedievalGoldBright
 import com.trivium.rosarium.ui.viewmodel.RosaryViewModel
 import kotlinx.coroutines.launch
@@ -70,14 +73,17 @@ private val MutedSlate = Color(0xFF6B7A8D)
 @Composable
 fun MainScreen(
     viewModel: RosaryViewModel,
+    onTriggerUpdate: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val state by viewModel.rosaryState.collectAsState()
     val settings by viewModel.settingsState.collectAsState()
     val stats by viewModel.statsState.collectAsState()
     val novenaProgressMap by viewModel.novenaProgressMap.collectAsState()
     val family by viewModel.familyState.collectAsState()
     val pendingInvite by viewModel.pendingInviteState.collectAsState()
+    val updateStatus by viewModel.updateStatus.collectAsState()
 
     var currentTab by remember { mutableStateOf(RosariumTab.HOME) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -358,6 +364,14 @@ fun MainScreen(
                     settings = settings,
                     onUpdateSettings = { viewModel.updateSettings(it) },
                     onOpenFamily = { showFamilySheet = true },
+                    onCheckForUpdate = {
+                        Toast.makeText(context, "Checking for updates...", Toast.LENGTH_SHORT).show()
+                        viewModel.checkForUpdate { isAvailable, _ ->
+                            if (!isAvailable) {
+                                Toast.makeText(context, "Rosarium is up to date (v1.0.2.4)", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
                     onDismiss = { showSettingsSheet = false }
                 )
             }
@@ -379,6 +393,24 @@ fun MainScreen(
                     pendingInvite = invite,
                     onJoin = { memberName -> viewModel.acceptPendingInvite(memberName) },
                     onDecline = { viewModel.declinePendingInvite() }
+                )
+            }
+
+            // In-App Update Prompt Dialog
+            if (updateStatus.isAvailable || updateStatus.isDownloaded) {
+                UpdatePromptDialog(
+                    isDownloaded = updateStatus.isDownloaded,
+                    isDark = settings.isDarkMode,
+                    onUpdate = {
+                        if (updateStatus.isDownloaded) {
+                            viewModel.completeFlexibleUpdate()
+                        } else {
+                            onTriggerUpdate()
+                        }
+                    },
+                    onDismiss = {
+                        viewModel.dismissUpdatePrompt()
+                    }
                 )
             }
         }
