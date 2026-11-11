@@ -241,21 +241,18 @@ class RosaryAudioHelper(private val context: Context) {
         )
     }
 
+    /**
+     * 1st Haptic: Clean, crisp tactile click when the bead is clicked / touch starts.
+     */
     fun performHapticTick() {
-        safeVibrate(durationMs = 60L, amplitude = 200)
+        safeVibrate(durationMs = 50L, amplitude = 220)
     }
 
     /**
-     * Tactile, distinct vibration specifically when the bead has completed its prayer duration
-     * and is ready to be released by the user.
-     * Uses a double pulse (100ms buzz, 60ms gap, 130ms buzz) at max intensity.
+     * 2nd Haptic: Distinct tactile vibration when prayer duration finishes and bead is ready to release.
      */
     fun performReleaseReadyHaptic() {
-        safeVibrate(
-            durationMs = 130L,
-            amplitude = 255,
-            pattern = longArrayOf(0, 100, 60, 130)
-        )
+        safeVibrate(durationMs = 120L, amplitude = 255)
     }
 
     fun performHapticPulse() {

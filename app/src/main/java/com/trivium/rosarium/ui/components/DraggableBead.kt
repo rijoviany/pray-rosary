@@ -138,17 +138,6 @@ fun DraggableBead(
         label = "arrowFloatY"
     )
 
-    // Haptic feedback when bead reaches completion and is ready to release
-    LaunchedEffect(isReadyToRelease) {
-        if (isReadyToRelease && currentIsPrayingActive) {
-            try {
-                view.isHapticFeedbackEnabled = true
-                val flags = HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING or HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
-                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, flags)
-            } catch (_: Exception) {}
-        }
-    }
-
     // Handle Snap-Up Spring Animation when prayer completes
     LaunchedEffect(isSnappingUp) {
         if (isSnappingUp) {

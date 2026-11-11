@@ -313,14 +313,6 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                         currentPhraseIndex = phraseIndex
                     )
                 }
-
-                // Subtle rhythmic haptic tick every ~1.2 seconds
-                if (elapsed - lastHapticTime >= PhysicsConstants.HAPTIC_PULSE_INTERVAL_MS) {
-                    lastHapticTime = elapsed
-                    if (_settingsState.value.hapticFeedbackEnabled) {
-                        audioHelper.performHapticPulse()
-                    }
-                }
             }
 
             // Duration completed (5s for Hail Mary / 10s for Our Father / 2s for Glory Be):
@@ -387,9 +379,6 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     fun onBounceImpact(decayLevel: Float) {
         if (_settingsState.value.soundEffectsEnabled) {
             audioHelper.playBeadClack(decayLevel)
-        }
-        if (_settingsState.value.hapticFeedbackEnabled) {
-            audioHelper.performImpactClack(decayLevel)
         }
     }
 
