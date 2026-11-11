@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.trivium.rosarium.R
 import com.trivium.rosarium.data.model.DecadeStep
@@ -97,24 +98,25 @@ fun MysteryMedallion(
     currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     isHoldPraying: Boolean,
     fontScale: Float = 1.0f,
+    customWidth: Dp? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val imageName = currentMystery?.imageAsset ?: "mystery_joyful_1"
     val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
 
-    val archWidth = when {
-        fontScale >= 1.25f -> 160.dp
-        fontScale >= 1.10f -> 185.dp
-        else -> 210.dp
+    val archWidth = customWidth ?: when {
+        fontScale >= 1.25f -> 118.dp
+        fontScale >= 1.10f -> 130.dp
+        else -> 142.dp
     }
-    val archHeight = archWidth * 1.18f
+    val archHeight = archWidth * 1.15f
     val topCurveRadius = archWidth / 2
     val archShape = RoundedCornerShape(
         topStart = topCurveRadius,
         topEnd = topCurveRadius,
-        bottomStart = 16.dp,
-        bottomEnd = 16.dp
+        bottomStart = 14.dp,
+        bottomEnd = 14.dp
     )
 
     Box(

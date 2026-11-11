@@ -3,6 +3,7 @@ package com.trivium.rosarium.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -12,6 +13,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -70,8 +72,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -771,8 +776,9 @@ private fun VigilCandleItem(
 
 /**
  * The Perforated Devotional Tear Card:
- * Renders the daily novena prayer with a physical tear-away stub at the bottom.
- * Dragging downward rips the perforated paper with resistance, angle tilt, and micro-haptic ticks.
+ * Renders the daily novena prayer with a full-page tear-off animation.
+ * The page visibly peels, angles diagonally, flutters downward along the perforated seam,
+ * and reveals the next day's devotion.
  */
 @Composable
 private fun PerforatedNovenaTearCard(
@@ -787,276 +793,382 @@ private fun PerforatedNovenaTearCard(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
 
-    val tearThresholdPx = with(density) { 110.dp.toPx() }
-    val highlightThresholdPx = with(density) { 20.dp.toPx() }
-    val tickStepPx = with(density) { 18.dp.toPx() }
-    val dropTargetPx = with(density) { 240.dp.toPx() }
+    val tearThresholdPx = with(density) { 120.dp.toPx() }
+    val tickStepPx = with(density) { 16.dp.toPx() }
+    val dropTargetPx = with(density) { 420.dp.toPx() }
 
-    val dragOffsetAnim = remember { Animatable(0f) }
+    val tearProgressAnim = remember { Animatable(0f) }
     var isTearing by remember { mutableStateOf(false) }
     var lastHapticStep by remember { mutableIntStateOf(0) }
 
     val cardBg = if (isDark) Color(0xFF132235) else CardIvory
     val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(2.dp, RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(cardBg)
-            .border(1.dp, if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
-    ) {
-        // Upper Prayer Text Section
+    val tearProgress = tearProgressAnim.value
+    val tearTranslationY = tearProgress * dropTargetPx
+    val tearTranslationX = -32f * tearProgress * with(density) { 1.dp.toPx() }
+    val tearRotationZ = -16f * tearProgress
+    val tearRotationY = (kotlin.math.sin(tearProgress * Math.PI.toFloat()) * 14f)
+    val tearAlpha = if (tearProgress < 0.55f) 1f else (1f - (tearProgress - 0.55f) / 0.45f).coerceIn(0f, 1f)
+
+    fun launchTearSequence() {
+        if (isTearing) return
+        coroutineScope.launch {
+            isTearing = true
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+
+            // Stepwise fiber-snap haptics during the tear
+            val hapticJob = launch {
+                for (i in 1..4) {
+                    kotlinx.coroutines.delay(110)
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
+            }
+
+            tearProgressAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 560, easing = FastOutSlowInEasing)
+            )
+            hapticJob.cancel()
+            onTearComplete()
+            tearProgressAnim.snapTo(0f)
+            isTearing = false
+        }
+    }
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        // Underneath Layer (Reveals as the top page tears off)
+        if (!isCompleted && tearProgress > 0.05f) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(if (isDark) Color(0xFF0F1B2B) else Color(0xFFF6F0E4))
+                    .border(1.dp, GoldAccent.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "✟",
+                        color = GoldAccent,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Day ${if (dayNumber < 9) dayNumber + 1 else 9} Devotion",
+                        color = GoldAccent,
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Revealing next day...",
+                        color = if (isDark) Color(0xFF9FB2C8) else MutedText,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+            }
+        }
+
+        // Active Devotional Page
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .graphicsLayer {
+                    translationX = tearTranslationX
+                    translationY = tearTranslationY
+                    rotationZ = tearRotationZ
+                    rotationY = tearRotationY
+                    alpha = tearAlpha
+                }
+                .shadow(elevation = if (tearProgress > 0f) 8.dp else 2.dp, shape = RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .background(cardBg)
+                .border(1.dp, if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // 1. Brass Perforated Binding Header Bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        if (isDark) {
+                            Brush.verticalGradient(listOf(Color(0xFF1E334D), Color(0xFF16253B)))
+                        } else {
+                            Brush.verticalGradient(listOf(Color(0xFFEDE4D3), Color(0xFFE2D6C0)))
+                        }
+                    )
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
-                Text(
-                    text = "DAY $dayNumber NOVENA PRAYER",
-                    color = GoldAccent,
-                    fontSize = 11.5.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.6.sp
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "✦ DAY $dayNumber NOVENA LEAFLET ✦",
+                        color = GoldAccent,
+                        fontSize = 11.5.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.8.sp
+                    )
 
-                if (isCompleted) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (isDark) Color(0xFF1A3826) else Color(0xFFE8F5E9))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                    ) {
+                    if (isCompleted) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(if (isDark) Color(0xFF1A3826) else Color(0xFFE8F5E9))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "SEALED",
+                                color = Color(0xFF4CAF50),
+                                fontSize = 10.sp,
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    } else {
                         Text(
-                            text = "SEALED",
-                            color = Color(0xFF4CAF50),
+                            text = "✂ PERFORATED",
+                            color = GoldAccent,
                             fontSize = 10.sp,
                             fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            prayerLines.forEach { line ->
-                Text(
-                    text = line,
-                    color = titleColor,
-                    fontSize = 14.5.sp,
-                    fontFamily = FontFamily.Serif,
-                    lineHeight = 22.sp,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
-        }
-
-        // Perforated Tear Line or Completed Wax Seal
-        if (isCompleted) {
-            // Stamped Wax Seal & Imprimatur
-            Box(
+            // Perforated Seam with punch-hole dots
+            Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(if (isDark) Color(0xFF0F1A28) else Color(0xFFFBF8F0))
-                    .padding(vertical = 16.dp, horizontal = 16.dp),
-                contentAlignment = Alignment.Center
+                    .height(6.dp)
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    // Episcopal Wax Seal Medallion
-                    Box(
-                        modifier = Modifier
-                            .size(56.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.radialGradient(
-                                    colors = listOf(Color(0xFF8B1E1E), Color(0xFF5B0E0E))
+                val w = size.width
+                val dotSpacing = 16.dp.toPx()
+                val dotRadius = 1.8.dp.toPx()
+                var x = 8.dp.toPx()
+                while (x < w - 8.dp.toPx()) {
+                    drawCircle(
+                        color = GoldAccent.copy(alpha = 0.45f),
+                        radius = dotRadius,
+                        center = Offset(x, 3.dp.toPx())
+                    )
+                    x += dotSpacing
+                }
+            }
+
+            // 2. Prayer Text Body
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                prayerLines.forEach { line ->
+                    Text(
+                        text = line,
+                        color = titleColor,
+                        fontSize = 14.5.sp,
+                        fontFamily = FontFamily.Serif,
+                        lineHeight = 22.sp,
+                        modifier = Modifier.padding(vertical = 2.dp)
+                    )
+                }
+            }
+
+            // 3. Bottom Section: Completed Wax Seal OR Tear Action Section
+            if (isCompleted) {
+                // Stamped Episcopal Wax Seal
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(if (isDark) Color(0xFF0F1A28) else Color(0xFFFBF8F0))
+                        .padding(vertical = 16.dp, horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    Brush.radialGradient(
+                                        colors = listOf(Color(0xFF8B1E1E), Color(0xFF5B0E0E))
+                                    )
                                 )
+                                .border(2.dp, Color(0xFFD4AF37), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "✟",
+                                color = Color(0xFFFFD54F),
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Bold
                             )
-                            .border(2.dp, Color(0xFFD4AF37), CircleShape),
-                        contentAlignment = Alignment.Center
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "✦ DAY $dayNumber DEVOTION COMPLETED ✦",
+                            color = if (isDark) Color(0xFF81C784) else Color(0xFF2E7D32),
+                            fontSize = 13.sp,
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        Text(
+                            text = "Votive candle burning on the holy altar • Deo Gratias",
+                            color = if (isDark) Color(0xFF9FB2C8) else MutedText,
+                            fontSize = 11.5.sp,
+                            fontFamily = FontFamily.Serif
+                        )
+                    }
+                }
+            } else {
+                // Perforated Tear Seam Divider
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -",
+                        color = GoldAccent.copy(alpha = 0.6f),
+                        fontSize = 11.sp,
+                        letterSpacing = 1.sp,
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "✂",
+                        color = GoldAccent,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
+
+                // Interactive Tear Controls: Drag Tab + Animated Tear Button
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                        .background(
+                            if (isDark) {
+                                Brush.verticalGradient(listOf(Color(0xFF1A2E44), Color(0xFF122030)))
+                            } else {
+                                Brush.verticalGradient(listOf(Color(0xFFF3ECE0), Color(0xFFE8DDC8)))
+                            }
+                        )
+                        .pointerInput(dayNumber) {
+                            detectVerticalDragGestures(
+                                onDragStart = {
+                                    isTearing = true
+                                    lastHapticStep = 0
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                },
+                                onDragEnd = {
+                                    if (tearProgressAnim.value >= 0.35f) {
+                                        launchTearSequence()
+                                    } else {
+                                        isTearing = false
+                                        coroutineScope.launch {
+                                            tearProgressAnim.animateTo(0f, spring(dampingRatio = 0.65f))
+                                        }
+                                    }
+                                },
+                                onDragCancel = {
+                                    isTearing = false
+                                    coroutineScope.launch {
+                                        tearProgressAnim.animateTo(0f, spring(dampingRatio = 0.65f))
+                                    }
+                                },
+                                onVerticalDrag = { change, dragAmount ->
+                                    change.consume()
+                                    if (dragAmount > 0 || tearProgressAnim.value > 0f) {
+                                        val newProgress = (tearProgressAnim.value + (dragAmount / tearThresholdPx)).coerceIn(0f, 1f)
+                                        coroutineScope.launch {
+                                            tearProgressAnim.snapTo(newProgress)
+                                        }
+
+                                        // Progressive fiber-snap micro haptics
+                                        val step = (newProgress * 10f).toInt()
+                                        if (step != lastHapticStep) {
+                                            lastHapticStep = step
+                                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // One-Tap Animated Tear Button
+                    ElevatedButton(
+                        onClick = { launchTearSequence() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.elevatedButtonColors(
+                            containerColor = NavyHeader,
+                            contentColor = Color.White
+                        )
                     ) {
                         Text(
-                            text = "✟",
-                            color = Color(0xFFFFD54F),
-                            fontSize = 26.sp,
+                            text = "✂",
+                            color = GoldBright,
+                            fontSize = 16.sp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Tear Day $dayNumber to Conclude Devotion",
+                            fontSize = 13.5.sp,
+                            fontFamily = FontFamily.Serif,
                             fontWeight = FontWeight.Bold
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        text = "✦ DAY $dayNumber DEVOTION COMPLETED ✦",
-                        color = if (isDark) Color(0xFF81C784) else Color(0xFF2E7D32),
-                        fontSize = 13.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Text(
-                        text = "Votive candle burning on the holy altar • Deo Gratias",
-                        color = if (isDark) Color(0xFF9FB2C8) else MutedText,
-                        fontSize = 11.5.sp,
-                        fontFamily = FontFamily.Serif
-                    )
-                }
-            }
-        } else {
-            // Perforated Dashed Line Divider
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -",
-                    color = GoldAccent.copy(alpha = 0.6f),
-                    fontSize = 11.sp,
-                    letterSpacing = 1.sp,
-                    maxLines = 1,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "✂",
-                    color = GoldAccent,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
-            }
-
-            // Tear Tab with Downward Drag Mechanics
-            val currentOffset = dragOffsetAnim.value
-            val tearRotation = (currentOffset / 20f).coerceIn(-4f, 4f)
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset { IntOffset(0, currentOffset.roundToInt()) }
-                    .rotate(tearRotation)
-                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .background(
-                        if (isDark) {
-                            Brush.verticalGradient(
-                                colors = listOf(Color(0xFF1E334D), Color(0xFF142438))
-                            )
-                        } else {
-                            Brush.verticalGradient(
-                                colors = listOf(Color(0xFFF3ECE0), Color(0xFFE9DEC9))
-                            )
-                        }
-                    )
-                    .border(
-                        1.dp,
-                        if (currentOffset > highlightThresholdPx) GoldBright else GoldAccent.copy(alpha = 0.5f),
-                        RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                    )
-                    .pointerInput(dayNumber) {
-                        detectVerticalDragGestures(
-                            onDragStart = {
-                                isTearing = true
-                                lastHapticStep = 0
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            },
-                            onDragEnd = {
-                                isTearing = false
-                                if (dragOffsetAnim.value >= tearThresholdPx) {
-                                    coroutineScope.launch {
-                                        // Tear sheet flutter drop away
-                                        dragOffsetAnim.animateTo(dropTargetPx, tween(200))
-                                        onTearComplete()
-                                        dragOffsetAnim.snapTo(0f)
-                                    }
-                                } else {
-                                    coroutineScope.launch {
-                                        dragOffsetAnim.animateTo(0f, spring(dampingRatio = 0.65f))
-                                    }
-                                }
-                            },
-                            onDragCancel = {
-                                isTearing = false
-                                coroutineScope.launch {
-                                    dragOffsetAnim.animateTo(0f, spring(dampingRatio = 0.65f))
-                                }
-                            },
-                            onVerticalDrag = { change, dragAmount ->
-                                change.consume()
-                                if (dragAmount > 0 || dragOffsetAnim.value > 0) {
-                                    val newOffset = (dragOffsetAnim.value + dragAmount * 0.75f).coerceAtLeast(0f)
-                                    coroutineScope.launch {
-                                        dragOffsetAnim.snapTo(newOffset)
-                                    }
-
-                                    // Micro haptic ticks simulating tearing paper fibers
-                                    val step = (newOffset / tickStepPx).toInt()
-                                    if (step != lastHapticStep) {
-                                        lastHapticStep = step
-                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                    }
-                                }
-                            }
-                        )
-                    }
-                    .padding(vertical = 14.dp, horizontal = 16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "✟",
-                            color = GoldAccent,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "DRAG DOWN TO TEAR DAY $dayNumber",
-                            color = if (isDark) Color.White else NavyHeader,
-                            fontSize = 13.sp,
-                            fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+                    // Drag Affordance Text
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Pull Down",
+                            contentDescription = null,
                             tint = GoldAccent,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "or pull downward to tear page physically",
+                            color = if (isDark) Color(0xFF9FB2C8) else MutedText,
+                            fontSize = 11.5.sp,
+                            fontFamily = FontFamily.Serif,
+                            fontStyle = FontStyle.Italic
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = GoldAccent,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Text(
-                        text = "Rip page upon concluding devotion to light Day $dayNumber candle",
-                        color = if (isDark) Color(0xFF9FB2C8) else MutedText,
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily.Serif
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Accessible tap alternative
-                    Text(
-                        text = "or tap here to mark complete",
-                        color = GoldAccent,
-                        fontSize = 11.5.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontStyle = FontStyle.Italic,
-                        modifier = Modifier.clickable { onTearComplete() }
-                    )
                 }
             }
         }

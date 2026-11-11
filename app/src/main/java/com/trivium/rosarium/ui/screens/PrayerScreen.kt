@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -117,116 +118,137 @@ fun PrayerScreen(
         )
 
         // 2. Main Holy Rosary Column flowing from Top to Bottom
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .navigationBarsPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .navigationBarsPadding()
         ) {
-            // Top Navigation Bar (Hamburg Menu, Mystery Selector, Scripture)
-            TopMedievalBar(
-                mysterySetName = state.currentMysterySet.name,
-                currentMysteryTitle = "${state.decadeIndex + 1}. ${state.currentMystery?.title ?: ""}",
-                onMenuClick = { showSettingsSheet = true },
-                onTitleClick = { showMysterySelector = true },
-                onBackClick = onNavigateBack,
-                onScriptureClick = { showIntentionsSheet = true }
-            )
+            val screenHeight = maxHeight
+            val isSmallScreen = screenHeight < 740.dp
+            val isMediumScreen = screenHeight < 820.dp
 
-            val currentSet = state.currentMysterySet
-            val beadsPerGroup = currentSet.effectiveBeadsPerDecade
-            val primaryColor = currentSet.primaryBeadColor
-            val specularColor = currentSet.specularBeadColor
-            val darkColor = currentSet.darkBeadColor
-
-            // Top Rosary Arc: 10 Hail Mary beads (or 7 for St. Michael), center Our Father bead, and hanging crucifix
-            BeadChain(
-                completedHailMarys = state.completedHailMarysInDecade,
-                isOurFatherCompleted = state.isOurFatherCompleted,
-                justCompletedIndex = state.justCompletedBeadIndex,
-                isHoldPraying = state.isPrayingActive,
-                isSnappingUp = state.isSpringSnapping,
-                totalBeadsInDecade = beadsPerGroup,
-                primaryColor = primaryColor,
-                specularColor = specularColor,
-                darkColor = darkColor,
-                modifier = Modifier.onGloballyPositioned { coordinates ->
-                    centerSocketWindowY = coordinates.positionInWindow().y + with(density) { 22.dp.toPx() }
-                }
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            // Centerpiece Mystery Medallion with Left & Right Decade Navigation Arrows
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(
-                    onClick = {
-                        val prev = (state.decadeIndex - 1).coerceAtLeast(0)
-                        viewModel.selectDecade(prev)
-                    },
-                    enabled = state.decadeIndex > 0
-                ) {
-                    val activeTint = if (isDark) Color.White.copy(alpha = 0.85f) else Color(0xFF1E2836).copy(alpha = 0.85f)
-                    val inactiveTint = if (isDark) Color.White.copy(alpha = 0.2f) else Color(0xFF1E2836).copy(alpha = 0.2f)
-                    Icon(
-                        imageVector = Icons.Default.ChevronLeft,
-                        contentDescription = "Previous Decade",
-                        tint = if (state.decadeIndex > 0) activeTint else inactiveTint,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-
-                MysteryMedallion(
-                    currentMystery = state.currentMystery,
-                    currentStep = state.currentStep,
-                    isHoldPraying = state.isPrayingActive,
-                    fontScale = settings.fontScale
-                )
-
-                val maxDecade = (state.currentMysterySet.mysteries.size - 1).coerceAtLeast(0)
-                IconButton(
-                    onClick = {
-                        val next = (state.decadeIndex + 1).coerceAtMost(maxDecade)
-                        viewModel.selectDecade(next)
-                    },
-                    enabled = state.decadeIndex < maxDecade
-                ) {
-                    val activeTint = if (isDark) Color.White.copy(alpha = 0.85f) else Color(0xFF1E2836).copy(alpha = 0.85f)
-                    val inactiveTint = if (isDark) Color.White.copy(alpha = 0.2f) else Color(0xFF1E2836).copy(alpha = 0.2f)
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Next Decade",
-                        tint = if (state.decadeIndex < maxDecade) activeTint else inactiveTint,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+            val medallionWidth = when {
+                isSmallScreen -> 120.dp
+                isMediumScreen -> 134.dp
+                else -> 146.dp
             }
 
-            Spacer(modifier = Modifier.height(2.dp))
+            val maxBannerHeight = when {
+                isSmallScreen -> 125.dp
+                isMediumScreen -> 140.dp
+                else -> 155.dp
+            }
 
-            // Parchment Prayer Card: PRAYING header, title, karaoke line-by-line text, cross divider
-            PrayerBanner(
-                prayer = state.activePrayer,
-                currentPhraseIndex = state.currentPhraseIndex,
-                prayerProgress = state.prayerProgress,
-                isHoldPraying = state.isPrayingActive,
-                currentStep = state.currentStep,
-                fontScale = settings.fontScale
-            )
-
-            // Active Draggable Bead suspended on vertical golden chain directly below banner
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.TopCenter
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Top Navigation Bar (Hamburg Menu, Mystery Selector, Scripture)
+                TopMedievalBar(
+                    mysterySetName = state.currentMysterySet.name,
+                    currentMysteryTitle = "${state.decadeIndex + 1}. ${state.currentMystery?.title ?: ""}",
+                    onMenuClick = { showSettingsSheet = true },
+                    onTitleClick = { showMysterySelector = true },
+                    onBackClick = onNavigateBack,
+                    onScriptureClick = { showIntentionsSheet = true }
+                )
+
+                val currentSet = state.currentMysterySet
+                val beadsPerGroup = currentSet.effectiveBeadsPerDecade
+                val primaryColor = currentSet.primaryBeadColor
+                val specularColor = currentSet.specularBeadColor
+                val darkColor = currentSet.darkBeadColor
+
+                // Top Rosary Arc: 10 Hail Mary beads, center Our Father bead, and hanging crucifix
+                BeadChain(
+                    completedHailMarys = state.completedHailMarysInDecade,
+                    isOurFatherCompleted = state.isOurFatherCompleted,
+                    justCompletedIndex = state.justCompletedBeadIndex,
+                    isHoldPraying = state.isPrayingActive,
+                    isSnappingUp = state.isSpringSnapping,
+                    totalBeadsInDecade = beadsPerGroup,
+                    primaryColor = primaryColor,
+                    specularColor = specularColor,
+                    darkColor = darkColor,
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        centerSocketWindowY = coordinates.positionInWindow().y + with(density) { 22.dp.toPx() }
+                    }
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Centerpiece Mystery Medallion with Left & Right Decade Navigation Arrows
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    IconButton(
+                        onClick = {
+                            val prev = (state.decadeIndex - 1).coerceAtLeast(0)
+                            viewModel.selectDecade(prev)
+                        },
+                        enabled = state.decadeIndex > 0
+                    ) {
+                        val activeTint = if (isDark) Color.White.copy(alpha = 0.85f) else Color(0xFF1E2836).copy(alpha = 0.85f)
+                        val inactiveTint = if (isDark) Color.White.copy(alpha = 0.2f) else Color(0xFF1E2836).copy(alpha = 0.2f)
+                        Icon(
+                            imageVector = Icons.Default.ChevronLeft,
+                            contentDescription = "Previous Decade",
+                            tint = if (state.decadeIndex > 0) activeTint else inactiveTint,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+
+                    MysteryMedallion(
+                        currentMystery = state.currentMystery,
+                        currentStep = state.currentStep,
+                        isHoldPraying = state.isPrayingActive,
+                        fontScale = settings.fontScale,
+                        customWidth = medallionWidth
+                    )
+
+                    val maxDecade = (state.currentMysterySet.mysteries.size - 1).coerceAtLeast(0)
+                    IconButton(
+                        onClick = {
+                            val next = (state.decadeIndex + 1).coerceAtMost(maxDecade)
+                            viewModel.selectDecade(next)
+                        },
+                        enabled = state.decadeIndex < maxDecade
+                    ) {
+                        val activeTint = if (isDark) Color.White.copy(alpha = 0.85f) else Color(0xFF1E2836).copy(alpha = 0.85f)
+                        val inactiveTint = if (isDark) Color.White.copy(alpha = 0.2f) else Color(0xFF1E2836).copy(alpha = 0.2f)
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "Next Decade",
+                            tint = if (state.decadeIndex < maxDecade) activeTint else inactiveTint,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Parchment Prayer Card
+                PrayerBanner(
+                    prayer = state.activePrayer,
+                    currentPhraseIndex = state.currentPhraseIndex,
+                    prayerProgress = state.prayerProgress,
+                    isHoldPraying = state.isPrayingActive,
+                    currentStep = state.currentStep,
+                    fontScale = settings.fontScale,
+                    customMaxHeight = maxBannerHeight
+                )
+
+                // Active Draggable Bead suspended on vertical golden chain directly below banner
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.TopCenter
+                ) {
                 key(state.decadeIndex, state.currentStep, state.completedHailMarysInDecade) {
                     val baseSpeedSeconds = settings.prayerDurationSeconds
                     val currentPrayerDurationMs = when (state.currentStep) {
@@ -265,6 +287,7 @@ fun PrayerScreen(
             }
 
             Spacer(modifier = Modifier.height(4.dp))
+            }
         }
 
         // Rosary Completion Celebration Overlay

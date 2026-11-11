@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.data.model.DecadeStep
@@ -70,14 +71,15 @@ fun PrayerBanner(
     isHoldPraying: Boolean,
     currentStep: DecadeStep = DecadeStep.HAIL_MARY,
     fontScale: Float = 1.0f,
+    customMaxHeight: Dp? = null,
     modifier: Modifier = Modifier
 ) {
     if (prayer == null) return
 
-    val maxBannerHeight = when {
-        fontScale >= 1.25f -> 150.dp
-        fontScale >= 1.10f -> 170.dp
-        else -> 205.dp
+    val maxBannerHeight = customMaxHeight ?: when {
+        fontScale >= 1.25f -> 132.dp
+        fontScale >= 1.10f -> 142.dp
+        else -> 155.dp
     }
 
     val stanzas = remember(prayer.id, prayer.phrases) {
