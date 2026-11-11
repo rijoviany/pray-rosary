@@ -137,130 +137,135 @@ class RosaryAudioHelper(private val context: Context) {
         }.start()
     }
 
+    private fun getVibrator(): Vibrator? {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vm = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                vm?.defaultVibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)
+            } else {
+                @Suppress("DEPRECATION")
+                context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+            }
+        } catch (_: Exception) {
+            try {
+                @Suppress("DEPRECATION")
+                context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+
+    /**
+     * Executes robust vibration across all Android versions and OEM devices.
+     * Uses USAGE_ALARM to prevent OEM suppression when system "touch feedback" is disabled,
+     * with cascaded fallbacks to ensure ERM and LRA vibration motors actuate properly.
+     */
+    private fun safeVibrate(
+        durationMs: Long,
+        amplitude: Int = VibrationEffect.DEFAULT_AMPLITUDE,
+        pattern: LongArray? = null
+    ) {
+        val v = getVibrator() ?: return
+        if (!v.hasVibrator()) return
+
+        val hasAmp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try { v.hasAmplitudeControl() } catch (_: Exception) { false }
+        } else false
+
+        val effectiveAmp = if (hasAmp && amplitude > 0) amplitude.coerceIn(1, 255) else VibrationEffect.DEFAULT_AMPLITUDE
+
+        // USAGE_ALARM ensures vibration is delivered even if system touch haptics are turned off
+        val alarmAttrs = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_ALARM)
+            .build()
+
+        var success = false
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                val effect = if (pattern != null) {
+                    if (hasAmp) {
+                        val amps = IntArray(pattern.size) { idx -> if (idx % 2 == 1) effectiveAmp else 0 }
+                        VibrationEffect.createWaveform(pattern, amps, -1)
+                    } else {
+                        VibrationEffect.createWaveform(pattern, -1)
+                    }
+                } else {
+                    VibrationEffect.createOneShot(durationMs, effectiveAmp)
+                }
+                v.vibrate(effect, alarmAttrs)
+                success = true
+            } catch (e: Exception) {
+                Log.w("RosaryAudio", "Alarm attrs vibrate failed, falling back", e)
+            }
+        }
+
+        if (!success && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                val effect = if (pattern != null) {
+                    VibrationEffect.createWaveform(pattern, -1)
+                } else {
+                    VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE)
+                }
+                v.vibrate(effect)
+                success = true
+            } catch (_: Exception) {}
+        }
+
+        // Direct legacy fallback: guaranteed on 100% of Android hardware
+        if (!success) {
+            try {
+                @Suppress("DEPRECATION")
+                if (pattern != null) {
+                    v.vibrate(pattern, -1)
+                } else {
+                    v.vibrate(durationMs)
+                }
+            } catch (e: Exception) {
+                Log.e("RosaryAudio", "Legacy vibrate failed", e)
+            }
+        }
+    }
+
     /**
      * Tactile vibration pulse pattern simulating paper fibers tearing:
      * A series of micro ticks with progressive acceleration and crisp cutoff.
      */
     fun performPaperTearHaptic() {
-        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
-        try {
-            val audioAttributes = AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .build()
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val timings = longArrayOf(0, 16, 20, 20, 16, 24, 14, 38)
-                val amplitudes = intArrayOf(0, 150, 0, 180, 0, 210, 0, 255)
-                val effect = VibrationEffect.createWaveform(timings, amplitudes, -1)
-                v.vibrate(effect, audioAttributes)
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(70)
-            }
-        } catch (_: Exception) {
-            performHapticTick()
-        }
+        safeVibrate(
+            durationMs = 90L,
+            amplitude = 230,
+            pattern = longArrayOf(0, 25, 20, 35, 15, 60)
+        )
     }
 
     fun performHapticTick() {
-        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
-        try {
-            val audioAttributes = AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .build()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                v.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK), audioAttributes)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                v.vibrate(VibrationEffect.createOneShot(30, 180), audioAttributes)
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(30)
-            }
-        } catch (_: Exception) {
-            try {
-                @Suppress("DEPRECATION")
-                v.vibrate(30)
-            } catch (_: Exception) {}
-        }
+        safeVibrate(durationMs = 60L, amplitude = 200)
     }
 
     /**
      * Tactile, distinct vibration specifically when the bead has completed its prayer duration
      * and is ready to be released by the user.
-     * Uses USAGE_ASSISTANCE_SONIFICATION to bypass OEM background suppression, and a double pulse
-     * (70ms pulse, 50ms gap, 70ms pulse) at max amplitude (255) so it is guaranteed to actuate both
-     * high-end LRA motors and standard ERM rotational motors.
+     * Uses a double pulse (100ms buzz, 60ms gap, 130ms buzz) at max intensity.
      */
     fun performReleaseReadyHaptic() {
-        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
-        try {
-            val audioAttributes = AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .build()
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val timings = longArrayOf(0, 70, 50, 70)
-                val amplitudes = intArrayOf(0, 255, 0, 255)
-                val effect = VibrationEffect.createWaveform(timings, amplitudes, -1)
-                v.vibrate(effect, audioAttributes)
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(longArrayOf(0, 70, 50, 70), -1)
-            }
-        } catch (e: Exception) {
-            try {
-                @Suppress("DEPRECATION")
-                v.vibrate(100)
-            } catch (_: Exception) {}
-        }
+        safeVibrate(
+            durationMs = 130L,
+            amplitude = 255,
+            pattern = longArrayOf(0, 100, 60, 130)
+        )
     }
 
     fun performHapticPulse() {
-        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
-        try {
-            val audioAttributes = AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .build()
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                v.vibrate(VibrationEffect.createOneShot(35, 200), audioAttributes)
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(35)
-            }
-        } catch (_: Exception) {
-            try {
-                @Suppress("DEPRECATION")
-                v.vibrate(35)
-            } catch (_: Exception) {}
-        }
+        safeVibrate(durationMs = 70L, amplitude = 180)
     }
 
     fun performImpactClack(decayLevel: Float = 1.0f) {
-        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
-        val amplitude = (255 * decayLevel.coerceIn(0.2f, 1.0f)).toInt()
-        try {
-            val audioAttributes = AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .build()
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                v.vibrate(VibrationEffect.createOneShot(45, amplitude), audioAttributes)
-            } else {
-                @Suppress("DEPRECATION")
-                v.vibrate(45)
-            }
-        } catch (_: Exception) {
-            try {
-                @Suppress("DEPRECATION")
-                v.vibrate(45)
-            } catch (_: Exception) {}
-        }
+        val amp = (255 * decayLevel.coerceIn(0.4f, 1.0f)).toInt()
+        val dur = (80L * decayLevel.coerceIn(0.5f, 1.0f)).toLong().coerceAtLeast(45L)
+        safeVibrate(durationMs = dur, amplitude = amp)
     }
 
     fun release() {

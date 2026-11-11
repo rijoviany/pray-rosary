@@ -144,12 +144,7 @@ fun DraggableBead(
             try {
                 view.isHapticFeedbackEnabled = true
                 val flags = HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING or HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    view.performHapticFeedback(HapticFeedbackConstants.CONFIRM, flags)
-                } else {
-                    @Suppress("DEPRECATION")
-                    view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, flags)
-                }
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS, flags)
             } catch (_: Exception) {}
         }
     }
