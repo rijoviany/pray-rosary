@@ -57,7 +57,6 @@ import com.trivium.rosarium.ui.theme.MedievalGoldDark
 fun SettingsSheet(
     settings: SettingsState,
     onUpdateSettings: (SettingsState) -> Unit,
-    onOpenFamily: () -> Unit = {},
     onCheckForUpdate: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
@@ -350,64 +349,7 @@ fun SettingsSheet(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // ==========================================
-            // 5. FAMILY PRAYER CIRCLE
-            // ==========================================
-            SectionHeader(title = "FAMILY PRAYER CIRCLE", color = sectionHeaderColor)
-
-            SettingsCard(cardBg = cardBg, cardBorder = cardBorder) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            onDismiss()
-                            onOpenFamily()
-                        }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(if (isDark) Color(0xFF162B40) else Color(0xFF0D2036)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Group,
-                            contentDescription = "Family",
-                            tint = MedievalGoldBright,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Family Prayer Circle",
-                            color = primaryText,
-                            fontSize = 14.5.sp,
-                            fontFamily = FontFamily.Serif,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Invite family via WhatsApp & unite in daily prayer",
-                            color = mutedText,
-                            fontSize = 11.5.sp,
-                            fontFamily = FontFamily.Serif
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.ChevronRight,
-                        contentDescription = "Open Family",
-                        tint = MedievalGoldBright,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // App Version Footer & Check for Updates
             Column(

@@ -175,7 +175,7 @@ fun BottomMedievalControls(
                     .size(44.dp)
                     .clip(CircleShape)
                     .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
-                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
+                    .background(Color(0xFF0F2642)),
                 contentAlignment = Alignment.Center
             ) {
                 Canvas(modifier = Modifier.size(20.dp)) {
@@ -225,7 +225,7 @@ fun BottomMedievalControls(
                     .size(44.dp)
                     .clip(CircleShape)
                     .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
-                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
+                    .background(Color(0xFF0F2642)),
                 contentAlignment = Alignment.Center
             ) {
                 Canvas(modifier = Modifier.size(20.dp)) {
@@ -283,7 +283,7 @@ fun BottomMedievalControls(
                     .size(44.dp)
                     .clip(CircleShape)
                     .border(1.2.dp, MedievalGold.copy(alpha = 0.85f), CircleShape)
-                    .background(Color(0xFF140F0A).copy(alpha = 0.85f)),
+                    .background(Color(0xFF0F2642)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

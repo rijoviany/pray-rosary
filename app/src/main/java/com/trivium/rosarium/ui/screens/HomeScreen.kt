@@ -51,7 +51,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.R
-import com.trivium.rosarium.data.model.FamilyGroup
 import com.trivium.rosarium.data.model.MysterySet
 import com.trivium.rosarium.data.model.Novena
 import com.trivium.rosarium.data.model.NovenaProgress
@@ -69,7 +68,6 @@ private val MutedText = Color(0xFF6B7A8D)
 @Composable
 fun HomeScreen(
     todayMysterySet: MysterySet,
-    family: FamilyGroup?,
     savedProgress: PreferencesRepository.SavedProgress? = null,
     activeMysterySet: MysterySet? = null,
     activeNovena: Novena? = null,
@@ -83,7 +81,6 @@ fun HomeScreen(
     onOpenActiveNovena: (String) -> Unit = { onNavigateToNovenas() },
     onNavigateToScripture: () -> Unit,
     onNavigateToProgress: () -> Unit,
-    onOpenFamily: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenQuickPrayers: () -> Unit = {},
     isDark: Boolean = false,
@@ -533,117 +530,7 @@ fun HomeScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
-
-        // 5. Family Prayer Circle Card (Dedicated Share & Invite Hub)
-        FamilyQuickCard(
-            family = family,
-            isDark = isDark,
-            onOpenFamily = onOpenFamily,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun FamilyQuickCard(
-    family: FamilyGroup?,
-    isDark: Boolean = false,
-    onOpenFamily: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val cardBg = if (isDark) Color(0xFF132235) else CardIvory
-    val cardBorder = if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB)
-    val titleColor = if (isDark) Color(0xFFF7F3EA) else CharcoalText
-    val subColor = if (isDark) Color(0xFF9FB2C8) else MutedText
-    val iconAccent = if (isDark) GoldBright else GoldAccent
-
-    Box(
-        modifier = modifier
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(cardBg)
-            .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
-            .clickable(onClick = onOpenFamily)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Icon
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (isDark) Color(0xFF0D1926) else Color(0xFFF9F5EC))
-                    .border(1.dp, if (isDark) Color(0xFF233B57) else iconAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_novena_saint_joseph),
-                    contentDescription = "Family Circle",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = family?.name ?: "Family Prayer Circle",
-                        color = titleColor,
-                        fontSize = 15.sp,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = if (family != null) {
-                        "🕊️ ${family.members.size} members • ${family.totalRosaries} rosaries prayed"
-                    } else {
-                        "Invite your family to pray together"
-                    },
-                    color = subColor,
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Serif
-                )
-            }
-
-            if (family != null) {
-                // Quick Share button
-                IconButton(
-                    onClick = {
-                        shareFamilyInvite(context, family)
-                    },
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(iconAccent.copy(alpha = 0.2f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "Invite to Family",
-                        tint = if (isDark) GoldBright else NavyHeader,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            } else {
-                Icon(
-                    imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "Join or Create Family",
-                    tint = iconAccent,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-        }
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 

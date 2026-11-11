@@ -64,7 +64,7 @@ fun IntentionsSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = BackgroundSurface,
+        containerColor = Color(0xFF09121D),
         scrimColor = Color.Black.copy(alpha = 0.65f),
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
@@ -84,7 +84,7 @@ fun IntentionsSheet(
                         .size(38.dp)
                         .clip(CircleShape)
                         .border(1.2.dp, MedievalGoldBright.copy(alpha = 0.85f), CircleShape)
-                        .background(Color(0xFF140F0A)),
+                        .background(Color(0xFF0F2642)),
                     contentAlignment = Alignment.Center
                 ) {
                     Canvas(modifier = Modifier.size(20.dp)) {
@@ -112,7 +112,7 @@ fun IntentionsSheet(
                 Column {
                     Text(
                         text = "Spiritual Intentions",
-                        color = ParchmentLight,
+                        color = Color(0xFFF7F3EA),
                         fontSize = 20.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold
@@ -134,7 +134,7 @@ fun IntentionsSheet(
                         .clip(RoundedCornerShape(12.dp))
                         .background(
                             Brush.verticalGradient(
-                                listOf(Color(0xFF261A0E), Color(0xFF181008))
+                                listOf(Color(0xFF132235), Color(0xFF0E1A29))
                             )
                         )
                         .border(1.2.dp, MedievalGoldBright.copy(alpha = 0.75f), RoundedCornerShape(12.dp))
@@ -153,7 +153,7 @@ fun IntentionsSheet(
 
                     Text(
                         text = currentMystery.fruitOfMystery,
-                        color = ParchmentLight,
+                        color = Color(0xFFF7F3EA),
                         fontSize = 19.sp,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold
@@ -163,7 +163,7 @@ fun IntentionsSheet(
 
                     Text(
                         text = "Offered during this decade of ${currentMystery.title}: praying for the grace of ${currentMystery.fruitOfMystery.lowercase()}.",
-                        color = ParchmentBase.copy(alpha = 0.85f),
+                        color = Color(0xFF9FB2C8),
                         fontSize = 12.5.sp,
                         fontFamily = FontFamily.Serif,
                         lineHeight = 17.sp
@@ -177,8 +177,8 @@ fun IntentionsSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF140F0A))
-                        .border(1.dp, MedievalGold.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                        .background(Color(0xFF132235))
+                        .border(1.dp, Color(0xFF233B57), RoundedCornerShape(12.dp))
                         .padding(14.dp)
                 ) {
                     Row(
@@ -206,7 +206,7 @@ fun IntentionsSheet(
 
                     Text(
                         text = "“${currentMystery.scriptureText}”",
-                        color = ParchmentLight,
+                        color = Color(0xFFF7F3EA),
                         fontSize = 13.5.sp,
                         fontFamily = FontFamily.Serif,
                         fontStyle = FontStyle.Italic,
@@ -221,8 +221,8 @@ fun IntentionsSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF140F0A))
-                        .border(1.dp, MedievalGold.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                        .background(Color(0xFF132235))
+                        .border(1.dp, Color(0xFF233B57), RoundedCornerShape(12.dp))
                         .padding(14.dp)
                 ) {
                     Text(
@@ -237,7 +237,7 @@ fun IntentionsSheet(
 
                     Text(
                         text = currentMystery.meditation,
-                        color = ParchmentDark,
+                        color = Color(0xFF9FB2C8),
                         fontSize = 13.sp,
                         fontFamily = FontFamily.Serif,
                         lineHeight = 18.sp
@@ -251,7 +251,7 @@ fun IntentionsSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF1A130D))
+                        .background(Color(0xFF132235))
                         .border(1.dp, MedievalGoldDark.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
                         .padding(14.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -266,7 +266,7 @@ fun IntentionsSheet(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Hold in your heart your family, loved ones, departed souls, and personal petitions as you draw each bead of this sacred decade.",
-                        color = ParchmentBase.copy(alpha = 0.8f),
+                        color = Color(0xFF9FB2C8),
                         fontSize = 12.sp,
                         fontFamily = FontFamily.Serif,
                         textAlign = TextAlign.Center,

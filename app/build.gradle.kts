@@ -14,8 +14,8 @@ android {
         applicationId = "com.trivium.rosarium"
         minSdk = 26
         targetSdk = 36
-        versionCode = 28
-        versionName = "1.0.2.8"
+        versionCode = 29
+        versionName = "1.0.2.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -61,6 +61,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 }
 

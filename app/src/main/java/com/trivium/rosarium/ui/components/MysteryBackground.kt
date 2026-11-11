@@ -65,7 +65,8 @@ fun MysteryBackground(
                 painter = painterResource(id = bgResId),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.TopCenter
             )
 
             // Subtle atmospheric sacred glow overlay when holding bead to pray
@@ -144,7 +145,8 @@ fun MysteryMedallion(
                     painter = painterResource(id = resolvedResId),
                     contentDescription = currentMystery?.title,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.TopCenter
                 )
             } else {
                 ProceduralSacredFresco(
@@ -184,7 +186,7 @@ private fun ProceduralSacredFresco(
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF140F0B))
+            .background(Color(0xFF0A1624))
     ) {
         val cx = size.width / 2f
         val cy = size.height / 2f
@@ -195,7 +197,7 @@ private fun ProceduralSacredFresco(
             colors = listOf(
                 MedievalGoldBright.copy(alpha = if (isHoldPraying) 0.85f else 0.55f),
                 Color(0xFFFFB300).copy(alpha = 0.35f),
-                Color(0xFF1A120B).copy(alpha = 0.90f)
+                Color(0xFF0F2238).copy(alpha = 0.90f)
             ),
             center = Offset(cx, cy * 0.85f),
             radius = radius

@@ -598,9 +598,9 @@ private fun NovenaCandleAltar(
     onSelectDay: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val altarBg = if (isDark) Color(0xFF101B2B) else Color(0xFF281C15)
-    val altarBorder = if (isDark) Color(0xFF233B57) else Color(0xFF4A3424)
-    val shelfWood = if (isDark) Color(0xFF16253B) else Color(0xFF3B281B)
+    val altarBg = if (isDark) Color(0xFF101B2B) else Color(0xFF132235)
+    val altarBorder = if (isDark) Color(0xFF233B57) else Color(0xFF2B4769)
+    val shelfWood = if (isDark) Color(0xFF16253B) else Color(0xFF1D3554)
 
     Column(
         modifier = modifier

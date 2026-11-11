@@ -124,16 +124,34 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                         if (saved.beadCount == 0) DecadeStep.OUR_FATHER else DecadeStep.HAIL_MARY
                     }
                     val maxDecade = (set.mysteries.size - 1).coerceAtLeast(0)
+
+                    // Enforce state invariants:
+                    // If on OUR_FATHER, completed Hail Marys MUST be 0.
+                    // If saved.beadCount > 0, we cannot be on OUR_FATHER.
+                    val resolvedStep = if (saved.beadCount > 0 && restoredStep == DecadeStep.OUR_FATHER) {
+                        DecadeStep.HAIL_MARY
+                    } else {
+                        restoredStep
+                    }
+                    val resolvedBeads = if (resolvedStep == DecadeStep.OUR_FATHER) 0 else saved.beadCount.coerceIn(0, 10)
+                    val resolvedOurFatherCompleted = resolvedStep != DecadeStep.OUR_FATHER
+
                     _rosaryState.update {
                         it.copy(
                             currentMysterySet = set,
                             decadeIndex = saved.decadeIndex.coerceIn(0, maxDecade),
-                            completedHailMarysInDecade = saved.beadCount.coerceIn(0, 10),
-                            currentStep = restoredStep,
-                            isOurFatherCompleted = saved.beadCount > 0 || restoredStep != DecadeStep.OUR_FATHER,
-                            isGloryBeCompleted = restoredStep == DecadeStep.FATIMA || restoredStep == DecadeStep.DECADE_FINISHED,
-                            isFatimaCompleted = restoredStep == DecadeStep.DECADE_FINISHED,
-                            isRosaryFinished = false
+                            completedHailMarysInDecade = resolvedBeads,
+                            currentStep = resolvedStep,
+                            isOurFatherCompleted = resolvedOurFatherCompleted,
+                            isGloryBeCompleted = resolvedStep == DecadeStep.FATIMA || resolvedStep == DecadeStep.DECADE_FINISHED,
+                            isFatimaCompleted = resolvedStep == DecadeStep.DECADE_FINISHED,
+                            isRosaryFinished = false,
+                            isPrayingActive = false,
+                            isReadyToRelease = false,
+                            prayerProgress = 0f,
+                            currentPhraseIndex = 0,
+                            isSpringSnapping = false,
+                            justCompletedBeadIndex = null
                         )
                     }
                     updateActivePrayer()
@@ -158,6 +176,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun selectMysterySet(set: MysterySet) {
+        prayerJob?.cancel()
         _rosaryState.update {
             it.copy(
                 currentMysterySet = set,
@@ -167,7 +186,13 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 isOurFatherCompleted = false,
                 isGloryBeCompleted = false,
                 isFatimaCompleted = false,
-                isRosaryFinished = false
+                isRosaryFinished = false,
+                isPrayingActive = false,
+                isReadyToRelease = false,
+                prayerProgress = 0f,
+                currentPhraseIndex = 0,
+                isSpringSnapping = false,
+                justCompletedBeadIndex = null
             )
         }
         updateActivePrayer()
@@ -175,6 +200,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun selectDecade(index: Int) {
+        prayerJob?.cancel()
         val maxIndex = (_rosaryState.value.currentMysterySet.mysteries.size - 1).coerceAtLeast(0)
         _rosaryState.update {
             it.copy(
@@ -183,7 +209,14 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                 completedHailMarysInDecade = 0,
                 isOurFatherCompleted = false,
                 isGloryBeCompleted = false,
-                isFatimaCompleted = false
+                isFatimaCompleted = false,
+                isRosaryFinished = false,
+                isPrayingActive = false,
+                isReadyToRelease = false,
+                prayerProgress = 0f,
+                currentPhraseIndex = 0,
+                isSpringSnapping = false,
+                justCompletedBeadIndex = null
             )
         }
         updateActivePrayer()
@@ -191,6 +224,10 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun resetRosary() {
+        prayerJob?.cancel()
+        viewModelScope.launch {
+            preferencesRepository.clearRosaryProgress()
+        }
         val todaySet = rosaryRepository.getDefaultMysterySet(_settingsState.value.language)
         selectMysterySet(todaySet)
     }
@@ -371,6 +408,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                     it.copy(
                         isOurFatherCompleted = true,
                         currentStep = DecadeStep.HAIL_MARY,
+                        completedHailMarysInDecade = 0,
                         justCompletedBeadIndex = -1
                     )
                 }

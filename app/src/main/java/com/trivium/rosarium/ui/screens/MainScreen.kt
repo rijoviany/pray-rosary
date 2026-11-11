@@ -49,7 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.R
-import com.trivium.rosarium.ui.components.InviteReceivedDialog
 import com.trivium.rosarium.ui.components.QuickAccessDrawerContent
 import com.trivium.rosarium.ui.components.QuickAccessPrayersSheet
 import com.trivium.rosarium.ui.components.UpdatePromptDialog
@@ -82,8 +81,6 @@ fun MainScreen(
     val settings by viewModel.settingsState.collectAsState()
     val stats by viewModel.statsState.collectAsState()
     val novenaProgressMap by viewModel.novenaProgressMap.collectAsState()
-    val family by viewModel.familyState.collectAsState()
-    val pendingInvite by viewModel.pendingInviteState.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
     val savedProgress by viewModel.savedProgress.collectAsState()
     val lastActiveNovena by viewModel.lastActiveNovena.collectAsState()
@@ -101,7 +98,6 @@ fun MainScreen(
     var focusedNovenaId by remember { mutableStateOf<String?>(null) }
     var showSettingsSheet by remember { mutableStateOf(false) }
     var showPrayersSheet by remember { mutableStateOf(false) }
-    var showFamilySheet by remember { mutableStateOf(false) }
     var initialPrayerId by remember { mutableStateOf<String?>(null) }
 
     val todaySet = remember(settings.language) {
@@ -188,7 +184,6 @@ fun MainScreen(
                         RosariumTab.HOME -> {
                             HomeScreen(
                                 todayMysterySet = todaySet,
-                                family = family,
                                 savedProgress = savedProgress,
                                 activeMysterySet = state.currentMysterySet,
                                 activeNovena = activeNovena,
@@ -227,9 +222,6 @@ fun MainScreen(
                                 },
                                 onNavigateToProgress = {
                                     currentTab = RosariumTab.PROGRESS
-                                },
-                                onOpenFamily = {
-                                    showFamilySheet = true
                                 },
                                 onOpenSettings = {
                                     showSettingsSheet = true
@@ -282,10 +274,9 @@ fun MainScreen(
                         }
 
                         RosariumTab.MORE -> {
-                            // Quick More view allowing access to Settings, Novenas, Family, and Progress
+                            // Quick More view allowing access to Settings, Novenas, and Progress
                             HomeScreen(
                                 todayMysterySet = todaySet,
-                                family = family,
                                 isDark = settings.isDarkMode,
                                 onOpenQuickPrayers = { coroutineScope.launch { drawerState.open() } },
                                 onNavigateToPray = { currentTab = RosariumTab.PRAY },
@@ -294,7 +285,6 @@ fun MainScreen(
                                 onNavigateToNovenas = { currentTab = RosariumTab.NOVENAS },
                                 onNavigateToScripture = { showIntentionsSheet = true },
                                 onNavigateToProgress = { currentTab = RosariumTab.PROGRESS },
-                                onOpenFamily = { showFamilySheet = true },
                                 onOpenSettings = { showSettingsSheet = true }
                             )
                         }
@@ -387,7 +377,6 @@ fun MainScreen(
                 SettingsSheet(
                     settings = settings,
                     onUpdateSettings = { viewModel.updateSettings(it) },
-                    onOpenFamily = { showFamilySheet = true },
                     onCheckForUpdate = {
                         Toast.makeText(context, "Checking for updates...", Toast.LENGTH_SHORT).show()
                         viewModel.checkForUpdate { isAvailable, _ ->
@@ -401,26 +390,6 @@ fun MainScreen(
                         }
                     },
                     onDismiss = { showSettingsSheet = false }
-                )
-            }
-
-            if (showFamilySheet) {
-                FamilySheet(
-                    family = family,
-                    onCreateFamily = { name, creator -> viewModel.createFamily(name, creator) },
-                    onJoinFamily = { code, name -> viewModel.joinFamilyByCode(code, name) },
-                    onLeaveFamily = { viewModel.leaveFamily() },
-                    onUpdateIntention = { viewModel.updateFamilyIntention(it) },
-                    onDismiss = { showFamilySheet = false }
-                )
-            }
-
-            // Incoming Family Invitation Prompt (from Deep Link / Shared Link / Invite Code)
-            pendingInvite?.let { invite ->
-                InviteReceivedDialog(
-                    pendingInvite = invite,
-                    onJoin = { memberName -> viewModel.acceptPendingInvite(memberName) },
-                    onDecline = { viewModel.declinePendingInvite() }
                 )
             }
 

@@ -81,17 +81,17 @@ fun BeadChain(
         label = "pulseGlow"
     )
 
-    // Smooth shift animation along the chain when the bead is released:
-    // The top bead glides left immediately, clearing the center socket BEFORE the bottom bead arrives!
+    // Smooth shift animation along the chain when a bead is pulled down or released:
+    // The previous center bead glides smoothly left, clearing the center socket to show
+    // the radiant empty slot that is about to get filled!
     val shiftAnim = remember { Animatable(0f) }
-    LaunchedEffect(isSnappingUp) {
-        if (isSnappingUp && isOurFatherCompleted) {
-            shiftAnim.snapTo(0f)
+    LaunchedEffect(isHoldPraying, isSnappingUp) {
+        if ((isHoldPraying || isSnappingUp) && isOurFatherCompleted) {
             shiftAnim.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(380, easing = FastOutSlowInEasing)
+                animationSpec = tween(320, easing = FastOutSlowInEasing)
             )
-        } else if (!isSnappingUp) {
+        } else if (!isHoldPraying && !isSnappingUp) {
             shiftAnim.snapTo(0f)
         }
     }
@@ -131,8 +131,12 @@ fun BeadChain(
                 return Offset(x, y)
             }
 
-            val remainingUpcoming = (totalBeadsInDecade - completedHailMarys).coerceIn(0, totalBeadsInDecade)
-            val isShiftActive = isSnappingUp && isOurFatherCompleted
+            val remainingUpcoming = if (!isOurFatherCompleted) {
+                totalBeadsInDecade
+            } else {
+                (totalBeadsInDecade - 1 - completedHailMarys).coerceIn(0, totalBeadsInDecade)
+            }
+            val isShiftActive = (isHoldPraying || isSnappingUp) && isOurFatherCompleted
             val progress = if (isShiftActive) shiftAnim.value else 0f
 
             // 1. Draw Golden Chain Segments along the arc

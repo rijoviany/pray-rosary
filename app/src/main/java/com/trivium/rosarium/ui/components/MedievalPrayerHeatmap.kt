@@ -79,8 +79,8 @@ fun MedievalPrayerHeatmap(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .border(1.dp, MedievalGold.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-            .background(Color(0xFF1B140F))
+            .border(1.dp, Color(0xFF233B57), RoundedCornerShape(12.dp))
+            .background(Color(0xFF132235))
             .padding(16.dp)
     ) {
         // 1. Header with Title & Active Selected Day Tooltip
@@ -223,9 +223,9 @@ private fun HeatmapCell(
     onClick: () -> Unit
 ) {
     val cellColor = when {
-        isFuture -> Color(0xFF140E0A).copy(alpha = 0.35f)
-        level == 0 -> Color(0xFF221A13)
-        level == 1 -> Color(0xFF5A4222) // Soft warm bronze
+        isFuture -> Color(0xFF09121D).copy(alpha = 0.35f)
+        level == 0 -> Color(0xFF0F1E30)
+        level == 1 -> Color(0xFF7A6028) // Soft warm bronze
         level == 2 -> Color(0xFF9E7B26) // Antique brass-gold
         level == 3 -> Color(0xFFD4AF37) // Rich illuminated gold
         else -> Color(0xFFFFD54F)       // Radiant gold-leaf shimmer
@@ -236,7 +236,7 @@ private fun HeatmapCell(
         level == 4 -> Color(0xFFFFF9C4)
         level == 3 -> Color(0xFFFFE082)
         level > 0 -> MedievalGoldDark
-        else -> Color(0xFF33251A)
+        else -> Color(0xFF1D3550)
     }
 
     Box(
