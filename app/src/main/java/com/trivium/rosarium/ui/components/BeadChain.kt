@@ -131,13 +131,22 @@ fun BeadChain(
                 return Offset(x, y)
             }
 
-            val remainingUpcoming = if (!isOurFatherCompleted) {
-                totalBeadsInDecade
-            } else {
-                (totalBeadsInDecade - 1 - completedHailMarys).coerceIn(0, totalBeadsInDecade)
-            }
             val isShiftActive = (isHoldPraying || isSnappingUp) && isOurFatherCompleted
             val progress = if (isShiftActive) shiftAnim.value else 0f
+
+            // Total upcoming beads at rest:
+            // When Our Father is active: all 10 Hail Mary beads are upcoming on the right.
+            // When Hail Marys are active: (totalBeadsInDecade - completedHailMarys) beads remain.
+            val baseUpcoming = if (!isOurFatherCompleted) {
+                totalBeadsInDecade
+            } else {
+                (totalBeadsInDecade - completedHailMarys).coerceIn(0, totalBeadsInDecade)
+            }
+
+            // When the empty slot is showing in the center, remove an empty slot from the right
+            // side so the incoming bead has a natural flow and the total count is always exact.
+            val countToRemove = if (isShiftActive && isOurFatherCompleted && baseUpcoming > 0) 1 else 0
+            val remainingUpcoming = (baseUpcoming - countToRemove).coerceAtLeast(0)
 
             // 1. Draw Golden Chain Segments along the arc
             // Right chain connecting upcoming sockets
@@ -181,6 +190,24 @@ fun BeadChain(
             for (i in 0 until remainingUpcoming) {
                 val rPos = getRightSlot(i)
                 val rAlpha = ((w - rPos.x) / with(density) { 24.dp.toPx() }).coerceIn(0f, 1f)
+                if (rAlpha > 0.04f) {
+                    drawEmptyPlaceholderSocket(
+                        cx = rPos.x,
+                        cy = rPos.y,
+                        radius = decadeBeadRadius * 0.95f,
+                        isCenterReceiving = false,
+                        isPearl = false,
+                        pulse = 1f,
+                        alpha = rAlpha
+                    )
+                }
+            }
+
+            // Smoothly dissolve the outermost socket that is transitioning out
+            if (countToRemove > 0 && progress < 0.96f) {
+                val fadeIdx = baseUpcoming - 1
+                val rPos = getRightSlot(fadeIdx)
+                val rAlpha = (((w - rPos.x) / with(density) { 24.dp.toPx() }).coerceIn(0f, 1f)) * (1f - progress)
                 if (rAlpha > 0.04f) {
                     drawEmptyPlaceholderSocket(
                         cx = rPos.x,
