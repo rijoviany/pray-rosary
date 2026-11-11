@@ -49,6 +49,12 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     private val _novenaProgressMap = MutableStateFlow<Map<String, NovenaProgress>>(emptyMap())
     val novenaProgressMap: StateFlow<Map<String, NovenaProgress>> = _novenaProgressMap.asStateFlow()
 
+    private val _savedProgress = MutableStateFlow<PreferencesRepository.SavedProgress?>(null)
+    val savedProgress: StateFlow<PreferencesRepository.SavedProgress?> = _savedProgress.asStateFlow()
+
+    private val _lastActiveNovena = MutableStateFlow<Pair<String?, Int>>(Pair(null, 1))
+    val lastActiveNovena: StateFlow<Pair<String?, Int>> = _lastActiveNovena.asStateFlow()
+
     private val _settingsState = MutableStateFlow(SettingsState())
     val settingsState: StateFlow<SettingsState> = _settingsState.asStateFlow()
 
@@ -95,18 +101,39 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         viewModelScope.launch {
+            preferencesRepository.progressFlow.collect { saved ->
+                _savedProgress.value = saved
+            }
+        }
+
+        viewModelScope.launch {
+            preferencesRepository.lastActiveNovenaFlow.collect { lastNovena ->
+                _lastActiveNovena.value = lastNovena
+            }
+        }
+
+        viewModelScope.launch {
             val saved = preferencesRepository.progressFlow.first()
-            if (saved.mysteryId != null) {
+            if (saved.mysteryId != null && !saved.isFinished) {
                 val catalog = rosaryRepository.getMysteryCatalog(_settingsState.value.language)
                 val set = catalog.mysterySets.find { it.id == saved.mysteryId }
                 if (set != null) {
+                    val restoredStep = try {
+                        DecadeStep.valueOf(saved.step)
+                    } catch (_: Exception) {
+                        if (saved.beadCount == 0) DecadeStep.OUR_FATHER else DecadeStep.HAIL_MARY
+                    }
+                    val maxDecade = (set.mysteries.size - 1).coerceAtLeast(0)
                     _rosaryState.update {
                         it.copy(
                             currentMysterySet = set,
-                            decadeIndex = saved.decadeIndex.coerceIn(0, 4),
+                            decadeIndex = saved.decadeIndex.coerceIn(0, maxDecade),
                             completedHailMarysInDecade = saved.beadCount.coerceIn(0, 10),
-                            currentStep = if (saved.beadCount == 0) DecadeStep.OUR_FATHER else DecadeStep.HAIL_MARY,
-                            isOurFatherCompleted = saved.beadCount > 0
+                            currentStep = restoredStep,
+                            isOurFatherCompleted = saved.beadCount > 0 || restoredStep != DecadeStep.OUR_FATHER,
+                            isGloryBeCompleted = restoredStep == DecadeStep.FATIMA || restoredStep == DecadeStep.DECADE_FINISHED,
+                            isFatimaCompleted = restoredStep == DecadeStep.DECADE_FINISHED,
+                            isRosaryFinished = false
                         )
                     }
                     updateActivePrayer()
@@ -174,14 +201,24 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun recordNovenaOpened(novenaId: String, dayNumber: Int) {
+        viewModelScope.launch {
+            preferencesRepository.saveLastActiveNovena(novenaId, dayNumber)
+        }
+    }
+
     fun markNovenaDayCompleted(novenaId: String, dayNumber: Int) {
         viewModelScope.launch {
             preferencesRepository.saveNovenaDayCompleted(novenaId, dayNumber)
+            val nextDay = if (dayNumber < 9) dayNumber + 1 else 9
+            preferencesRepository.saveLastActiveNovena(novenaId, nextDay)
             if (_settingsState.value.soundEffectsEnabled) {
+                audioHelper.playPaperTear()
+                delay(120)
                 audioHelper.playCompletionBell()
             }
             if (_settingsState.value.hapticFeedbackEnabled) {
-                audioHelper.performImpactClack(1.0f)
+                audioHelper.performPaperTearHaptic()
             }
         }
     }
@@ -189,6 +226,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
     fun resetNovena(novenaId: String) {
         viewModelScope.launch {
             preferencesRepository.resetNovena(novenaId)
+            preferencesRepository.saveLastActiveNovena(novenaId, 1)
         }
     }
 
@@ -423,6 +461,7 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
                     currentStep = DecadeStep.DECADE_FINISHED
                 )
             }
+            persistCurrentProgress()
         }
     }
 
@@ -482,7 +521,9 @@ class RosaryViewModel(application: Application) : AndroidViewModel(application) 
             preferencesRepository.saveProgress(
                 mysteryId = state.currentMysterySet.id,
                 decadeIndex = state.decadeIndex,
-                beadCount = state.completedHailMarysInDecade
+                beadCount = state.completedHailMarysInDecade,
+                step = state.currentStep.name,
+                isFinished = state.isRosaryFinished
             )
         }
     }

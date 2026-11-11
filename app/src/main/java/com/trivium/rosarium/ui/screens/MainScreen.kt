@@ -85,6 +85,8 @@ fun MainScreen(
     val family by viewModel.familyState.collectAsState()
     val pendingInvite by viewModel.pendingInviteState.collectAsState()
     val updateStatus by viewModel.updateStatus.collectAsState()
+    val savedProgress by viewModel.savedProgress.collectAsState()
+    val lastActiveNovena by viewModel.lastActiveNovena.collectAsState()
 
     var currentTab by remember { mutableStateOf(RosariumTab.HOME) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -105,6 +107,11 @@ fun MainScreen(
     val todaySet = remember(settings.language) {
         viewModel.getMysteryCatalog().mysterySets.find { it.id == viewModel.getTodayMysterySetId() }
             ?: viewModel.getMysteryCatalog().mysterySets.first()
+    }
+
+    val activeNovena = remember(lastActiveNovena.first, novenaProgressMap) {
+        viewModel.allNovenas.find { it.id == lastActiveNovena.first }
+            ?: viewModel.allNovenas.firstOrNull { novenaProgressMap[it.id]?.completedDays?.isNotEmpty() == true }
     }
 
     val prayersList = remember(settings.language) {
@@ -131,7 +138,6 @@ fun MainScreen(
                 },
                 onOpenRosary = {
                     coroutineScope.launch { drawerState.close() }
-                    viewModel.selectMysterySet(todaySet)
                     currentTab = RosariumTab.PRAY
                 },
                 onOpenNovenas = {
@@ -183,6 +189,10 @@ fun MainScreen(
                             HomeScreen(
                                 todayMysterySet = todaySet,
                                 family = family,
+                                savedProgress = savedProgress,
+                                activeMysterySet = state.currentMysterySet,
+                                activeNovena = activeNovena,
+                                activeNovenaProgress = novenaProgressMap[activeNovena?.id],
                                 isDark = settings.isDarkMode,
                                 onOpenQuickPrayers = {
                                     coroutineScope.launch {
@@ -190,6 +200,12 @@ fun MainScreen(
                                     }
                                 },
                                 onNavigateToPray = {
+                                    currentTab = RosariumTab.PRAY
+                                },
+                                onResumeRosary = {
+                                    currentTab = RosariumTab.PRAY
+                                },
+                                onStartTodayRosary = {
                                     viewModel.selectMysterySet(todaySet)
                                     currentTab = RosariumTab.PRAY
                                 },
@@ -200,6 +216,10 @@ fun MainScreen(
                                     showMysterySelector = true
                                 },
                                 onNavigateToNovenas = {
+                                    currentTab = RosariumTab.NOVENAS
+                                },
+                                onOpenActiveNovena = { novenaId ->
+                                    focusedNovenaId = novenaId
                                     currentTab = RosariumTab.NOVENAS
                                 },
                                 onNavigateToScripture = {
@@ -241,8 +261,9 @@ fun MainScreen(
                             NovenasScreenContent(
                                 novenas = viewModel.allNovenas,
                                 novenaProgressMap = novenaProgressMap,
-                                initialNovenaId = focusedNovenaId,
+                                initialNovenaId = focusedNovenaId ?: lastActiveNovena.first,
                                 isDark = settings.isDarkMode,
+                                onNovenaOpened = { novenaId, day -> viewModel.recordNovenaOpened(novenaId, day) },
                                 onMarkDayComplete = { novenaId, day -> viewModel.markNovenaDayCompleted(novenaId, day) },
                                 onResetNovena = { novenaId -> viewModel.resetNovena(novenaId) },
                                 onBack = { currentTab = RosariumTab.HOME }
@@ -321,8 +342,9 @@ fun MainScreen(
                 NovenasSheet(
                     novenas = viewModel.allNovenas,
                     novenaProgressMap = novenaProgressMap,
-                    initialNovenaId = focusedNovenaId,
+                    initialNovenaId = focusedNovenaId ?: lastActiveNovena.first,
                     isDark = settings.isDarkMode,
+                    onNovenaOpened = { novenaId, day -> viewModel.recordNovenaOpened(novenaId, day) },
                     onMarkDayComplete = { novenaId, day -> viewModel.markNovenaDayCompleted(novenaId, day) },
                     onResetNovena = { novenaId -> viewModel.resetNovena(novenaId) },
                     onDismiss = {

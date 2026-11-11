@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.trivium.rosarium.data.model.NovenaProgress
@@ -27,6 +28,9 @@ class PreferencesRepository(private val context: Context) {
         val KEY_SAVED_MYSTERY_ID = stringPreferencesKey("saved_mystery_id")
         val KEY_SAVED_DECADE_INDEX = intPreferencesKey("saved_decade_index")
         val KEY_SAVED_BEAD_COUNT = intPreferencesKey("saved_bead_count")
+        val KEY_SAVED_STEP = stringPreferencesKey("saved_step")
+        val KEY_SAVED_IS_FINISHED = booleanPreferencesKey("saved_is_finished")
+        val KEY_SAVED_TIMESTAMP = longPreferencesKey("saved_timestamp")
 
         val KEY_LANGUAGE = stringPreferencesKey("language")
         val KEY_DARK_MODE = booleanPreferencesKey("dark_mode")
@@ -44,6 +48,8 @@ class PreferencesRepository(private val context: Context) {
         val KEY_TOTAL_ROSARIES = intPreferencesKey("total_rosaries_count")
         val KEY_HISTORY_JSON = stringPreferencesKey("prayer_history_json")
         val KEY_NOVENAS_PROGRESS_JSON = stringPreferencesKey("novenas_progress_json")
+        val KEY_LAST_NOVENA_ID = stringPreferencesKey("last_active_novena_id")
+        val KEY_LAST_NOVENA_DAY = intPreferencesKey("last_active_novena_day")
     }
 
     val settingsFlow: Flow<SettingsState> = context.dataStore.data.map { prefs ->
@@ -63,14 +69,27 @@ class PreferencesRepository(private val context: Context) {
     data class SavedProgress(
         val mysteryId: String?,
         val decadeIndex: Int,
-        val beadCount: Int
+        val beadCount: Int,
+        val step: String = "OUR_FATHER",
+        val isFinished: Boolean = false,
+        val timestamp: Long = 0L
     )
 
     val progressFlow: Flow<SavedProgress> = context.dataStore.data.map { prefs ->
         SavedProgress(
             mysteryId = prefs[PreferencesKeys.KEY_SAVED_MYSTERY_ID],
             decadeIndex = prefs[PreferencesKeys.KEY_SAVED_DECADE_INDEX] ?: 0,
-            beadCount = prefs[PreferencesKeys.KEY_SAVED_BEAD_COUNT] ?: 0
+            beadCount = prefs[PreferencesKeys.KEY_SAVED_BEAD_COUNT] ?: 0,
+            step = prefs[PreferencesKeys.KEY_SAVED_STEP] ?: "OUR_FATHER",
+            isFinished = prefs[PreferencesKeys.KEY_SAVED_IS_FINISHED] ?: false,
+            timestamp = prefs[PreferencesKeys.KEY_SAVED_TIMESTAMP] ?: 0L
+        )
+    }
+
+    val lastActiveNovenaFlow: Flow<Pair<String?, Int>> = context.dataStore.data.map { prefs ->
+        Pair(
+            prefs[PreferencesKeys.KEY_LAST_NOVENA_ID],
+            prefs[PreferencesKeys.KEY_LAST_NOVENA_DAY] ?: 1
         )
     }
 
@@ -134,11 +153,37 @@ class PreferencesRepository(private val context: Context) {
         }
     }
 
-    suspend fun saveProgress(mysteryId: String, decadeIndex: Int, beadCount: Int) {
+    suspend fun saveProgress(
+        mysteryId: String,
+        decadeIndex: Int,
+        beadCount: Int,
+        step: String = "OUR_FATHER",
+        isFinished: Boolean = false
+    ) {
         context.dataStore.edit { prefs ->
             prefs[PreferencesKeys.KEY_SAVED_MYSTERY_ID] = mysteryId
             prefs[PreferencesKeys.KEY_SAVED_DECADE_INDEX] = decadeIndex
             prefs[PreferencesKeys.KEY_SAVED_BEAD_COUNT] = beadCount
+            prefs[PreferencesKeys.KEY_SAVED_STEP] = step
+            prefs[PreferencesKeys.KEY_SAVED_IS_FINISHED] = isFinished
+            prefs[PreferencesKeys.KEY_SAVED_TIMESTAMP] = System.currentTimeMillis()
+        }
+    }
+
+    suspend fun clearRosaryProgress() {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.KEY_SAVED_IS_FINISHED] = true
+            prefs[PreferencesKeys.KEY_SAVED_DECADE_INDEX] = 0
+            prefs[PreferencesKeys.KEY_SAVED_BEAD_COUNT] = 0
+            prefs[PreferencesKeys.KEY_SAVED_STEP] = "OUR_FATHER"
+            prefs[PreferencesKeys.KEY_SAVED_TIMESTAMP] = System.currentTimeMillis()
+        }
+    }
+
+    suspend fun saveLastActiveNovena(novenaId: String, dayNumber: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.KEY_LAST_NOVENA_ID] = novenaId
+            prefs[PreferencesKeys.KEY_LAST_NOVENA_DAY] = dayNumber
         }
     }
 

@@ -46,12 +46,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.trivium.rosarium.R
 import com.trivium.rosarium.data.model.FamilyGroup
 import com.trivium.rosarium.data.model.MysterySet
+import com.trivium.rosarium.data.model.Novena
+import com.trivium.rosarium.data.model.NovenaProgress
+import com.trivium.rosarium.data.repository.PreferencesRepository
+import com.trivium.rosarium.ui.components.PrayerIcons
 
 private val NavyHeader = Color(0xFF0D2036)
 private val ParchmentBg = Color(0xFFF7F3EA)
@@ -65,10 +70,17 @@ private val MutedText = Color(0xFF6B7A8D)
 fun HomeScreen(
     todayMysterySet: MysterySet,
     family: FamilyGroup?,
+    savedProgress: PreferencesRepository.SavedProgress? = null,
+    activeMysterySet: MysterySet? = null,
+    activeNovena: Novena? = null,
+    activeNovenaProgress: NovenaProgress? = null,
     onNavigateToPray: () -> Unit,
+    onResumeRosary: () -> Unit = onNavigateToPray,
+    onStartTodayRosary: () -> Unit = onNavigateToPray,
     onNavigateToPrayers: () -> Unit,
     onNavigateToChaplets: () -> Unit,
     onNavigateToNovenas: () -> Unit,
+    onOpenActiveNovena: (String) -> Unit = { onNavigateToNovenas() },
     onNavigateToScripture: () -> Unit,
     onNavigateToProgress: () -> Unit,
     onOpenFamily: () -> Unit,
@@ -275,58 +287,250 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 4. "Today's Rosary" Card
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp))
-                .background(cardBg)
-                .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
-                .clickable(onClick = onNavigateToPray)
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
+        // 4. "Resume Rosary" or "Today's Rosary" Card
+        val hasRosaryInProgress = savedProgress != null && !savedProgress.isFinished &&
+                (savedProgress.decadeIndex > 0 || savedProgress.beadCount > 0 || savedProgress.step != "OUR_FATHER")
+
+        if (hasRosaryInProgress) {
+            val mysteryName = activeMysterySet?.name ?: todayMysterySet.name
+            val decadeText = "Decade ${savedProgress!!.decadeIndex + 1} of 5"
+            val stepDetail = when (savedProgress.step) {
+                "OUR_FATHER" -> "Our Father"
+                "HAIL_MARY" -> "Hail Mary ${savedProgress.beadCount}/10"
+                "GLORY_BE" -> "Glory Be"
+                "FATIMA" -> "Fatima Prayer"
+                else -> "Decade Concluded"
+            }
+
+            Column(
                 modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (isDark) Color(0xFF0D1926) else Color(0xFFF9F5EC))
-                    .border(1.dp, if (isDark) Color(0xFF233B57) else iconAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .shadow(elevation = 3.dp, shape = RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        if (isDark) {
+                            Brush.verticalGradient(listOf(Color(0xFF162A42), Color(0xFF0F1E30)))
+                        } else {
+                            Brush.verticalGradient(listOf(Color(0xFFFCF8EE), Color(0xFFF3ECE0)))
+                        }
+                    )
+                    .border(1.2.dp, if (isDark) Color(0xFF38587A) else GoldAccent, RoundedCornerShape(16.dp))
+                    .clickable(onClick = onResumeRosary)
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(CircleShape)
+                            .background(NavyHeader)
+                            .border(1.5.dp, GoldBright, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_rosary_loop),
+                            contentDescription = "Rosary In Progress",
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "RESUME ROSARY",
+                            color = GoldAccent,
+                            fontSize = 11.sp,
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 0.8.sp
+                        )
+
+                        Text(
+                            text = mysteryName,
+                            color = titleColor,
+                            fontSize = 16.sp,
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = "$decadeText • $stepDetail",
+                            color = subColor,
+                            fontSize = 12.5.sp,
+                            fontFamily = FontFamily.Serif
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(GoldAccent)
+                            .clickable(onClick = onResumeRosary)
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "Resume ✟",
+                            color = Color(0xFF1A1A1A),
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = onStartTodayRosary),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "or start today's rosary (${todayMysterySet.name}) →",
+                        color = GoldAccent,
+                        fontSize = 11.5.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(cardBg)
+                    .border(1.dp, cardBorder, RoundedCornerShape(16.dp))
+                    .clickable(onClick = onStartTodayRosary)
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isDark) Color(0xFF0D1926) else Color(0xFFF9F5EC))
+                        .border(1.dp, if (isDark) Color(0xFF233B57) else iconAccent.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CalendarMonth,
+                        contentDescription = null,
+                        tint = iconAccent,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Today's Rosary",
+                        color = titleColor,
+                        fontSize = 16.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = todayMysterySet.name,
+                        color = subColor,
+                        fontSize = 13.sp,
+                        fontFamily = FontFamily.Serif
+                    )
+                }
+
                 Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = null,
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = "Start",
                     tint = iconAccent,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
+        }
 
-            Spacer(modifier = Modifier.width(14.dp))
+        // Active Novena in Progress Card
+        if (activeNovena != null && activeNovenaProgress != null && !activeNovenaProgress.isCompleted) {
+            Spacer(modifier = Modifier.height(14.dp))
+            val novenaIconRes = PrayerIcons.getNovenaIcon(activeNovena.id)
+            val currentDayNum = activeNovenaProgress.currentDay.coerceIn(1, 9)
+            val currentDayObj = activeNovena.days.getOrNull(currentDayNum - 1)
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Today's Rosary",
-                    color = titleColor,
-                    fontSize = 16.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = todayMysterySet.name,
-                    color = subColor,
-                    fontSize = 13.sp,
-                    fontFamily = FontFamily.Serif
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(cardBg)
+                    .border(1.dp, if (isDark) Color(0xFF233B57) else Color(0xFFE2D9CB), RoundedCornerShape(16.dp))
+                    .clickable { onOpenActiveNovena(activeNovena.id) }
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(46.dp)
+                        .clip(CircleShape)
+                        .background(NavyHeader)
+                        .border(1.2.dp, GoldBright, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = novenaIconRes),
+                        contentDescription = activeNovena.title,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(14.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "ACTIVE NOVENA • DAY $currentDayNum OF 9",
+                        color = GoldAccent,
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.6.sp
+                    )
+                    Text(
+                        text = activeNovena.title,
+                        color = titleColor,
+                        fontSize = 15.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = currentDayObj?.theme ?: activeNovena.subtitle,
+                        color = subColor,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Serif,
+                        maxLines = 1
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (isDark) Color(0xFF16253B) else Color(0xFFF5EEDF))
+                        .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 8.dp, vertical = 5.dp)
+                ) {
+                    Text(
+                        text = "Day $currentDayNum →",
+                        color = if (isDark) GoldBright else NavyHeader,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
-
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = "Start",
-                tint = iconAccent,
-                modifier = Modifier.size(22.dp)
-            )
         }
 
         Spacer(modifier = Modifier.height(14.dp))

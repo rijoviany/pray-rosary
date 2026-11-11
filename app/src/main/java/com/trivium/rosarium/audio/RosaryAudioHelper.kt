@@ -78,6 +78,91 @@ class RosaryAudioHelper(private val context: Context) {
         }
     }
 
+    /**
+     * Procedural paper tearing sound synthesized via PCM audio:
+     * Generates a rapid high-passed burst with jagged fiber-snap modulation.
+     */
+    fun playPaperTear(volume: Float = 0.85f) {
+        Thread {
+            try {
+                val sampleRate = 22050
+                val durationMs = 240
+                val numSamples = (sampleRate * durationMs) / 1000
+                val buffer = ShortArray(numSamples)
+                val random = java.util.Random()
+                var filterState = 0f
+
+                for (i in 0 until numSamples) {
+                    val progress = i.toFloat() / numSamples
+                    val whiteNoise = (random.nextFloat() * 2f - 1f)
+                    // High-pass filter simulating paper friction
+                    filterState = 0.62f * filterState + 0.38f * whiteNoise
+                    val highPassed = whiteNoise - filterState
+
+                    // Jagged tearing fiber bursts
+                    val burstModulation = 0.55f + 0.45f * kotlin.math.sin(progress * 52.0).toFloat()
+                    val attack = if (progress < 0.08f) progress / 0.08f else 1f
+                    val decay = 1f - progress
+                    val envelope = attack * decay * burstModulation
+
+                    val sampleValue = (highPassed * envelope * 22000f * volume).toInt()
+                    buffer[i] = sampleValue.coerceIn(-32768, 32767).toShort()
+                }
+
+                val track = android.media.AudioTrack.Builder()
+                    .setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_GAME)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                    )
+                    .setAudioFormat(
+                        android.media.AudioFormat.Builder()
+                            .setEncoding(android.media.AudioFormat.ENCODING_PCM_16BIT)
+                            .setSampleRate(sampleRate)
+                            .setChannelMask(android.media.AudioFormat.CHANNEL_OUT_MONO)
+                            .build()
+                    )
+                    .setBufferSizeInBytes(numSamples * 2)
+                    .setTransferMode(android.media.AudioTrack.MODE_STATIC)
+                    .build()
+
+                track.write(buffer, 0, numSamples)
+                track.play()
+                Thread.sleep(durationMs.toLong() + 40L)
+                track.release()
+            } catch (e: Exception) {
+                playStringTension(volume)
+            }
+        }.start()
+    }
+
+    /**
+     * Tactile vibration pulse pattern simulating paper fibers tearing:
+     * A series of micro ticks with progressive acceleration and crisp cutoff.
+     */
+    fun performPaperTearHaptic() {
+        val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
+        try {
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .build()
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val timings = longArrayOf(0, 16, 20, 20, 16, 24, 14, 38)
+                val amplitudes = intArrayOf(0, 150, 0, 180, 0, 210, 0, 255)
+                val effect = VibrationEffect.createWaveform(timings, amplitudes, -1)
+                v.vibrate(effect, audioAttributes)
+            } else {
+                @Suppress("DEPRECATION")
+                v.vibrate(70)
+            }
+        } catch (_: Exception) {
+            performHapticTick()
+        }
+    }
+
     fun performHapticTick() {
         val v = vibrator ?: (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator) ?: return
         try {
